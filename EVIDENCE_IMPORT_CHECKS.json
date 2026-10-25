@@ -1,0 +1,112 @@
+{
+  "archives": {
+    "files": [
+      {
+        "bytes": 36822214,
+        "name": "inf_e01_frozen_inference_gfg_evidence_v1.zip",
+        "sha256": "070b46558365f7fc60ea3f95e99fbc127829ab72cc31afbb385cad07043d0105"
+      },
+      {
+        "bytes": 276077,
+        "name": "inf_g01_cross_system_inference_evidence_v1.zip",
+        "sha256": "ad7927f4d22b7f8124732d84e052af23a1567f3e5d43ba21eb94ddfb29edbb43"
+      },
+      {
+        "bytes": 11920996,
+        "name": "nanogpt_base_gfg_evidence_v1.zip",
+        "sha256": "73e06981263b31b04f6be62f6d2c66fb1f85c6388778c8cfe523731cfaefcf33"
+      },
+      {
+        "bytes": 6239080,
+        "name": "rl_e02_temporal_credit_formal_evidence_v1.zip",
+        "sha256": "579dd865e79a53a92ee019c74fa51860a3490f3460a3d5cbf3fcb9a952787966"
+      },
+      {
+        "bytes": 12777311,
+        "name": "rl_e05_selective_feedback_evidence_v1.zip",
+        "sha256": "19adecda25053dee0e85b7eaa16e1aab02789745f82eb9d4e5a3bd2b69fb6ab0"
+      },
+      {
+        "bytes": 147532551,
+        "name": "rl_e06_dose_recovery_evidence_v1.zip",
+        "sha256": "8bbd737584d8cbc115d084f53437e7f75c1a498a668e1c782feca502edddcf34"
+      },
+      {
+        "bytes": 250941364,
+        "name": "tl_g01_resnet_cross_system_evidence_v1.zip",
+        "sha256": "7eca1cf386e02fa45f1ddbbc5075893d4f436c39947b87a3345fc7a5d8a299ae"
+      },
+      {
+        "bytes": 32373513,
+        "name": "tl_g02_diffusion_cross_system_evidence_v1.zip",
+        "sha256": "31e0060c8367795304af047935dfa200c4d5529e3f29860c268d7619a6c07e83"
+      },
+      {
+        "bytes": 2127436,
+        "name": "tl_p01_actual_update_boundary_evidence_v1.zip",
+        "sha256": "2146bbecb51161a7aeb63aeb2751fc1628a59f51b29b45c5172721239cc6f1e2"
+      },
+      {
+        "bytes": 1538270,
+        "name": "training_learning_instruments_evidence_v2.zip",
+        "sha256": "ed7e5d628b7918626aed8aa981f4fe9b24fe356dcb962163ebff901beaccaac1"
+      },
+      {
+        "bytes": 2515,
+        "name": "CROSS_SYSTEM_EVIDENCE_CHAIN.md",
+        "sha256": "7503ef249e456d6ad4db2f56aa85b8e6f55715296e92f03d3a70db253fbdb94a"
+      },
+      {
+        "bytes": 3745,
+        "name": "FINAL_EXTENSION_RELEASE_AUDIT.md",
+        "sha256": "36f0555074b5858b833ef2b3e4ec686fa7cc306501204416caa1429daabaf344"
+      },
+      {
+        "bytes": 6252,
+        "name": "FULL_REPRODUCTION_AUDIT.md",
+        "sha256": "730c2ebf8a95b2ec41e7773236a11a402b3b6a303a492696068a6dcae5bc5a73"
+      },
+      {
+        "bytes": 2681,
+        "name": "PUBLIC_ARCHIVE.md",
+        "sha256": "ee895dff942ac207db2caa847e6830cfbcddba79aad72810828e6213a96dff40"
+      },
+      {
+        "bytes": 7084,
+        "name": "PUBLIC_EVIDENCE_MATRIX.md",
+        "sha256": "b7ce96155a89e8182f97d5d66c4dabff7d46f4f87cccb21d14d2d6e9f40847e2"
+      },
+      {
+        "bytes": 961,
+        "name": "README.txt",
+        "sha256": "d9e1bb74c567a98951556152301d697e71e85030ffd6b038faa56580c5f7cb8e"
+      },
+      {
+        "bytes": 8233,
+        "name": "RL_EVIDENCE_CHAIN.md",
+        "sha256": "9963a4c027cc448d60cb073c281a1aba275b3a4ee0c5d1b572723c6b0c13fad0"
+      }
+    ],
+    "manifest_sha256": "de6a68e981ee983df9dde17bd34ae6ea6f1d69ef25c99f1f44b80c7af5e49fed",
+    "status": "PASS"
+  },
+  "comparison_negative_controls": "PASS",
+  "errors": [],
+  "imported_stress_files": 68,
+  "local_document_links_checked": 115,
+  "moe_aggregate_sha256_matches_runtime_manifest": true,
+  "moe_files": 20,
+  "native_scientific_experiments_rerun": false,
+  "negative_result_preservation": true,
+  "schema": "tlir-evidence-import-check-v1",
+  "scope": "Import integrity and navigation only; historical check receipts are unchanged, not rerun.",
+  "snn_native_sha256": {
+    "71001": "bcec4e7dc5142844e1186e2ac262abc582a9ba9210dda8ad5e888d01f1989436",
+    "71002": "be331d57bed6f6d5f9d98fe20b3f98b6d3a2f73f96591c91bb3813d1655b802a",
+    "71003": "59bf75e251af210a3208626149d356be2072fe7974e46da0b4ca7fc424aeb564",
+    "71004": "9b3d1899fa5a34d1dfe3e8094f8231b9deb74c542df9972d6346f8ffd8345330"
+  },
+  "source_main_commit": "766715a9728cce4e949714969f118fc7f16a0b41",
+  "status": "PASS",
+  "unchanged_source_files": 2039
+}

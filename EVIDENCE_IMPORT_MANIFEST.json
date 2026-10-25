@@ -1,0 +1,38 @@
+{
+  "schema": "tlir-evidence-import-v1",
+  "source_repository": "https://github.com/wind342/gfg-training-learning-inference-experiments",
+  "source_main_commit": "766715a9728cce4e949714969f118fc7f16a0b41",
+  "source_main_tree": "b5585c4cfaa22016439058c344c81ee19e63b552",
+  "source_main_file_count": 2040,
+  "allowed_source_file_changes": [
+    "README.md"
+  ],
+  "stress_source_commit": "a35d143ea4952c48fce425161acd8f3ead408317",
+  "stress_prefix": "independent_stress_tests",
+  "stress_tree": "7dde266d50e1929687b3cb254a0aaa0080ff9f06",
+  "stress_file_count": 68,
+  "frozen_tag": "paper-experiments-cross-system-feedback-release",
+  "frozen_tag_object": "5a3d12c3de6fce0d9b5f69aa07d009c61e5c189e",
+  "frozen_commit": "36dab5ce347dbbdac157ef23205f556606d18294",
+  "paper": {
+    "title": "Unified Training–Learning–Inference–Reinforcement Dynamics Across Neural Systems",
+    "sha256": "4e561fbe94f16efe0900267e73bd242cee9bfcdb940a90c25961a0a06190191e",
+    "pages": 8,
+    "figures": 3,
+    "redistributed": false
+  },
+  "archive": {
+    "doi": "10.5281/zenodo.22032772",
+    "record_api": "https://zenodo.org/api/records/22032772",
+    "manifest": "evidence_archive/ARCHIVE_MANIFEST.json",
+    "zip_count": 10,
+    "mirror_tag": "zenodo-22032772-mirror"
+  },
+  "limitations": [
+    "MoE raw runtime files are not present in the imported public snapshot or the original Zenodo record.",
+    "GNN/SNN transport has public report, aggregate, protocol and code but not the full sealed target ledger/native prerequisites.",
+    "Private current manuscript and current plotting sources are not redistributed.",
+    "Import checks do not rerun native experiments."
+  ],
+  "scientific_content_modified": false
+}

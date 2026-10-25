@@ -1,0 +1,140 @@
+{
+  "archives": {
+    "inf_e01_frozen_inference_gfg_evidence_v1.zip": {
+      "bytes": 36822214,
+      "carried_forward_from_manifest_sha256": "6be545e8c47ab44f0b5b09ddfffdcbab640e5d28f557012283ea44ab975e0a9b",
+      "file_count": 1199,
+      "sha256": "070b46558365f7fc60ea3f95e99fbc127829ab72cc31afbb385cad07043d0105"
+    },
+    "inf_g01_cross_system_inference_evidence_v1.zip": {
+      "bytes": 276077,
+      "carried_forward_from_manifest_sha256": "6be545e8c47ab44f0b5b09ddfffdcbab640e5d28f557012283ea44ab975e0a9b",
+      "file_count": 23,
+      "sha256": "ad7927f4d22b7f8124732d84e052af23a1567f3e5d43ba21eb94ddfb29edbb43"
+    },
+    "nanogpt_base_gfg_evidence_v1.zip": {
+      "bytes": 11920996,
+      "carried_forward_from_manifest_sha256": "6be545e8c47ab44f0b5b09ddfffdcbab640e5d28f557012283ea44ab975e0a9b",
+      "file_count": 4,
+      "sha256": "73e06981263b31b04f6be62f6d2c66fb1f85c6388778c8cfe523731cfaefcf33"
+    },
+    "rl_e02_temporal_credit_formal_evidence_v1.zip": {
+      "bytes": 6239080,
+      "carried_forward_from_manifest_sha256": "6be545e8c47ab44f0b5b09ddfffdcbab640e5d28f557012283ea44ab975e0a9b",
+      "file_count": 136,
+      "sha256": "579dd865e79a53a92ee019c74fa51860a3490f3460a3d5cbf3fcb9a952787966"
+    },
+    "rl_e05_selective_feedback_evidence_v1.zip": {
+      "bytes": 12777311,
+      "file_count": 184,
+      "sha256": "19adecda25053dee0e85b7eaa16e1aab02789745f82eb9d4e5a3bd2b69fb6ab0"
+    },
+    "rl_e06_dose_recovery_evidence_v1.zip": {
+      "bytes": 147532551,
+      "file_count": 421,
+      "sha256": "8bbd737584d8cbc115d084f53437e7f75c1a498a668e1c782feca502edddcf34"
+    },
+    "tl_g01_resnet_cross_system_evidence_v1.zip": {
+      "bytes": 250941364,
+      "carried_forward_from_manifest_sha256": "6be545e8c47ab44f0b5b09ddfffdcbab640e5d28f557012283ea44ab975e0a9b",
+      "file_count": 53,
+      "sha256": "7eca1cf386e02fa45f1ddbbc5075893d4f436c39947b87a3345fc7a5d8a299ae"
+    },
+    "tl_g02_diffusion_cross_system_evidence_v1.zip": {
+      "bytes": 32373513,
+      "carried_forward_from_manifest_sha256": "6be545e8c47ab44f0b5b09ddfffdcbab640e5d28f557012283ea44ab975e0a9b",
+      "file_count": 46,
+      "sha256": "31e0060c8367795304af047935dfa200c4d5529e3f29860c268d7619a6c07e83"
+    },
+    "tl_p01_actual_update_boundary_evidence_v1.zip": {
+      "bytes": 2127436,
+      "carried_forward_from_manifest_sha256": "6be545e8c47ab44f0b5b09ddfffdcbab640e5d28f557012283ea44ab975e0a9b",
+      "file_count": 10,
+      "sha256": "2146bbecb51161a7aeb63aeb2751fc1628a59f51b29b45c5172721239cc6f1e2"
+    },
+    "training_learning_instruments_evidence_v2.zip": {
+      "bytes": 1538270,
+      "carried_forward_from_manifest_sha256": "6be545e8c47ab44f0b5b09ddfffdcbab640e5d28f557012283ea44ab975e0a9b",
+      "file_count": 741,
+      "sha256": "ed7e5d628b7918626aed8aa981f4fe9b24fe356dcb962163ebff901beaccaac1"
+    }
+  },
+  "files": {
+    "CROSS_SYSTEM_EVIDENCE_CHAIN.md": {
+      "bytes": 2515,
+      "sha256": "7503ef249e456d6ad4db2f56aa85b8e6f55715296e92f03d3a70db253fbdb94a"
+    },
+    "FINAL_EXTENSION_RELEASE_AUDIT.md": {
+      "bytes": 3745,
+      "sha256": "36f0555074b5858b833ef2b3e4ec686fa7cc306501204416caa1429daabaf344"
+    },
+    "FULL_REPRODUCTION_AUDIT.md": {
+      "bytes": 6252,
+      "sha256": "730c2ebf8a95b2ec41e7773236a11a402b3b6a303a492696068a6dcae5bc5a73"
+    },
+    "PUBLIC_ARCHIVE.md": {
+      "bytes": 2681,
+      "sha256": "ee895dff942ac207db2caa847e6830cfbcddba79aad72810828e6213a96dff40"
+    },
+    "PUBLIC_EVIDENCE_MATRIX.md": {
+      "bytes": 7084,
+      "sha256": "b7ce96155a89e8182f97d5d66c4dabff7d46f4f87cccb21d14d2d6e9f40847e2"
+    },
+    "README.txt": {
+      "bytes": 961,
+      "sha256": "d9e1bb74c567a98951556152301d697e71e85030ffd6b038faa56580c5f7cb8e"
+    },
+    "RL_EVIDENCE_CHAIN.md": {
+      "bytes": 8233,
+      "sha256": "9963a4c027cc448d60cb073c281a1aba275b3a4ee0c5d1b572723c6b0c13fad0"
+    },
+    "inf_e01_frozen_inference_gfg_evidence_v1.zip": {
+      "bytes": 36822214,
+      "sha256": "070b46558365f7fc60ea3f95e99fbc127829ab72cc31afbb385cad07043d0105"
+    },
+    "inf_g01_cross_system_inference_evidence_v1.zip": {
+      "bytes": 276077,
+      "sha256": "ad7927f4d22b7f8124732d84e052af23a1567f3e5d43ba21eb94ddfb29edbb43"
+    },
+    "nanogpt_base_gfg_evidence_v1.zip": {
+      "bytes": 11920996,
+      "sha256": "73e06981263b31b04f6be62f6d2c66fb1f85c6388778c8cfe523731cfaefcf33"
+    },
+    "rl_e02_temporal_credit_formal_evidence_v1.zip": {
+      "bytes": 6239080,
+      "sha256": "579dd865e79a53a92ee019c74fa51860a3490f3460a3d5cbf3fcb9a952787966"
+    },
+    "rl_e05_selective_feedback_evidence_v1.zip": {
+      "bytes": 12777311,
+      "sha256": "19adecda25053dee0e85b7eaa16e1aab02789745f82eb9d4e5a3bd2b69fb6ab0"
+    },
+    "rl_e06_dose_recovery_evidence_v1.zip": {
+      "bytes": 147532551,
+      "sha256": "8bbd737584d8cbc115d084f53437e7f75c1a498a668e1c782feca502edddcf34"
+    },
+    "tl_g01_resnet_cross_system_evidence_v1.zip": {
+      "bytes": 250941364,
+      "sha256": "7eca1cf386e02fa45f1ddbbc5075893d4f436c39947b87a3345fc7a5d8a299ae"
+    },
+    "tl_g02_diffusion_cross_system_evidence_v1.zip": {
+      "bytes": 32373513,
+      "sha256": "31e0060c8367795304af047935dfa200c4d5529e3f29860c268d7619a6c07e83"
+    },
+    "tl_p01_actual_update_boundary_evidence_v1.zip": {
+      "bytes": 2127436,
+      "sha256": "2146bbecb51161a7aeb63aeb2751fc1628a59f51b29b45c5172721239cc6f1e2"
+    },
+    "training_learning_instruments_evidence_v2.zip": {
+      "bytes": 1538270,
+      "sha256": "ed7e5d628b7918626aed8aa981f4fe9b24fe356dcb962163ebff901beaccaac1"
+    }
+  },
+  "generated_at_utc": "2026-08-20T21:44:54.208681Z",
+  "previous_published_version_doi": "10.5281/zenodo.22015318",
+  "publication_commit": "36dab5ce347dbbdac157ef23205f556606d18294",
+  "publication_tag": "paper-experiments-cross-system-feedback-release",
+  "repository": "https://github.com/wind342/gfg-training-learning-inference-experiments",
+  "schema_version": "gfg-publication-evidence-final-extension-v1",
+  "status": "UPLOAD_CANDIDATE_NOT_YET_PUBLISHED",
+  "zenodo_concept_doi": "10.5281/zenodo.22005307"
+}

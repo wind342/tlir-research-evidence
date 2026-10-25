@@ -1,4 +1,25 @@
-# GFG training–learning–inference experiments
+# TLIR research evidence
+
+Evidence companion for **Unified Training–Learning–Inference–Reinforcement Dynamics Across Neural Systems**.
+
+**Start here: [paper-to-evidence map](TLIR_PAPER_EVIDENCE_MAP.md).** It follows the eight-page, three-figure paper: nine nanoGPT TLI experiments, derived prediction, five additional TLI systems, GRU feedback closure, then interpretation.
+
+| Read in paper order | Evidence |
+|---|---|
+| Training and learning | [TL-E01–TL-E08](TLIR_PAPER_EVIDENCE_MAP.md#2-experimental-establishment-of-tli-open-loop-dynamics) |
+| Frozen inference | [INF-E01](TLIR_PAPER_EVIDENCE_MAP.md#23-inference-frozen-recruitment-of-learned-support) |
+| Derived prediction | [TL-P01](TLIR_PAPER_EVIDENCE_MAP.md#31-prediction-derived-from-tl-e05) |
+| Cross-system TLI | [ResNet, diffusion, **MoE**, GNN and SNN](TLIR_PAPER_EVIDENCE_MAP.md#32-six-tli-systems) |
+| Reinforcement | [GRU RL-E05 / RL-E06](TLIR_PAPER_EVIDENCE_MAP.md#4-reinforcement-feedback-closure-in-the-shared-gru) |
+| Figures and tables | [Panel-by-panel map](TLIR_PAPER_EVIDENCE_MAP.md#figures-exact-panel-mapping) |
+
+The full public source snapshot and the separate GNN/SNN subtree are copied here, including the [MoE experiment](experiments/gfg_moe_cifar_training_learning_inference_generalization_v1/). Original GFG experiments and RL-E01–E04 remain available below. The original repository is not modified or replaced.
+
+See [import provenance and availability limits](EVIDENCE_IMPORT.md), [import checks](EVIDENCE_IMPORT_CHECKS.json), and the [original Zenodo evidence](https://doi.org/10.5281/zenodo.22032772). The [Release mirror](https://github.com/wind342/tlir-research-evidence/releases/tag/zenodo-22032772-mirror) provides the original ten evidence ZIPs without recompression.
+
+The supplied confidential review PDF is not uploaded. Existing `manuscripts/tlir_v8/` assets and the legacy map below refer to an older manuscript version. Archived PASS receipts are not claims that all experiments were rerun during this import.
+
+## Original research-evidence collection (preserved)
 
 This public, read-only companion repository collects the executable experiments used to
 establish and test the generation-fact, training–learning, inference and
@@ -15,7 +36,7 @@ The repository has **16 primary experiment entries**:
   stochastic long-chain credit.
 
 The primary entries are indexed in [EXPERIMENT_INDEX.md](EXPERIMENT_INDEX.md).
-The current manuscript-section-to-evidence navigation is maintained in
+The older manuscript-section-to-evidence navigation is maintained in
 [MANUSCRIPT_EVIDENCE_MAP.md](MANUSCRIPT_EVIDENCE_MAP.md) as a documentation
 layer over the unchanged frozen experimental release.
 The exact public verification boundary for every manuscript experiment is
