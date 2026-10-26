@@ -2,7 +2,7 @@
 
 Evidence companion for **Unified dynamics of training, learning, inference, and reinforcement in neural networks** (current Science manuscript; underlying experiments also have earlier conference versions).
 
-**Start here: [paper-to-evidence map](TLIR_PAPER_EVIDENCE_MAP.md).** It follows the eight-page, three-figure paper: nine nanoGPT TLI experiments, derived prediction, five additional TLI systems, GRU feedback closure, then interpretation.
+**Start here: [paper-to-evidence map](TLIR_PAPER_EVIDENCE_MAP.md).** It follows the current 23-page Science manuscript (Figures 1–3 and Tables 1–3): nine nanoGPT TLI experiments, TL-E05-derived prediction, five additional TLI systems, GRU feedback closure, and cross-field interpretation.
 
 | Read in paper order | Evidence |
 |---|---|
@@ -13,9 +13,7 @@ Evidence companion for **Unified dynamics of training, learning, inference, and 
 | Reinforcement | [GRU RL-E05 / RL-E06](TLIR_PAPER_EVIDENCE_MAP.md#4-reinforcement-feedback-closure-in-the-shared-gru) |
 | Figures and tables | [Panel-by-panel map](TLIR_PAPER_EVIDENCE_MAP.md#figures-exact-panel-mapping) |
 
-**Organized Section 5:** [21 unified positive/negative explanations and 14 theory-first extrapolations](TLIR_SECTION5_21_PAIRS_14_EXTRAPOLATIONS.md). The same content is also available in separate [21-explanation](TLIR_HISTORICAL_STRESS_TEST_21.md) and [14-extrapolation](TLIR_THEORY_FIRST_14_DERIVATIONS.md) files.
-
-**Theory-level evidence accompanying Section 5:** [21 paired historical positive/negative stress tests](TLIR_HISTORICAL_STRESS_TEST_21.md) and [14 theory-first conditional derivations plus falsifiers](TLIR_THEORY_FIRST_14_DERIVATIONS.md). These are **literature-based explanation and deduction records**, not additional native experiment IDs or claims of blind preregistration. Their evidentiary status and independence limits are documented within each file.
+**Section 5 — unified explanations and theory-first extrapolations:** The manuscript presents eight representative positive/negative comparisons and three representative derivations. The [organized complete record](TLIR_SECTION5_21_PAIRS_14_EXTRAPOLATIONS.md) contains all **21 historical positive/negative explanations** and **14 theory-first extrapolations**. Separate files: [21 explanations](TLIR_HISTORICAL_STRESS_TEST_21.md) · [14 extrapolations](TLIR_THEORY_FIRST_14_DERIVATIONS.md).
 
 The full public source snapshot and the separate GNN/SNN subtree are copied here, including the [MoE experiment](experiments/gfg_moe_cifar_training_learning_inference_generalization_v1/). Original GFG experiments and RL-E01–E04 remain available below. The original repository is not modified or replaced.
 
