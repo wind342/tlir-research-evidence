@@ -11,7 +11,7 @@ Evidence companion for **Unified dynamics of training, learning, inference, and 
 | Derived prediction | [TL-P01](TLIR_PAPER_EVIDENCE_MAP.md#31-prediction-derived-from-tl-e05) |
 | Cross-system TLI | [ResNet, diffusion, **MoE**, GNN and SNN](TLIR_PAPER_EVIDENCE_MAP.md#32-six-tli-systems) |
 | Reinforcement | [GRU RL-E05 / RL-E06](TLIR_PAPER_EVIDENCE_MAP.md#4-reinforcement-feedback-closure-in-the-shared-gru) |
-| Figures and tables | [Panel-by-panel map](TLIR_PAPER_EVIDENCE_MAP.md#figures-exact-panel-mapping) |
+| Figures and tables | [Panel-by-panel map](TLIR_PAPER_EVIDENCE_MAP.md#figures-and-tables-exact-mapping-to-the-23-page-manuscript) |
 
 **Section 5 — unified explanations and theory-first extrapolations:** The manuscript presents eight representative positive/negative comparisons and three representative derivations. The [organized complete record](TLIR_SECTION5_21_PAIRS_14_EXTRAPOLATIONS.md) contains all **21 historical positive/negative explanations** and **14 theory-first extrapolations**. Separate files: [21 explanations](TLIR_HISTORICAL_STRESS_TEST_21.md) · [14 extrapolations](TLIR_THEORY_FIRST_14_DERIVATIONS.md).
 
