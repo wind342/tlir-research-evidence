@@ -1,6 +1,6 @@
 # TLIR paper: section, figure and evidence map
 
-This navigation follows **Unified Training–Learning–Inference–Reinforcement Dynamics Across Neural Systems**, the supplied eight-page, three-figure version. It does not replace the protocols, redefine scientific quantities or turn archival checks into new experiments. The confidential review PDF is not redistributed here.
+This navigation follows the evidence flow of **Unified dynamics of training, learning, inference, and reinforcement in neural networks** (current Science manuscript, derived from the supplied earlier eight-page, three-figure conference version). It does not replace the protocols, redefine scientific quantities or turn archival checks into new experiments. The confidential review PDF is not redistributed here.
 
 Read in discovery order: **nine nanoGPT TLI experiments → TL-E05-derived prediction → five additional TLI systems → GRU feedback interventions → cross-field interpretation**. Six systems test TLI; GRU is a seventh system for feedback closure, not an additional complete TLI chain.
 
@@ -94,7 +94,7 @@ RL-E06 retains all 12 seeds. The update-800 other-skill accuracy is 70.31%; reba
 
 ## 5–6. Cross-field explanations and conclusion
 
-The 21 historical positive/negative comparisons discussed in Section 5 are literature interpretations after experimental discovery, **not 21 new native experiments**. No separate complete 21-pair machine-readable comparison ledger was identified in the two imported public source snapshots. Do not manufacture experimental IDs or a checker for it. The conclusion synthesizes the linked evidence rather than introducing another test.
+The 21 historical positive/negative comparisons discussed in Section 5 are literature interpretations after experimental discovery, **not 21 new native experiments**. The complete [21-pair historical interpretive matrix](TLIR_HISTORICAL_STRESS_TEST_21.md) has now been curated separately from the author's original research handoff; it was **not** part of the two initially imported native-machine snapshots and is **not** a new experiment/checker. The [14 conditional theory-first derivations](TLIR_THEORY_FIRST_14_DERIVATIONS.md) are a separate research-record axis; the manuscript presents three representative examples and explicitly invites further independent testing and falsification. Neither external literature agreement nor the session-local derivation-before-search protocol constitutes a cryptographically blinded preregistration or proof that outside researchers directly tested TLIR. The conclusion synthesizes the linked evidence rather than introducing another test.
 
 ## Figures: exact panel mapping
 
