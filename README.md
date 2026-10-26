@@ -13,6 +13,8 @@ Evidence companion for **Unified dynamics of training, learning, inference, and 
 | Reinforcement | [GRU RL-E05 / RL-E06](TLIR_PAPER_EVIDENCE_MAP.md#4-reinforcement-feedback-closure-in-the-shared-gru) |
 | Figures and tables | [Panel-by-panel map](TLIR_PAPER_EVIDENCE_MAP.md#figures-exact-panel-mapping) |
 
+**Organized Section 5:** [21 unified positive/negative explanations and 14 theory-first extrapolations](TLIR_SECTION5_21_PAIRS_14_EXTRAPOLATIONS.md). The same content is also available in separate [21-explanation](TLIR_HISTORICAL_STRESS_TEST_21.md) and [14-extrapolation](TLIR_THEORY_FIRST_14_DERIVATIONS.md) files.
+
 **Theory-level evidence accompanying Section 5:** [21 paired historical positive/negative stress tests](TLIR_HISTORICAL_STRESS_TEST_21.md) and [14 theory-first conditional derivations plus falsifiers](TLIR_THEORY_FIRST_14_DERIVATIONS.md). These are **literature-based explanation and deduction records**, not additional native experiment IDs or claims of blind preregistration. Their evidentiary status and independence limits are documented within each file.
 
 The full public source snapshot and the separate GNN/SNN subtree are copied here, including the [MoE experiment](experiments/gfg_moe_cifar_training_learning_inference_generalization_v1/). Original GFG experiments and RL-E01–E04 remain available below. The original repository is not modified or replaced.
