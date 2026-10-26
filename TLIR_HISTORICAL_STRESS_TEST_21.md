@@ -1,44 +1,210 @@
-# Twenty-one TLIR historical positive/negative stress tests
-**Research companion — historical explanatory comparisons, not 21 additional original experiments.**
+## 5.1 正反结果的统一解释
+### 5.1.1 Sharpness与SAM：参数几何和实际训练效应
 
-This 21-row matrix was curated from the author's original GFG/TLI/TLIR research handoff after the native TLI and TLIR experiments. The historical publications did **not** participate in the original discovery of the TLIR relations, and the original studies did not test TLIR as a named theory.
+**正面理论／结果——SAM（Foret等）。** 锐度感知最小化在参数邻域中评估损失扰动，以邻域内的较高损失引导优化方向。在研究所测试的任务中，这种训练动作改善了泛化表现，说明局部敏感性可以成为有效的优化控制量。
 
-Each row distinguishes: (1) positive local result, (2) limiting/counter result, (3) what TLIR relation changes, (4) original TLIR experimental anchor, (5) what TLIR does not derive, and (6) a potential falsifier. It is an **explanatory stress test**, not independent causal reproduction of the original literature.
+**反面理论／结果——Sharpness的重参数化反例（Dinh等）。** 保持神经网络表示函数不变的重参数化可以显著改变原始参数空间中的锐度。因此，相同的输入—输出功能可以对应不同的锐度数值，单独的参数锐度无法唯一决定泛化结果。
 
-The paper gives four representative pairs (Training, Learning, Inference, Reinforcement) and briefly locates other pairs. The full historical synthesis is retained here for reader audit. See [paper-to-evidence map](TLIR_PAPER_EVIDENCE_MAP.md) for the native experiment protocols and checks.
+**TLIR如何统一。** 两项研究测量的是动力学链中的不同对象：Sharpness是当前参数状态的局部几何读数；SAM借助该读数改变实际形成的训练动作。动作进入具体接收状态后，引起目标特定的有限幅度功能响应。因而，某个参数空间指标可以随着坐标表示变化，同时依据该指标设计的优化干预仍然可以改变训练结果。核心关系是“局部几何→训练动作形成→接收状态上的功能响应”，而不是“单一几何数值→泛化好坏”。
 
-## Complete 21-pair research matrix
+**内部实验锚点。** TL-E03：同一实际更新在不同接收状态下产生不同功能响应；TL-E04：实际更新的有限幅度响应呈现非线性。
 
-| 环节 / 压力点 | 经典正结果 / 局部理论 | 反结果 / 边界 | TLIR 的统一解释 | 内部实验锚点 | TLIR 当前不能推出 | 什么结果会真正打击 TLIR |
-|---|---|---|---|---|---|---|
-| **T1 BatchNorm** | BN 可显著稳定/加速训练；早期机制叙事强调 internal covariate shift | 后续工作显示 ICS 不是成功的必要解释，smoother optimization / gradient predictability 更贴近实际 | BN 改变 current receiving computation，因此改变 \(R(S_t,A_t)\)。原 mechanism explanation 可以不完整，同时 intervention 仍有效 | TL-E03 receiving-state dependence；TL-E04 finite response | BN 的精确 smoothness expression；所有 normalization 的统一局部机制 | 在 receiving state 与 actual action 真正 matched 后，系统性证明 functional response 与 receiving state 无关，且该结论跨体系保持 |
-| **T2 Large Batch** | large batch 常观察到 generalization gap / sharp-minimum association | LR scaling + warmup 等可使 very-large-batch training 匹配 small-batch accuracy | `batch size` 不是 complete actual training action；LR、momentum、optimizer memory、data order、receiver 共同决定实际 \(\Delta_t\) 与 response | TL-E03；F3/F5 | 最优 batch/LR/warmup 数值 | 在 actual update、optimizer memory 与 receiving state 均严格匹配时，仅改变“batch-size label”仍稳定产生不同 functional response |
-| **T3 Sharpness / SAM** | local sharpness/sensitivity 可指导训练；SAM 经常改善 generalization | raw sharpness 可随 reparameterization 大幅变化而 function 不变 | local geometry 可以是真实可利用的 projection，但不是 complete functional state | TL-E04；full-network JVP / hard-311 failures | 从 sharpness 单独推出 generalization；SAM 必然最优 | 找到一个 invariant、低维 local geometry，在跨 receiver/trajectory 的 finite updates 上稳定闭合 complete functional endpoint，并消除现有 hard counterexamples |
-| **T4 NTK / feature learning** | NTK 在特定 infinite-width/lazy regime 中可给出严格 kernel dynamics | finite-width / feature-learning regimes 显示 representation 会实质重组 | NTK 可以是 exact special regime，而不等于 complete finite neural dynamics | TL-E04；多轮 local-closure failure | 单靠 TLIR 推导 NTK kernel；无实验决定某系统何时处于 NTK regime | 在真实 finite networks 的广泛 regime 中证明 fixed kernel state 足以闭合 finite-amplitude capability/support dynamics，且 receiver/history 不再提供额外因果信息 |
-| **T5 Scaling Laws / Chinchilla** | Kaplan-style scaling laws 显示 loss 随 model size、data、compute 呈稳定 power-law，并据此给出一类 compute allocation 规律 | Chinchilla 重新扫描 model/data allocation 后发现许多大模型实际上 undertrained；同 compute 下更小模型配更多 tokens 可更优 | model size / parameter count 是重要控制坐标，但不是 complete training state。scale、data exposure、training duration、optimizer/action geometry 与 receiver 共同决定 formation trajectory；一个 regime 内的 scaling law 可以很稳定而不成为全部动力学本体 | TL-E03 receiving-state dependence；TL-E04 finite response；cross-system transport | scaling exponent、compute-optimal model/token 比例、特定 architecture 的最优规模 | 若跨广泛体系证明 model-size/compute 这类低维标量本身就是 sufficient dynamical state，改变 receiver、training history、optimizer memory 与 action geometry 不再提供任何额外因果信息，则会直接压缩并挑战 TLIR 的 state/action formation 关系 |
-| **L1 Lottery Ticket / rewinding** | 特殊 initialization 对可训练稀疏 subnetworks 很重要 | 大模型 ticket 常依赖 early rewinding / early training history | 初始 \(S_0\) 有因果作用，但 early updates 会形成新的 receiving states；initialization 重要 ≠ initialization sufficient | TL-E03；state/history closure programme | 哪个 initialization 必然产生 winning ticket | 跨 matched early histories 证明后续 functional trajectory 仅由 initialization 决定，实际 receiving-state evolution 无额外作用 |
-| **L1b Rethinking Generalization / Random Labels** | 现代深网在真实数据上能够取得强泛化，传统直觉倾向把成功归因于受控容量或显式 regularization | Zhang 等显示同一类高容量网络可以把随机标签甚至随机输入记到近乎零训练误差；因此“能拟合多少”本身不能解释“为什么会泛化” | architecture/capacity 给出可达空间，不决定实际形成结果；data、training actions 与 receiving-state trajectory 决定形成何种 distributed support。**memorization capacity ≠ realized learning organization ≠ generalization outcome** | TL-E03；TL-E06 distributed support；TL-E07 support reorganization | 真实数据为何在某一具体任务上形成哪种 feature hierarchy；精确 sample-complexity/generalization bound | 若跨广泛网络证明 generalization 仅由静态 capacity/parameter count 决定，改变真实 training data、action history 与 receiving trajectory 在控制容量后不再改变功能形成与泛化，则会直接挑战 formation-centric learning |
-| **L1c Classical Bias–Variance / Double Descent** | 经典 bias–variance 图景中，模型复杂度增加通常先降 test error、随后因 overfitting 上升，存在单一 sweet spot | 现代过参数模型在 interpolation threshold 附近可出现 test-error peak，继续增大模型/训练后 test error 再次下降；model-size、epoch、sample-wise double descent 都被报告 | complexity/parameter count 是外部控制轴，不是 learned-state 本身；越过 interpolation threshold 会改变可达 trajectory、implicit regularization、support organization 与 boundary geometry，因此 classical regime 与 post-interpolation regime 可以同时存在 | TL-E03/E04；TL-E07；TL-E08 | double-descent 峰的位置、高度与具体 \(\downarrow\uparrow\downarrow\) 曲线 | 若一个单一 complexity 标量在跨 data/optimizer/receiver/history 后仍能充分决定完整 learning state、support 与 generalization trajectory，并使这些 TLIR 变量不再提供额外因果信息，则会真正压缩 TLIR |
-| **L1d Adversarial Accuracy / Robustness Trade-off** | 标准训练模型可以在自然分布上取得很高 accuracy；adversarial training 又能显著提高特定扰动集下 robustness | 高 clean accuracy 模型可能被极小扰动推过决策边界；robust training 在部分 setting 中伴随 clean-accuracy trade-off，并会改变模型依赖的 features | capability 是 target/distribution-specific readout outcome；clean correctness 不等于 support 对邻域扰动也稳定。改变 training objective / perturbation distribution 会重组 support 与 margin geometry，因此 standard accuracy、adversarial fragility、robust retraining 可以同时成立 | TL-E06 support structure；TL-E07 reorganization；TL-E08 readout boundary | 最小 adversarial norm、具体 robust/clean Pareto frontier、哪类 features 必然 robust | 若在严格 intervention 下 clean/robust capability 大幅变化，而对应 functional support organization 与 identity-aligned boundary/margins 始终不变，并跨体系稳定复现，则会挑战 support→boundary→capability 链 |
-| **L1e Shortcut Learning / Texture–Shape Bias** | ImageNet CNN 可以取得很高 IID accuracy，说明其学到了足以完成 benchmark 的 predictive structure | Geirhos 等发现很多 CNN 强依赖 texture；Stylized-ImageNet 等训练可显著提高 shape bias，并改变 robustness/OOD 行为。高 IID performance 因而不保证形成了人预期的 feature support | **同一 observable capability 可以由不同 functional support organization 实现。** 当前 benchmark boundary 只要求“足以答对”，并不唯一规定支撑路径；训练环境改变后，系统可形成另一套 support，导致 OOD/robustness 行为不同 | TL-E06 distributed support；TL-E07 support reallocation；TL-E08 capability boundary | 某数据集必然形成 texture 还是 shape support；具体 OOD improvement 大小 | 若对同一 capability 的不同训练环境做严格 causal support mapping 后，发现 support organization 总是唯一且完全相同，而 OOD/robustness 差异与 support/boundary 无关，则会削弱 TLIR 对多实现 functional organization 的解释 |
-| **L2 Grokking** | test capability 可在 train accuracy 已饱和很久后突然跃迁 | 内部 circuit/representation formation 可以在此之前连续演化 | persistent formation 与 observable boundary crossing 是不同层；连续内部变化可在 \(B_q\) 处表现为突变 | TL-E08；TL-P01 | grokking 精确出现时刻与具体 circuit | 对 target identity-aligned internal state 连续跟踪后发现 capability 跳变长期、大规模发生却不存在任何相应 readout-boundary change / functional-state transition |
-| **L3 LLM emergence** | scale 增大时某些能力看似突然出现 | 换连续 metric 后部分“突变”消失 | 允许两类现象：真实 functional transition；连续 formation + 离散 measurement/readout boundary | TL-E08 | 仅由 scaling curve 判定某个 emergence 属于哪一类 | 经连续、identity-aligned内部测量后，发现所有 capability transitions 与任何 target-specific boundary/state change完全脱钩，且可重复跨体系成立 |
-| **L4 Capability plateau / Neural Collapse** | accuracy 已饱和后 representation 仍继续组织 | 直接否定“accuracy=100% 即 learning 停止”的朴素等同 | Capability 是 readout result；Learning 是 persistent reorganization，因此 \(C_q\) 不变时 \(S_t\) 可继续演化 | TL-E08；RL-E06 | 为什么恰好形成 simplex ETF | 在 parameters/optimizer/function/support 持续发生持久变化时，严格证明这些变化对任何未来 input/inference 都无 functional consequence，却仍应按 TLIR 定义算 learning；这会迫使 Learning 定义重写 |
-| **I1 Attention explanation debate** | Attention 有真实 operational role，可参与 query-conditioned routing/combination | attention weights 可与 causal importance 不一致，不同 weights 可产生类似 output | operational recruitment mechanism ≠ complete intervention-defined functional support | INF-E01 gating + pair interaction + rollback | Attention 是唯一 inference architecture；attention weight 可直接等同 causal support | 在 learned state frozen 的 matched intervention 下，系统性发现 query-conditioned component support 不存在，或 gating/rollback 不影响输出而 attention alone 完全决定 causal support |
-| **I2 Long context / Lost in the Middle** | 信息被放入可访问 context | 信息存在却可能无法被有效调用，位置/routing 改变后又改善 | available ≠ recruited ≠ correctly bound ≠ successfully combined | INF-E01；SCR distinction | U-shaped positional bias 的具体形状 | 在 exact same learned state/query 下，只要信息存在于 context 就必然被等效利用，且 routing/recruitment interventions 不改变结果 |
-| **I3 Chain-of-Thought** | CoT / extra test-time reasoning 常提高复杂任务表现 | verbalized CoT 可不忠实、遗漏真实 bias 或事后合理化 | transient inference computation 可以有效；自然语言 reasoning trace 是 observable projection，不自动等于 causal support trajectory | inference definition；INF-E01 | 从文字 CoT 重建真实 neural causal path | 证明生成的自然语言 CoT 在广泛系统中与 intervention-defined causal support path 一一等价且可逆恢复；这会削弱“observable trace ≠ causal path”的必要区分 |
-| **I4 Test-time compute / search** | 更多 search/branching/recurrent compute 可提升难题表现 | 收益依赖 task/routing，更多 compute 不保证更好 | learned state 固定时，workspace/search/rollback 仍属于 transient inference dynamics；更多 compute 只是更充分投影既有 support | INF-E01；rollback | 训练中不存在的 persistent organization 能否被单次 inference 真正创建 | 在无 persistent learned-state change 的严格条件下，反复证明 inference 可产生可跨独立未来 episodes 持续保留的新功能组织；这会直接打击 inference/learning 边界 |
-| **R1 RLHF gain / alignment tax** | preference feedback 可显著改善目标行为、人类偏好与安全性 | 同时可能造成 benchmark regression；混入 broader/pretraining distribution 可缓解 | feedback 能持续重组 shared system；目标方向受益不保证未强化能力 margin 不受影响；更平衡 feedback 可恢复/保护其他能力 | RL-E05/E06 dose–duration–recovery | 外部 alignment tax 已由 E06 mechanism 直接证明；所有 RLHF 都会出现同类 trade-off | 在 exact matched shared systems 中，长期极度非对称 correct feedback 始终只改变目标行为且对其他 mastered capabilities 的 margins/support 完全无影响，并跨大量体系稳定成立 |
-| **R2 Reward overoptimization / Goodhart** | reward model 可作为难直接规定目标的有效训练信号 | proxy 过优化可使真实目标下降 | 必须分开：① feedback content/binding 错；② feedback 完全正确但长期过度集中。两者是不同 failure modes | RL-E01/E02；RL-E06 | 所有 RL failure 都由 support concentration 解释 | 在 consequence value相同但binding/credit被真实改变时，actual update与后续formation仍完全不变；这会直接打击“relation是training action组成部分” |
-| **R3 Self-training / recursive model feedback** | pseudo-label/self-training 可提高 accuracy/robustness | 递归依赖 generated data 可导致 distribution-tail loss / model collapse | 同一个 \(I\rightarrow data\rightarrow T\rightarrow L\rightarrow I\) 闭环可正可负；关键是返回系统的 action/data distribution | TLIR feedback closure；E06 balance/duration | collapse threshold、tail-loss rate | 在严格匹配 receiving state 与训练动作分布后，仅“数据来自模型自身”这一标签稳定决定 collapse，而 formation/action distribution 无关 |
-| **R4 Continual learning / EWC** | sequential training 易 catastrophic forgetting；EWC 可缓解 | 保护若干 parameter directions 不是完整 learning mechanism | 新 training actions 进入 shared receiver，引起 persistent support reorganization；EWC 是对 update geometry 的局部约束 | TL-E03/E07；RL-E06 recovery | Fisher/EWC 是唯一或最优保护机制 | 在旧能力下降时，干预显示既有 functional support organization 完全未改变、readout margins 也未移动，而 capability 仍稳定丢失；这会挑战 support/boundary链条 |
+### 5.1.2 NTK与特征学习：固定核动力学和表征演化
 
-## Interpretation rules
+**正面理论／结果——神经切线核NTK（Jacot等）。** 在相应无限宽度、惰性训练条件下，网络的输出演化可由固定或近固定的核动力学描述，局部参数变化对功能的作用因而具有可解析的核表示。
 
-- A local theorem may be exact and useful while remaining valid only in a specified regime. A limited local law is not automatically a disproof of TLIR.
-- Do not explain two sides by saying only "conditions differ": identify a changed **receiving state, actual action, finite response, functional support, readout boundary, or feedback/credit relation**.
-- External conceptual agreement is not a substitute for exact-version causal interventions, sealed prospective predictions or independent experiment-level replay.
-- If a matched intervention directly falsifies one of the core TLIR links, preserve and report the conflict.
-- The 21 rows are fixed as the historical matrix for this research iteration. Further additions should require a genuinely distinct mechanism challenge, not a larger tally.
+**反面理论／结果——特征学习参数化（Yang等）。** 在允许实质性特征演化的参数化与训练条件中，内部表征随训练持续改变，网络的后续功能响应需要随之更新，固定核近似不能描述这一过程的全部动力学。
 
-**Scope and provenance:** This file reproduces the scientific 21-row matrix from the author's private research handoff, not its personal workflow notes. Original English references and the native result artifacts should be checked separately through the linked evidence archive. The matrix's specific historical and causal claims have not all been independently re-executed or externally revalidated as part of preparing this public document.
+**TLIR如何统一。** 两者对应接收状态—实际更新—功能响应关系的不同动力学区域：NTK描述功能映射和局部响应变化受限的训练区域；特征学习描述实际更新持续改变内部功能组织、并使后续接收状态发生实质性演化的区域。核动力学与表征学习通过“当前接收状态决定实际更新的响应、更新反过来改变未来接收状态”这一共同关系连接。
+
+**内部实验锚点。** TL-E03：功能响应依赖接收状态；TL-E04：有限幅度响应存在非线性；TL-E07：真实更新持续重组功能支撑。
+
+### 5.1.3 Grokking：迟发能力和提前形成的内部机制
+
+**正面理论／结果——Grokking（Power等）。** 模型训练准确率已经达到高水平或饱和，测试泛化能力却可能在很长训练延迟后迅速提升，呈现明显的外显能力跃迁。
+
+**反面理论／结果——Grokking计算回路研究（Nanda等）。** 对内部回路的追踪发现，支撑泛化的结构可以在外显测试能力跃迁之前经历持续的形成与重组；能力读出突然变化时，内部学习过程已经持续了一段时间。
+
+**TLIR如何统一。** Learning对应功能支撑的持久重组，Capability对应目标功能状态穿过读出边界后的可观察结果。支撑组织可逐步变化，而某个目标的正确性由读出间隔的符号决定；当该间隔跨越零边界时，连续积累的学习表现为离散能力跃迁。两类研究分别观察了同一过程的内部形成轨迹和外部读出时刻。
+
+**内部实验锚点。** TL-E06：组件干预揭示分布式功能支撑；TL-E07：真实更新重组支撑；TL-E08：能力转变由目标读出边界决定；TL-P01：预测更新后的目标边界结果。
+
+### 5.1.4 Neural Collapse：准确率饱和和持续表征形成
+
+**正面理论／结果——正确率读出饱和。** 当训练样本已被正确分类、训练错误率降至零时，基于正确／错误的离散能力指标达到平台期；在该指标下，后续训练不再增加已正确样本的数量。
+
+**反面理论／结果——Neural Collapse（Papyan等）。** 即使训练误差已经为零，深层特征与分类器仍可持续演化，并形成类内聚集、类别均值几何与分类器方向的特定结构关系。
+
+**TLIR如何统一。** 正确率只记录目标读出边界的哪一侧；学习记录的是持久的功能组织状态。目标已经被正确分类时，实际训练动作仍可改变目标间隔、组件责任分配与特征几何。因此，同一训练阶段可以同时具有稳定的离散正确率和持续变化的内部功能结构。
+
+**内部实验锚点。** TL-E07：能力不变时支撑仍可重组；TL-E08：读出边界决定能力状态；RL-E06：准确率下降前目标间隔已持续变化。
+
+### 5.1.5 Attention：机制有效性和权重解释争论
+
+**正面理论／结果——Attention的计算机制（Vaswani等；Wiegreffe与Pinter）。** Attention根据输入内容和查询条件改变信息加权、路由及组合；受控比较也表明，适当构造的注意力解释可以反映某些模型行为机制。
+
+**反面理论／结果——Attention权重解释的反例（Jain与Wallace）。** 注意力权重与梯度特征重要性可能不一致；明显不同的注意力权重分布也可能产生相近的最终输出，因而权重数值与完整功能因果作用之间存在可测量的差别。
+
+**TLIR如何统一。** 冻结的学习状态可以依查询调用不同功能支撑，并通过组件之间的组合产生输出。Attention权重刻画一种瞬时路由和加权关系；完整功能作用则由相应组件及其组合的实际输出效应决定。于是，注意力作为计算机制有效，与单张权重图无法完整表达分布式因果支撑这两个结果可以同时成立。
+
+**内部实验锚点。** INF-E01：冻结推理的组件门控、成对干预和版本回滚揭示查询依赖的支撑调用、非加性交互及已学习版本依赖。
+
+### 5.1.6 RLHF：对齐增益和能力权衡
+
+**正面理论／结果——偏好反馈与指令优化（Ouyang等）。** 用人类偏好与反馈信号进一步训练模型，可以增强目标指令遵循、偏好一致性及相应任务表现，体现反馈对学习方向的调节作用。
+
+**反面理论／结果——Alignment Tax。** 同类反馈训练也观察到部分原有基准能力下降；在训练中混入更广泛的预训练分布，可以缓解这些表现退化，说明目标反馈的收益和其他能力的保持存在分配关系。
+
+**TLIR如何统一。** 反馈改变后续训练样本、奖励与实际更新的分布，实际更新又在共享接收状态中重新配置多项能力的功能支撑。被集中强化的能力获得更多支撑，其他已经掌握的能力可能先损失读出间隔，再发生正确率下降；平衡反馈推动支撑重新分配，使原有能力恢复。正面增益与能力权衡来自同一个反馈—训练—学习闭环。
+
+**内部实验锚点。** RL-E06：正确反馈集中造成其他已掌握技能的支撑与能力下降；反馈重新均衡使其恢复。
+
+### 5.1.7 奖励代理过优化：错误目标绑定和正确反馈过度集中
+
+**正面理论／结果——奖励模型与偏好优化。** 当真实目标难以直接写成可微训练损失时，奖励模型及偏好信号可以为策略提供可执行的优化方向，促进目标行为形成。
+
+**反面理论／结果——Goodhart与奖励过优化。** 奖励模型是实际偏好的代理量；当优化过程逐渐利用代理与真实目标之间的偏差时，代理得分继续改善，真实目标表现却可能下降。
+
+**TLIR如何统一。** 反馈通过两条具体关系影响实际训练动作。第一条是**内容与信用绑定**：奖励归属于哪个动作、哪个时间位置，决定优化器收到的训练信号；第二条是**反馈分布**：即使每个反馈值完全正确，长期集中作用于少数目标也会改变共享功能支撑的分配。代理失配改变了动作的目标绑定；正确反馈过度集中改变了动作的长期分布。两者通过相同的“反馈关系→实际动作→功能支撑与能力”闭环产生不同结果。
+
+**内部实验锚点。** RL-E01/E02：反馈绑定与因果信用改变实际训练作用；RL-E06：完全正确但过度集中的反馈也会引起跨技能支撑重分配与能力下降。
+
+### 5.1.8 Self-training：伪标签学习收益和递归模型坍塌
+
+**正面理论／结果——Noisy Student与自训练（Xie等）。** 利用模型产生的伪标签扩展训练数据，再对学生模型进行训练，可以提升ImageNet分类表现及若干稳健性指标，显示生成数据作为反馈输入能够促进学习。
+
+**反面理论／结果——递归模型坍塌（Shumailov等）。** 多代模型主要依赖前代生成的数据继续训练时，低概率模式与分布尾部可能逐代消失；持续保留真实数据（Gerstgrasser等）可以改变这种长期信息衰减过程。
+
+**TLIR如何统一。** 两者共用同一条反馈链：推理输出进入新训练数据，数据组织决定下一轮实际动作，实际动作又改变未来学习状态和推理分布。高质量、多样化伪标签可扩大有效训练信号；递归替换使尾部模式的有效输入持续减少，导致这些模式所依赖的功能支撑不断削弱；持续引入真实数据改变训练输入分布，维持相关模式的学习机会。
+
+**内部实验锚点。** TL-E07：训练更新造成持久功能支撑重组；RL-E06：反馈分配改变支撑集中与能力保持，再平衡使能力恢复。
+
+### 5.1.9 Batch Normalization：训练收益与机制解释
+
+**正面理论／结果——Batch Normalization（Ioffe与Szegedy）。** BN在训练过程中规范化中间层激活，在多种深层网络中加快优化并提高训练稳定性。最初的解释强调缓解内部协变量偏移（internal covariate shift）。
+
+**反面理论／结果——优化平滑性解释（Santurkar等）。** 后续受控实验发现，BN的训练收益与内部协变量偏移的变化并不呈现原先预期的必然关系；其对损失地形、梯度可预测性及有效步长的改变，更直接地影响优化过程。
+
+**TLIR如何统一。** BN改变实际更新进入的接收状态及其局部功能映射，使相同名义优化设置下的动作产生不同响应。内部激活统计与局部优化几何是接收状态的不同读数；训练收益来自状态、动作与后续功能响应的共同演化。原始经验收益和后续机制分析分别刻画了干预效果及其动力学来源。
+
+**内部实验锚点。** TL-E03：同一已形成更新在不同接收状态上产生不同响应；TL-E04：实际更新具有状态相关的有限幅度响应。
+
+### 5.1.10 Large-Batch Training：大批量泛化差距与训练策略补偿
+
+**正面理论／结果——Large-batch Generalization Gap（Keskar等）。** 部分大批量训练实验观察到测试性能落后于小批量，并发现所得解的锐度及优化轨迹存在差异。
+
+**反面理论／结果——学习率缩放与Warmup（Goyal等；Hoffer等）。** 适当改变学习率、预热、训练时长及其他优化条件后，大批量训练能够达到接近小批量训练的准确率。
+
+**TLIR如何统一。** 批量大小通过采样梯度、噪声协方差及优化器历史影响实际训练动作；学习率和预热进一步改变动作幅度与接收状态轨迹。因此，大批量造成的泛化差距与经训练策略调整后的性能恢复，分别对应不同动作分布和后续支撑形成路径。核心关系是“采样与优化规则→实际动作→接收状态上的功能响应→学习结果”。
+
+**内部实验锚点。** TL-E03：实际更新效应依赖接收状态，优化器记忆影响动作形成；TL-E05：目标更新几何F3与接收状态F5共同制约响应。
+
+### 5.1.11 Scaling Laws与Chinchilla：规模规律与计算最优分配
+
+**正面理论／结果——神经语言模型Scaling Laws（Kaplan等）。** 在研究覆盖的训练条件中，模型规模、数据量和计算量与交叉熵损失呈稳定幂律关系，支持依据规模规律安排训练资源。
+
+**反面理论／结果——Chinchilla计算最优训练（Hoffmann等）。** 扩展模型规模与训练token数量的联合扫描表明，同等计算预算下，更充分训练的较小模型可以优于参数更多但数据训练不足的模型，得到不同的计算最优分配。
+
+**TLIR如何统一。** 模型规模、数据暴露量和计算预算共同控制可达到的接收状态与训练动作序列。某一资源瓶颈占主导时可形成稳定的局部幂律；数据瓶颈与模型瓶颈的相对作用变化时，最优参数量和训练token分配随之变化。两类规律分别描述训练动力学在不同有效资源配置下的宏观表现。
+
+**内部实验锚点。** TL-E03：接收状态影响更新响应；TL-E04：有限动作响应存在非线性；TL-E07：持续更新重组功能支撑；ResNet、Diffusion U-Net、Vision-MoE等跨系统实验：检验相同动力学角色在不同体系中的表达。
+
+### 5.1.12 Lottery Ticket与Rewinding：初始子网络与早期训练历史
+
+**正面理论／结果——Lottery Ticket Hypothesis（Frankle与Carbin）。** 适当稀疏子网络在保留特定初始权重时，能够通过重新训练达到与原网络相近的表现，显示初始化与网络结构对后续学习具有作用。
+
+**反面理论／结果——Rewinding与早期训练状态（Frankle等；Renda等）。** 在更复杂的网络及训练条件中，将稀疏子网络恢复到训练早期的权重或优化状态，常能获得比直接回到最初初始化更稳定的训练结果。
+
+**TLIR如何统一。** 初始化确定最初接收状态，早期实际更新继续塑造参数与功能组织。Winning Ticket体现初始结构对可达学习路径的影响；Rewinding利用了早期更新形成的新接收状态。两者通过“初始状态→实际更新→接收状态演化→后续功能形成”的同一关系连接。
+
+**内部实验锚点。** TL-E03：接收状态与优化器历史影响实际更新及其响应；TL-E07：更新带来持久功能支撑重组。
+
+### 5.1.13 真实数据泛化与随机标签记忆：拟合能力和学习组织
+
+**正面理论／结果——深度网络在真实任务上的泛化。** 高容量神经网络能够在自然数据上取得较高的训练与测试表现，说明训练可以形成适用于未见样本的预测功能。
+
+**反面理论／结果——Rethinking Generalization（Zhang等）。** 同类高容量网络也能记忆随机标签，将训练误差降低至接近零；因此，相近的训练拟合能力可以伴随完全不同的测试泛化结果。
+
+**TLIR如何统一。** 网络容量给出可实现的功能空间，具体数据和实际训练动作决定最终形成的功能支撑。真实数据中的可迁移规律与随机标签中的样本特定关联，会引导不同的支撑组织与边界几何。训练集正确率相近时，已形成的学习状态与测试目标的功能响应仍可明显不同。
+
+**内部实验锚点。** TL-E03：训练响应依赖实际接收状态；TL-E06：功能由分布式组件支撑；TL-E07：真实更新重组支撑；TL-E08：可观察能力取决于目标读出边界。
+
+### 5.1.14 Classical Bias–Variance与Double Descent：复杂度曲线和插值阈值
+
+**正面理论／结果——经典偏差—方差权衡。** 在经典统计学习条件下，模型复杂度上升可降低偏差，同时增加方差风险，测试误差常呈现先降后升的单谷结构。
+
+**反面理论／结果——Double Descent（Belkin等；Nakkiran等）。** 在现代插值及过参数训练条件下，测试误差可在插值阈值附近上升，并在继续增大模型规模或训练程度后再次下降；模型、样本及训练轮次的不同控制轴均出现过相应现象。
+
+**TLIR如何统一。** 模型复杂度控制可达解空间，实际动作决定进入其中哪一类解；接近插值边界时，拟合噪声的高敏感方向可以放大测试响应。进一步增加冗余并改变隐式解选择后，噪声支撑可转移至对总体分布影响较小的方向。经典单谷区间与插值阈值之后的第二次下降，是接收状态、动作选择和泛化读出几何在不同区域的结果。
+
+**内部实验锚点。** TL-E03与TL-E04：接收状态和有限动作决定功能响应；TL-E07：支撑结构随更新持续变化；TL-E08：能力由目标读出边界判定。
+
+### 5.1.15 对抗鲁棒性：自然准确率与扰动下的能力权衡
+
+**正面理论／结果——标准训练与对抗训练（Madry等）。** 标准训练可获得较高自然测试准确率；在给定扰动集合上实施对抗训练，则可增强模型抵抗相应扰动的能力。
+
+**反面理论／结果——对抗脆弱性与鲁棒—准确率权衡（Tsipras等）。** 自然分布上的高准确率可以与小扰动下的错误预测并存；提高扰动鲁棒性的训练在部分任务中伴随自然准确率下降，并改变模型使用的特征。
+
+**TLIR如何统一。** 自然准确率测量原始目标的读出状态，鲁棒性测量邻域中一组目标的读出边界与间隔。训练目标及扰动分布改变实际更新，进而重组对自然与扰动输入的功能支撑。因此，高自然准确率、局部脆弱性以及对抗训练后的能力权衡对应不同目标集合和学习组织。
+
+**内部实验锚点。** TL-E06：功能支撑具有组件依赖和协同结构；TL-E07：更新可重新分配支撑；TL-E08：目标读出边界决定正确性转变。
+
+### 5.1.16 Shortcut Learning：IID准确率与纹理—形状偏好
+
+**正面理论／结果——ImageNet CNN的高准确率。** 卷积神经网络能够利用训练数据中的预测特征，在同分布图像分类测试中取得较高准确率。
+
+**反面理论／结果——Texture Bias与Stylized-ImageNet（Geirhos等）。** 多种CNN更依赖纹理而非形状线索；改变训练数据的视觉统计后，模型的形状偏好及分布外鲁棒性随之改变。
+
+**TLIR如何统一。** 同一正确预测可以依靠不同的分布式功能支撑实现。IID准确率记录了当前输入分布上的读出结果；纹理、形状等支撑路径由数据与实际更新共同形成。训练环境改变后，支撑结构可发生重组，由此改变模型在风格变化或分布迁移下的表现。
+
+**内部实验锚点。** TL-E06：同一功能存在组件必要性、替代与协同；TL-E07：训练更新重组功能支撑；TL-E08：不同目标的边界状态决定可观察能力。
+
+### 5.1.17 Emergent Abilities：规模跃迁与度量方式
+
+**正面理论／结果——LLM Emergent Abilities（Wei等）。** 某些语言模型能力在规模增加时呈现陡峭的基准测试跃迁，尤其在采用正确／错误或通过率指标时具有明显的阈值表现。
+
+**反面理论／结果——Emergence as a Mirage（Schaeffer等）。** 改用连续评分或其他合理度量后，一些表面上的突变可呈现更加平滑的性能变化，显示读出规则会影响跃迁的外观。
+
+**TLIR如何统一。** 学习状态与功能支撑随训练和规模条件演化，评价函数将这些内部状态投影为连续分数或离散能力结果。当目标间隔越过零边界时，正确率与通过率可以发生突变；连续度量则显示更细的功能变化。不同评价曲线对应同一功能形成过程的不同读出方式。
+
+**内部实验锚点。** TL-E07：持续的内部支撑重组；TL-E08：目标边界跨越决定能力转变；TL-P01：利用更新前信息预测更新后的正确性类别。
+
+### 5.1.18 长上下文：信息可访问与Lost in the Middle
+
+**正面理论／结果——长上下文输入能力。** 长上下文模型可以将大量文本信息放入同一次推理的可访问输入范围，使回答有机会依赖远距离证据。
+
+**反面理论／结果——Lost in the Middle（Liu等）。** 多文档检索与长上下文任务发现，模型对相关内容的利用受到其在上下文中位置的影响，位于中间位置的信息常比开头或末尾更难被有效使用。
+
+**TLIR如何统一。** 输入信息进入上下文后，还需经过查询依赖的支撑调用、路由、组合与目标绑定才能影响输出。位置变化会改变瞬时推理中的组件作用和信息组合路径。因此，“输入中存在证据”与“证据成为当前回答的有效功能支撑”对应不同的推理环节。
+
+**内部实验锚点。** INF-E01：冻结学习状态下，组件效应依赖查询；成对干预揭示非加性交互；准确的历史组件回滚显示已学习版本对当前推理的作用。
+
+### 5.1.19 Chain-of-Thought：推理收益与文本轨迹忠实性
+
+**正面理论／结果——Chain-of-Thought Prompting（Wei等）。** 要求模型生成中间推理步骤，可以改善多步计算、符号处理等复杂任务的最终解答表现。
+
+**反面理论／结果——Unfaithful Chain-of-Thought（Turpin等）。** 受控提示实验发现，输出的自然语言推理说明有时遗漏实际影响决策的偏置来源，说明可读推理文本与内部因果计算之间可以存在差别。
+
+**TLIR如何统一。** CoT提示改变冻结模型在当前查询中的瞬时计算、支撑调用和信息组合，因而能够影响答案；生成的文字步骤则是这些计算的一个可观察输出。有效的推理计算与文字说明的忠实程度，是推理过程中两个不同的功能测量对象。
+
+**内部实验锚点。** INF-E01：冻结状态下的查询依赖组件门控、非加性支撑组合和历史版本回滚揭示推理行为的内部功能路径。
+
+### 5.1.20 Test-time Compute：增加推理搜索与收益差异
+
+**正面理论／结果——搜索与推理时计算（如Tree of Thoughts）。** 在固定模型参数的条件下，拓展候选路径、增加搜索和回溯步骤可以改善某些需要规划、检验或组合的任务。
+
+**反面理论／结果——计算预算的任务依赖效应。** 额外搜索与采样的收益受任务类型、候选质量、路由和选择规则影响；增加计算预算时，部分任务的收益会减弱或出现无效分支。
+
+**TLIR如何统一。** 学习状态冻结后，推理仍能对已有功能支撑执行多轮调用、组合、评价与选择。额外计算扩大了瞬时探索范围；其实际收益取决于当前查询与被调用支撑之间的对应关系。因此，同样的计算增量在不同问题上产生不同结果，符合查询依赖的推理动力学。
+
+**内部实验锚点。** INF-E01：冻结推理中的查询依赖调用、组件间非加性交互以及回滚与恢复实验。
+
+### 5.1.21 持续学习：灾难性遗忘与EWC保护
+
+**正面理论／结果——Catastrophic Forgetting。** 神经网络依次学习新任务时，后续训练会在某些情况下损害已掌握任务的表现，形成明显的旧能力遗忘。
+
+**反面理论／结果——Elastic Weight Consolidation（Kirkpatrick等）。** EWC根据旧任务的Fisher信息估计参数重要性，对敏感方向的后续变化施加更强约束，从而在持续学习实验中缓解旧任务性能下降。
+
+**TLIR如何统一。** 新任务的实际更新作用于同时承载新旧能力的接收状态。更新与旧功能支撑敏感方向的重叠及响应符号，决定旧目标间隔是扩大还是收缩；累积收缩跨越边界后表现为遗忘。EWC通过改变实际动作的几何分布，降低旧功能高敏感方向上的不利响应。其他保护与恢复方法也通过改变动作及支撑重组发挥作用。
+
+**内部实验锚点。** TL-E03：相同更新在不同接收状态产生不同旧目标响应；TL-E07：更新重新分配支撑；TL-E08：目标边界跨越决定能力损失；RL-E06：集中反馈导致旧能力间隔降低，重新平衡反馈后能力恢复。
