@@ -495,3 +495,106 @@ The experimentally grounded relation can be summarized as
 - [Public evidence and reproduction matrix](PUBLIC_EVIDENCE_MATRIX.md)
 - [Historical positive/negative theory comparisons and derivations](TLIR_SECTION5_21_PAIRS_14_EXTRAPOLATIONS.md)
 - [Publication evidence archive](https://doi.org/10.5281/zenodo.22005307)
+
+## 8. A Simple Theory
+
+The basic logic of TLIR can be seen directly from how a neural network computes and how its parameters are updated.
+
+### 8.1 How a neural network works
+
+An artificial neural network is a connected system of numerical computations. Each neuron or computational component receives numerical signals, transforms them using operations such as multiplication, addition and nonlinear activation, and passes the result onward. The parameters determine the numerical behavior of these computations. Layers and components connect them into a complete function, written as \(f_\theta(x)\), where \(x\) is an input and \(\theta\) denotes the current model parameters.
+
+The same network processes many different inputs. Its neurons, parameter matrices and components are not generally reserved for just one training example or one capability. Different inputs can therefore use overlapping parts of the same computational system.
+
+Training proceeds just as simply. The network makes a prediction; a loss measures its disagreement with the training target; backpropagation applies the chain rule to compute how that loss depends on the parameters; and an optimizer executes a parameter update. For elementary gradient descent on target \(A\),
+
+\[
+\boxed{
+\theta_{t+1}
+=\theta_t-\eta\nabla_\theta\ell_A(\theta_t).
+}
+\tag{26}
+\]
+
+Other optimizers, such as Adam, also use stored optimization history to form the realized update. Backpropagation calculates gradients; the optimizer turns them into an actual change of state.
+
+### 8.2 The elementary deduction
+
+**First: updating one target can affect other targets.** Training on \(A\) changes parameters used by the *whole* network, not merely by \(A\). For any other input or target \(q\), including \(B\) and \(C\), the resulting change is simply
+
+\[
+\boxed{
+\Delta f_q
+=f_{\theta_t+\delta_A}(x_q)-f_{\theta_t}(x_q).
+}
+\tag{27}
+\]
+
+This change can be positive, negative or zero. The update was formed from \(A\), but its effects are determined by how the shared network computes each target.
+
+A two-parameter example makes the point without advanced mathematics. Suppose three target scores produced by one network are
+
+\[
+f_A=a+b,\qquad f_B=a,\qquad f_C=1-b.
+\]
+
+Initially \(a=0.2\), \(b=0.1\). Train **only A** toward the target value \(1.3\) using \(\ell_A=\tfrac12(f_A-1.3)^2\) and one gradient-descent step with \(\eta=0.2\). The gradients are both \(-1\), so the optimizer updates \(a\) to \(0.4\) and \(b\) to \(0.3\).
+
+| Target score | Before training A | After training A | Change |
+|---|---:|---:|---:|
+| \(f_A=a+b\) | 0.3 | 0.7 | +0.4 |
+| \(f_B=a\) | 0.2 | 0.4 | +0.2 |
+| \(f_C=1-b\) | 0.9 | 0.7 | -0.2 |
+
+No training instruction mentioned B or C. Yet B increased and C decreased because they used the parameters changed by training A. This is the simplest origin of cross-target functional transfer and interference.
+
+**Second: functional support can be distributed, combined and reorganized.** A target's output can depend on more than one neuron or component. In the additive example \(f_A=a+b\), both paths contribute; their relative contributions change as the parameters change. In a different elementary computation, \(f_q=ab\), the two paths interact multiplicatively. Removing either path changes what the other path can contribute. Thus shared computation naturally permits distributed contributions, replacement or backup, and non-additive joint effects. Their actual causal roles can be measured by disabling components separately and together, rather than inferred from parameter size.
+
+Because training changes the parameters inside these same computational paths, it can also change **which components support a target, by how much, and in what combinations**. No rewiring of the network's program is necessary: the functional organization changes through ordinary parameter updates. This is the elementary connection between training and persistent learning.
+
+**Third: a gradual functional change can appear as a sudden new ability.** If a target's correct-answer score initially lies below a competitor's score, successive updates may move the difference toward and eventually across zero:
+
+\[
+\boxed{
+m_q(\theta_t)<0,\qquad
+m_q(\theta_{t+1})>0
+\quad\Longrightarrow\quad
+C_{t,q}=0,\ C_{t+1,q}=1.
+}
+\tag{28}
+\]
+
+The continuous readout changes numerically; the correct/incorrect judgment changes discretely. A capability transition therefore need not coincide with a sudden creation of its entire internal support.
+
+**Fourth: inference uses the organization already formed.** After training, hold the model parameters and other persistent learned variables fixed. Input \(x_A\) and input \(x_B\) can still produce different activations, computational paths and causal component contributions:
+
+\[
+\boxed{
+Y_A=f_{\theta^*}(x_A),\qquad
+Y_B=f_{\theta^*}(x_B),
+\qquad \theta^*\ \text{unchanged}.
+}
+\tag{29}
+\]
+
+The model is using its existing learned functional organization, not performing another persistent parameter update. Attention, convolution, graph message passing, spiking and expert routing are different ways of executing computations inside this more general relation; the relation itself does not require Attention.
+
+**Fifth: reinforcement closes the same loop.** When the network's output affects an environment or receives a reward, that consequence can become the information used to form a later training action. The new action changes shared parameters, their functional organization and subsequent behavior:
+
+\[
+\boxed{
+\text{current function}
+\ \longrightarrow\ \text{behavior and feedback}
+\ \longrightarrow\ \text{actual update}
+\ \longrightarrow\ \text{changed function}.
+}
+\tag{30}
+\]
+
+### 8.3 The simple conclusion
+
+The reasoning begins with ordinary facts: neurons and components compute together; parameters are shared across many inputs; backpropagation calculates gradients; optimizers update those parameters; and the same updated network subsequently processes old and new inputs.
+
+From these facts, the core TLIR relationships follow naturally: an actual update has target- and receiving-state-dependent functional consequences; training can reorganize distributed functional support; observed capability depends on the target's readout boundary; inference makes input-dependent use of the learned state without changing it; and feedback can drive another training transition.
+
+**The theory is simple because its starting mechanisms are simple.** The experimental program measures the particular responses, support interactions, reorganizations, boundary transitions and feedback effects realized by actual neural networks.
