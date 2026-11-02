@@ -598,3 +598,46 @@ The reasoning begins with ordinary facts: neurons and components compute togethe
 From these facts, the core TLIR relationships follow naturally: an actual update has target- and receiving-state-dependent functional consequences; training can reorganize distributed functional support; observed capability depends on the target's readout boundary; inference makes input-dependent use of the learned state without changing it; and feedback can drive another training transition.
 
 **The theory is simple because its starting mechanisms are simple.** The experimental program measures the particular responses, support interactions, reorganizations, boundary transitions and feedback effects realized by actual neural networks.
+
+## 9. A proposed architecture: frozen open-weight backbone and incremental heads
+
+**Status: an untested architectural proposal motivated by TLIR, not a validated result of the present experiments.** This section records the idea for future examination. No new experiments have been performed for it.
+
+### 9.1 A pretrained large backbone and newly trained small heads
+
+Use an existing **open-weight pretrained model** as a general computational backbone. After selecting it, **freeze its parameters** rather than repeatedly updating them for each new task.
+
+When a new target is introduced, attach a small trainable **head** that consumes the fixed backbone's numerical representations. Train only this head by ordinary backpropagation:
+
+\[
+\boxed{
+Y_k(x)=H_{\phi_k}\!\bigl(F_\theta(x)\bigr),
+\qquad \theta\ \text{frozen}.
+}
+\tag{31}
+\]
+
+Here \(F_\theta\) is the pretrained backbone and \(H_{\phi_k}\) is the new head. Importantly, **the backbone does not need to demonstrate the new target behavior on its own**. Its existing computations and the head's learned parameters may **jointly** produce a new, successful functional result. In TLIR's terms, "capability" is a target-dependent readout of the complete system's functional organization, not an independently stored entity that must already exist inside one module.
+
+### 9.2 Add without overwriting
+
+After completing task A, freeze its head. To learn task B, add another head and change only that head's parameters. The same rule applies as further heads accumulate:
+
+\[
+\boxed{
+\Delta\theta=0,\qquad
+\Delta\phi_j=0\ (j<k),\qquad
+\Delta\phi_k\ \text{trainable}.
+}
+\tag{32}
+\]
+
+When existing heads must cooperate, a further small **combination head** can be trained over their outputs or representations while leaving the backbone and the source heads frozen. Thus **shared computation is retained, but later learning is not allowed to overwrite earlier learned parameters**. Ordinary backpropagation and existing optimizers remain usable; only the permitted parameter set changes.
+
+### 9.3 Conditions and unresolved questions
+
+The proposal does **not** require a separate, localized parameter block corresponding to each apparent "capability." A head and a backbone may jointly implement a function that neither implements alone. But a head can only operate on information available in the frozen representations and within its own expressivity. If the backbone has discarded distinctions required by a new task, a small final head may be insufficient.
+
+Freezing parameters protects the original computation of an existing backbone–head pair **when its input processing, routing, and inference path also remain unchanged**. Newly introduced automatic head selection or simultaneous head combination may still introduce mistakes. Head capacity, routing, cooperation, cumulative memory cost, and inference cost remain open engineering questions.
+
+**Research proposition, not an experimental claim:** adopt one pretrained open-weight backbone, freeze it, and accumulate small independently trained heads (and optional combination heads). Investigate whether their joint computations can extend task performance while preserving previous computation paths, without retraining or overwriting older modules.
