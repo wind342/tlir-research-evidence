@@ -1,142 +1,274 @@
-# TLIR 统一动力学方程组（V5）
+# Unified Dynamics of Training, Learning, Inference, and Reinforcement (TLIR) — V5
 
-**Training–Learning–Inference–Reinforcement (TLIR)**  
-**定位：实验约束的统一动力学方程组。**
+**An experimentally established dynamical theory of neural-network functional organization**
 
-本文将 TL-E01–E08、INF-E01、TL-P01 和 RL-E01–E06 的实验关系组织为一个动力学系统：同一次真实训练更新驱动持久状态演化，产生目标特定的功能响应、分布式支撑变化和能力边界变化；冻结推理调用已有支撑，行为后果可以反馈进入下一次训练。**统一的是核心动力学关系，具体网络、优化器、读出与反馈实现可以不同。**
+## 1. Scientific objects and notation
 
-本文件为独立的方程组版本，不修改论文正文或冻结实验记录。
+TLIR relates four processes within one learned system: **training** forms and executes updates; **learning** is the persistent functional reorganization produced by training; **inference** recruits and combines the support already present in a fixed learned state; and **reinforcement** returns behavioral consequences to subsequent training. The same persistent-state transition gives rise to target-specific functional responses, changes in distributed support, and observable capability outcomes.
 
-## 1. 变量与状态
+The theory distinguishes a **training action**, the **state receiving that action**, and the **functional consequences** measured after it. These objects are separately accessible through the realized-update interventions, component probes, exact state restorations, and matched feedback branches used in the experiments.
 
-在训练时刻 \(t\)：
+### 1.1 State and training quantities
+
+| Symbol | Definition |
+|---|---|
+| \(t\) | Index of an executed training transition. |
+| \(L_t\) | Persistent learned state that determines the model's functional behavior. In the tested parameterized networks, it is represented primarily by parameters \(\theta_t\), together with any persistent model variables relevant to the function. |
+| \(\omega_t\) | Training-mechanism state, such as Adam/AdamW moments, SGD momentum, or Adagrad accumulators. |
+| \(Z_t=(L_t,\omega_t)\) | Complete receiving state for the registered training transition. |
+| \(D_t\) | Training information supplied at the transition: identified inputs, targets, and other registered training data. |
+| \(B_t\) | Feedback information available to the training mechanism, including relevant consequences of preceding interactions. |
+| \(A_t\) | Actually formed and executed training action, carrying the realized parameter and training-state changes required by the transition. |
+| \(\mathcal U\) | Action-formation rule for the executed training mechanism. |
+| \(\mathcal T\) | Persistent-state transition induced by executing \(A_t\) on \(Z_t\). |
+| \(\delta_t=\theta_{t+1}-\theta_t\) | Realized parameter increment, measured from exact before/after parameter versions. |
+
+### 1.2 Functional, inference, and feedback quantities
+
+| Symbol | Definition |
+|---|---|
+| \(q\) | An identified evaluation target, including its input and target identity. |
+| \(m_q(L)\) | Continuous target-specific functional readout of learned state \(L\); in boundary experiments, a signed target margin. |
+| \(R_{t,q}\) | Actual change in \(m_q\) caused by the registered training transition. |
+| \(\mathcal J_q\) | Fixed intervention-and-measurement protocol used to measure target \(q\)'s functional support. |
+| \(\mathcal P_q(L;\mathcal J_q)\) | Intervention-measured functional support profile, possibly vector-valued, at learned state \(L\). |
+| \(P_{t,q},\Delta P_{t,q}\) | Measured support and its change across one persistent-state transition. |
+| \(\chi_q\) | Target-specific rule converting the continuous readout into an observable capability result. |
+| \(C_{t,q}\) | Capability result for \(q\) at state \(L_t\). |
+| \(x,c\) | Inference query/input and its context. The \(c\) in this pair denotes context, not a competing class. |
+| \(L^*\) | Learned state held fixed during an inference occurrence. |
+| \(\Pi_{x,c}\) | Query-conditioned recruitment of functional support from \(L^*\). The symbol denotes recruitment/selection, including nonlinear operations, rather than requiring a linear projection. |
+| \(S^{\mathrm{active}}_{x,c}\) | Functionally active support recruited for the particular query and context. |
+| \(H_{x,c}\) | Execution and combination of the recruited support to produce an inference result. |
+| \(Y_{x,c},Y_t\) | Output of a particular frozen inference, or the output participating in feedback cycle \(t\). |
+| \(E_t\) | Environment consequence of the associated behavior. |
+| \(\mathcal B\) | Rule that forms the next feedback state from prior feedback, behavior, and consequence. |
+
+**Readout conventions.** For a classified target \(q=(x,y)\) with logits \(z_k(L,x)\), a concrete signed margin is
 
 \[
-Z_t=(L_t,\omega_t).
+m_q(L)=z_y(L,x)-\max_{k\ne y}z_k(L,x),
+\qquad
+\chi_q(m)=\mathbf 1[m>0].
 \]
 
-- \(L_t\)：决定模型功能的持久学习状态；在所研究的参数化网络中主要由 \(\theta_t\) 及相关持久变量实现。
-- \(\omega_t\)：训练机制的内部状态，例如优化器记忆。
-- \(Z_t\)：参数／学习状态与训练机制的联合接收状态。
-- \(A_t\)：已实际形成并执行的训练动作，包括完成联合状态转移所需的实际更新信息。
-- \(D_t\)：该次训练的输入信息；\(B_t\)：来自先前行为后果、可影响训练的反馈信息。
-- \(q\)：具体目标；\(m_q(L)\)：目标特定的功能读出（在分类／边界实验中为有符号 margin）。
-- \(P_{t,q}\)：固定干预协议下测得的目标功能支撑，可为向量。
-- \(C_{t,q}\)：目标能力的可观察读出。
+The diffusion experiment uses a distinct, frozen residual-error boundary,
 
-## 2. 统一耦合动力学主方程
+\[
+m_q(L)=\min_k\bigl(E_k(L)-E_{\mathrm{true}}(L)\bigr),
+\]
+
+where \(q\) identifies an image, diffusion timestep, and noise occurrence; its registered equality convention is included in \(\chi_q\). Thus \(m_q\) is the system's measured functional readout, and \(\chi_q\) specifies its observed decision rule.
+
+---
+
+## 2. Coupled dynamical equations
+
+### 2.1 Training: realized action and persistent state
 
 \[
 \boxed{
 \begin{aligned}
-\text{Training:}\quad
-&A_t=\mathcal U(Z_t,D_t,B_t),\\
-&Z_{t+1}=\mathcal T(Z_t,A_t),\\[4pt]
-\text{Response:}\quad
-&R_{t,q}=m_q(L_{t+1})-m_q(L_t),\\[4pt]
-\text{Learning:}\quad
-&P_{t,q}=\mathcal P_q(L_t;\mathcal J_q),\\
-&\Delta P_{t,q}=P_{t+1,q}-P_{t,q},\\[4pt]
-\text{Capability:}\quad
-&C_{t+1,q}
- =\chi_q\!\left(m_q(L_t)+R_{t,q}\right),\\[4pt]
-\text{Inference:}\quad
-&S_{x,c}^{\mathrm{active}}=\Pi_{x,c}(L^*),\\
-&Y_{x,c}=H_{x,c}(S_{x,c}^{\mathrm{active}}),\\
-&L_{\mathrm{after}}^*=L_{\mathrm{before}}^*,\\[4pt]
-\text{Feedback:}\quad
-&B_{t+1}=\mathcal B(B_t,Y_t,E_t),\\
-&A_{t+1}=\mathcal U(Z_{t+1},D_{t+1},B_{t+1}).
-\end{aligned}
-}
+Z_t&=(L_t,\omega_t),\\
+A_t&=\mathcal U(Z_t,D_t,B_t),\\
+Z_{t+1}&=\mathcal T(Z_t,A_t).
+\end{aligned}}
+\tag{1}
 \]
 
-其中 \(\mathcal J_q\) 是固定的组件干预和支撑测量协议；\(\chi_q\) 是任务的能力判定规则。对于有符号分类 margin，\(\chi_q(m)=\mathbf1[m>0]\)。\(x,c\) 分别表示推理输入与上下文；\(L^*\) 是冻结的持久学习状态；\(E_t\) 是行为的环境后果。反馈信息 \(B_t\) 可汇总此前完整交互历史。
+Training is the concrete execution of \(A_t\). The receiving state matters both in forming the action and in determining its realized effect. The optimizer-memory coordinate \(\omega_t\) is retained because experiments that exchange Adam/AdamW, momentum, or Adagrad states change subsequent action formation while other registered inputs are held fixed.
 
-**耦合关系：** \(R_{t,q}\)、\(\Delta P_{t,q}\) 与 \(C_{t+1,q}\) 均由同一次 \(Z_t\to Z_{t+1}\) 确定。它们是同一次真实演化的不同功能观测，而非三条彼此独立的状态轨迹。
-
-## 3. 实验建立的动力学关系
-
-### 3.1 实际动作—接收状态耦合（TL-E01–E03）
-
-对于参数化网络，设一次实际参数更新为 \(\delta\)，目标响应定义为
+For a parameterized implementation, the parameter component of the same transition can be read as
 
 \[
-R_q(\theta,\delta)
-=m_q(\theta+\delta)-m_q(\theta).
+\boxed{\delta_t=\Psi(\theta_t,\omega_t,D_t,B_t),\qquad
+\theta_{t+1}=\theta_t+\delta_t.}
+\tag{2}
 \]
 
-相互交换实际更新的实验建立了以下状态依赖关系：
+Here \(\Psi\) names the *executed optimizer-specific update formation*. The functional response to a formed \(\delta_t\) is a separate object from the process that formed it.
+
+### 2.2 Learning: three coupled observations of the same transition
 
 \[
 \boxed{
-\exists\,\theta_A,\theta_B,\delta,q:\quad
-R_q(\theta_A,\delta)\ne R_q(\theta_B,\delta).
-}
+\begin{aligned}
+R_{t,q}
+&=m_q(L_{t+1})-m_q(L_t),\\
+P_{t,q}
+&=\mathcal P_q(L_t;\mathcal J_q),\\
+\Delta P_{t,q}
+&=\mathcal P_q(L_{t+1};\mathcal J_q)
+ -\mathcal P_q(L_t;\mathcal J_q),\\
+C_{t,q}
+&=\chi_q\bigl(m_q(L_t)\bigr),\\
+C_{t+1,q}
+&=\chi_q\bigl(m_q(L_t)+R_{t,q}\bigr).
+\end{aligned}}
+\tag{3}
 \]
 
-**含义：** 相同参数增量的功能效应取决于接收状态。优化器记忆还参与实际更新的形成：
+These are **different measurements of one transition** \(Z_t\rightarrow Z_{t+1}\):
+
+- \(R_{t,q}\) measures the change in a target's continuous functional response.
+- \(\Delta P_{t,q}\) measures the persistent redistribution of function across intervened components.
+- \(C_{t+1,q}\) records the capability boundary reached after that response.
+
+Learning is the **persistent functional reorganization** caused by actual training. It can be detected through changes in intervention-measured support even while an external correctness result remains unchanged. The measured response, support change, and capability result share the state transition as their source.
+
+### 2.3 Inference: recruitment from a fixed learned state
 
 \[
-\delta_t=\Psi(\theta_t,\omega_t,D_t,B_t).
+\boxed{
+\begin{aligned}
+S^{\mathrm{active}}_{x,c}&=\Pi_{x,c}(L^*),\\
+Y_{x,c}&=H_{x,c}\bigl(S^{\mathrm{active}}_{x,c}\bigr),\\
+L^*_{\mathrm{after}}&=L^*_{\mathrm{before}}.
+\end{aligned}}
+\tag{4}
 \]
 
-TL-E01记录能力形成、下降与恢复，发现损失、准确率、训练步数等单一观测量不足以完整表征这些变化。TL-E02的有效演化暂停实验进一步确立训练状态演化对能力形成的作用。
+A frozen inference is an executed occurrence: it reads a particular learned version, recruits support conditioned on the query and context, and combines the resulting contributions. Recurrent computation, denoising steps, token generation, and other transient computations can evolve inside \(H_{x,c}\) while the persistent learned state \(L^*\) remains fixed.
 
-### 3.2 有限幅度非线性响应（TL-E04–E05）
+In the experiments, causal recruitment is measured by component gates, non-additive joint gates, and exact substitution of earlier learned component versions.
 
-令 \(\delta_t=\theta_{t+1}-\theta_t\) 为一次实际形成的更新，在固定接收状态上改变其施加幅度：
+### 2.4 Reinforcement: behavioral consequences re-enter training
+
+\[
+\boxed{
+\begin{aligned}
+Y_t&=\mathcal I(L_t,x_t,c_t),\\
+B_{t+1}&=\mathcal B(B_t,Y_t,E_t),\\
+A_{t+1}&=\mathcal U(Z_{t+1},D_{t+1},B_{t+1}),\\
+Z_{t+2}&=\mathcal T(Z_{t+1},A_{t+1}).
+\end{aligned}}
+\tag{5}
+\]
+
+\(\mathcal I\) denotes the realized inference/behavioral process. The feedback \(B_{t+1}\) affects the next training action, which in turn reorganizes later learned states and their functional support. RL-E05 and RL-E06 test this loop by experimentally controlling the allocation, duration, and redirection of *correct positive feedback* in a shared four-capability GRU.
+
+---
+
+## 3. Experimentally established dynamical relations
+
+### 3.1 Realized updates and receiving-state dependence — TL-E01–E03
+
+TL-E01 measures formation, post-formation decline, and recovery using exact training-state records and sealed capability evaluations. Its cross-run experiments show why loss, accuracy, absolute step, or a single parameter summary cannot serve as a sufficient description of the learning trajectory. TL-E02 applies interventions that pause effective parameter–optimizer evolution and compares them with clipping controls; the pause shifts the observed capability-formation event.
+
+TL-E03 isolates an actual update from the state receiving it. For a formed update \(\delta\) and a target-specific readout,
+
+\[
+\boxed{
+R_q(\theta,\delta)
+=m_q(\theta+\delta)-m_q(\theta),
+}
+\tag{6}
+\]
+
+with the experimentally observed receiving-state dependence
+
+\[
+\boxed{
+\exists\,\theta_A,\theta_B,\delta,q:
+\quad R_q(\theta_A,\delta)\ne R_q(\theta_B,\delta).
+}
+\tag{7}
+\]
+
+The reciprocal causal-fork protocols restore exact pre-states, execute full/skip and parameter-/optimizer-separated branches, transplant realized update increments, and compare branch-minus-skip functional responses across registered horizons. They distinguish the *formation of an update* from the *effect of applying that update to a particular receiving state*.
+
+**Experimental anchors:** [TL-E01/02 theory ledger](experiments/gfg_nanogpt_autonomous_capability_discovery_v1/research_archive/THEORY_LEDGER.md); [TL-E02 intervention contract](experiments/gfg_nanogpt_autonomous_capability_discovery_v1/contracts/intervention_api.json); [TL-E03 reciprocal protocol](experiments/gfg_nanogpt_stepwise_support_transition_v1/RECIPROCAL_MATCHED_PAIR_PROTOCOL_V2.json); [independent reciprocal validator](experiments/gfg_nanogpt_stepwise_support_transition_v1/reciprocal_validator.py).
+
+### 3.2 Finite-amplitude response and its conditioning factors — TL-E04–E05
+
+The actual update is applied at controlled amplitudes to one unchanged receiving pre-state:
 
 \[
 \boxed{
 r_{t,q}(\alpha)
 =m_q(\theta_t+\alpha\delta_t)-m_q(\theta_t).
 }
+\tag{8}
 \]
 
-实验记录了存在非线性响应：
+\(\alpha\) scales a **single recorded parameter increment**, not elapsed training time. The experiments preserve the response paths, including near-linear, saturating, accelerating, turnback, and sign-reversal morphologies. Finite-amplitude nonlinearity is directly observed:
 
 \[
 \boxed{
 \exists\,t,q,\alpha:\quad
-r_{t,q}(\alpha)\ne \alpha r_{t,q}(1).
+r_{t,q}(\alpha)\ne\alpha\,r_{t,q}(1).
 }
+\tag{9}
 \]
 
-观察到的形态包括近线性、饱和、加速、回转与符号反转。这里 \(\alpha\) 是**对一次真实更新的实验幅度干预**，不是训练时间。
-
-TL-E05识别了三个主要响应条件因子族：
+TL-E05 then studies *why the response of the same identified target differs between real training histories*. Its frozen analysis separates seven prior-information blocks, matches identical target identities across runs, tests alternative factor orders and leave-one-block-out comparisons, and uses run-pair-clustered bootstrap uncertainty. The principal response-conditioning families are
 
 \[
 \boxed{
-\mathcal F_{t,q}=(F1_{t,q},F3_{t,q},F5_t),
+\mathcal F_{t,q}
+=\bigl(F1_{t,q},F3_{t,q},F5_t\bigr).
 }
+\tag{10}
 \]
 
-分别为目标边界状态（F1）、目标特定更新几何（F3）及参数—优化器接收状态（F5）。这些是实验识别的主要条件因子族。
+- **F1 — target boundary:** the pre-update margin, competing outcomes, and proximity to a capability boundary;
+- **F3 — target–update geometry:** the realized update's magnitude, component distribution, and directional relationship to the identified target;
+- **F5 — receiving parameter/optimizer state:** the pre-update parameter configuration, optimizer memory, preconditioning summaries, and their interactions with the formed update.
 
-### 3.3 分布式功能支撑及非加性交互（TL-E06）
+The frozen TL-E05 analysis uses 12 development histories, 72 update sections, 15,264 identity-aligned target responses, and 2,000 clustered bootstrap replicates. \(\mathcal F_{t,q}\) records measured families of response-conditioning information; their operational components can be adapted to the native state of a different optimizer and architecture.
 
-以固定学习状态 \(L\) 和组件干预集合 \(C\) 定义读出 \(f_q(L;C)\)。对组件 \(i,j\) 测量：
+**Experimental anchors:** [amplitude-path protocol](experiments/gfg_nanogpt_stepwise_support_transition_v1/B_UPDATE_AMPLITUDE_PATH_PROTOCOL.json); [amplitude-path validator](experiments/gfg_nanogpt_stepwise_support_transition_v1/amplitude_path_validator.py); [TL-E05 frozen factor contract](experiments/gfg_nanogpt_response_factor_analysis_v1/FACTOR_ANALYSIS_CONTRACT.md); [factor-analysis implementation](experiments/gfg_nanogpt_response_factor_analysis_v1/runner.py).
+
+### 3.3 Distributed support and component interaction — TL-E06
+
+Fix a learned state \(L\), target \(q\), and component-intervention protocol \(\mathcal J_q\). Let \(f_q(L;\mathrm{full})\) be the continuous functional readout with all registered components active. Write \(f_q(L;-i)\) for the same state with component \(i\)'s output disabled, and \(f_q(L;-i,-j)\) for simultaneous removal of \(i\) and \(j\).
+
+The exact measured two-component interaction is
 
 \[
 \boxed{
-I_{ij,q}
-=f_{\mathrm{full}}-f_{-i}-f_{-j}+f_{-i,-j}.
-}
+\begin{aligned}
+I_{ij,q}(L)={}&f_q(L;\mathrm{full})
+-f_q(L;-i)\\
+&-f_q(L;-j)+f_q(L;-i,-j).
+\end{aligned}}
+\tag{11}
 \]
-
-实验观察到非零二阶交互：
 
 \[
-\boxed{\exists\,i,j,q:\quad I_{ij,q}\ne 0.}
+\boxed{\exists\,L,i,j,q:\quad I_{ij,q}(L)\ne0.}
+\tag{12}
 \]
 
-组件必要性、备份、替代、协同及失效余量共同构成目标的干预式功能支撑测量 \(\mathcal P_q(L;\mathcal J_q)\)。
+A nonzero \(I_{ij,q}\) records a joint functional effect that differs from the sum of the separate gate effects. Its value and sign come from measured outputs.
 
-### 3.4 持久学习重组（TL-E07）
+For the nanoGPT CSRG-4C instrument, component necessity and pair backup are evaluated as
 
-同一次真实更新引起：
+\[
+\begin{aligned}
+N_{j,q}&=\max\bigl(0,f_{\mathrm{full},q}-f_{-j,q}\bigr),\\
+Q_{ij,q}&=\max\bigl(0,(f_{\mathrm{full},q}-f_{-i,-j,q})
+-N_{i,q}-N_{j,q}\bigr).
+\end{aligned}
+\tag{13}
+\]
+
+When \(\sum_j N_{j,q}>0\), the normalized allocation and effective component support are
+
+\[
+w_{j,q}=\frac{N_{j,q}}{\sum_kN_{k,q}},
+\qquad
+n^{\mathrm{eff}}_q=\frac{1}{\sum_jw_{j,q}^{\,2}}.
+\tag{14}
+\]
+
+The full measured profile \(\mathcal P_q(L;\mathcal J_q)\) also contains the registered single-/double-gate margins, backup/substitution effects, and failure slack. It is constructed from **actual intervention results**, with each absent or undefined statistic retained as such in the evidence record.
+
+**Experimental anchors:** [CSRG-4C frozen capture contract](experiments/gfg_nanogpt_support_redundancy_v1/capture_contract_v2.json); [intervention and support builder](experiments/gfg_nanogpt_support_redundancy_v1/builder.py); [independent archive verifier](experiments/gfg_nanogpt_support_redundancy_v1/verify_archive.py).
+
+### 3.4 Persistent redistribution and capability readout — TL-E07–E08
+
+Measure the same registered support profile on both sides of a *single actual training transition*:
 
 \[
 \boxed{
@@ -144,319 +276,222 @@ I_{ij,q}
 =\mathcal P_q(L_{t+1};\mathcal J_q)
 -\mathcal P_q(L_t;\mathcal J_q).
 }
+\tag{15}
 \]
 
-在相同可比测量协议下，实验记录 **1,636 次有效支撑分配转移**及 **228 次主要支撑组件交接**。
-
-**Learning 是真实训练导致的持久功能组织变化。** \(\Delta P_{t,q}\) 和 \(R_{t,q}\) 由共同的状态变化产生，不规定其中一个必然先成为另一个的原因。
-
-### 3.5 功能变化与能力边界（TL-E07–E08）
-
-对于具有有符号 margin 的目标：
-
-\[
-\boxed{
-\begin{aligned}
-C_{t,q}&=\mathbf1[m_q(L_t)>0],\\
-m_q(L_{t+1})&=m_q(L_t)+R_{t,q},\\
-C_{t+1,q}&=\mathbf1[m_q(L_t)+R_{t,q}>0].
-\end{aligned}
-}
-\]
-
-因此，真实训练的目标响应与能力获得、维持、丧失、恢复之间具有明确的边界关系。实验记录到：
+TL-E07 compares the identical receiving pre-state with \(\alpha=0\) (skipped parameter increment) and \(\alpha=1\) (the complete realized increment). Across 72 sections, it records 1,656 target-group transitions, 1,636 defined allocation comparisons, and **228 primary-support handoffs**. The measured allocation can reorganize while the observed target capability is unchanged:
 
 \[
 \boxed{
 \exists\,t,q:\quad
 \Delta P_{t,q}\ne0
-\;\land\;
+\quad\land\quad
 C_{t+1,q}=C_{t,q}.
 }
+\tag{16}
 \]
 
-**内部功能支撑可以发生持久重组，而外部正确性暂时保持不变。** 能力改变对应目标特定读出边界的跨越。
-
-### 3.6 冻结推理与已学习版本依赖（INF-E01）
-
-在冻结的持久学习状态 \(L^*\) 下：
+For signed target margins, TL-E08 connects the actual response to the observable boundary:
 
 \[
 \boxed{
 \begin{aligned}
-S_{x,c}^{\mathrm{active}}&=\Pi_{x,c}(L^*),\\
-Y_{x,c}&=H_{x,c}(S_{x,c}^{\mathrm{active}}),\\
-L_{\mathrm{after}}^*&=L_{\mathrm{before}}^*.
-\end{aligned}
-}
+m_q(L_{t+1})&=m_q(L_t)+R_{t,q},\\
+C_{t,q}&=\mathbf1[m_q(L_t)>0],\\
+C_{t+1,q}&=\mathbf1[m_q(L_t)+R_{t,q}>0].
+\end{aligned}}
+\tag{17}
 \]
 
-推理按查询和上下文调用、组合已形成的功能支撑；瞬时计算可以复杂，但持久学习状态固定。
+The four observed outcomes—remaining correct, correct-to-wrong, remaining wrong, and wrong-to-correct—are determined by the two boundary readouts. The underlying continuous margin records how an update can move a target toward or away from the boundary before the discrete outcome changes.
 
-将组件 \(j\) 替换为训练前的精确版本：
+**Experimental anchors:** [TL-E07 analysis](experiments/gfg_nanogpt_support_reallocation_audit_v1/analysis.py); [TL-E07 independent checker](experiments/gfg_nanogpt_support_reallocation_audit_v1/independent.py); [TL-E08 identity-aligned experiment](experiments/gfg_nanogpt_identity_aligned_margin_crossing_v1/experiment.py).
+
+### 3.5 Query-conditioned frozen inference — INF-E01
+
+For a frozen learned state \(L^*\), inference executes Equation (4). A direct version-intervention measurement is
 
 \[
 \boxed{
-D_{j,q}
-=f(q;L^*)-f(q;L^{(j\leftarrow\mathrm{pre})}).
+D_{j,q}^{\mathrm{rollback}}
+=f_q(L^*;\mathrm{full})
+-f_q\bigl(L^{(j\leftarrow\mathrm{pre})};\mathrm{full}\bigr),
 }
+\tag{18}
 \]
 
-INF-E01通过组件门控、查询条件效应、非加性交互、精确版本回滚与恢复检验了这些关系。
+where \(L^{(j\leftarrow\mathrm{pre})}\) replaces only the identified component \(j\) with its exact pre-formation version while retaining all other registered trained components.
 
-### 3.7 反馈闭环与再组织（RL-E01–E06）
+INF-E01 tests 13 nanoGPT histories at four mechanically selected checkpoint phases each: **52 phase-specific comparisons**. Frozen forward executions are paired with component gating, query-specific support profiles, pairwise interactions, exact earlier-version substitution, and byte-exact trained-version restoration. Thus the inference result is experimentally linked to the particular learned parameter versions recruited for that occurrence.
 
-行为的后果重新进入训练：
+The same frozen-inference relations are tested in ResNet, diffusion U-Net, and routed Vision-MoE. In diffusion, complete denoising trajectories change transient sample state while the model's persistent learned state remains fixed.
+
+**Experimental anchors:** [INF-E01 frozen protocol](experiments/gfg_nanogpt_training_learning_inference_projection_v1/PROTOCOL_FREEZE.md); [INF-E01 analysis](experiments/gfg_nanogpt_training_learning_inference_projection_v1/analysis.py); [cross-system frozen inference](experiments/gfg_cross_system_frozen_inference_projection_v1/RESULTS.md); [Vision-MoE inference results](experiments/gfg_moe_cifar_training_learning_inference_generalization_v1/RESULTS.md).
+
+### 3.6 Feedback-directed support reorganization — RL-E05–E06
+
+The feedback branch of Equation (5) is tested in a shared, finite, four-capability GRU after all four capabilities have reached mastery. Registered component-coalition interventions measure exact Shapley contributions to correct-action margins. Aggregating positive contributions across registered targets gives each capability's measured positive-support mass \(M_q^+\), and its **relative** support share
+
+\[
+\boxed{
+s_q=\frac{M_q^+}{\sum_k M_k^+}.
+}
+\tag{19}
+\]
+
+RL-E05 compares selective, balanced, and no-persistent-update branches from byte-identical parameter–optimizer states. It records increased relative support concentration, reduced performance on unreinforced capabilities, and directionally informative component-version rollback interventions. Its stricter pre-registered temporal gate, requiring a specified 0.03 support-share increase by the first observed accuracy loss, was satisfied in **2/12** seeds.
+
+RL-E06 directly varies the *distribution* of 60 correct-feedback episodes per update while holding the initial mastered state, episode budget, optimizer opportunities, and reward rule fixed. The four allocations across capabilities \(0,1,2,3\) are
+
+\[
+(15,15,15,15),\quad(30,10,10,10),\quad
+(45,5,5,5),\quad(60,0,0,0).
+\tag{20}
+\]
+
+At the registered dose levels \(d_1<d_2<d_3<d_4\), all 12 formal seeds exhibit the measured ordering
 
 \[
 \boxed{
 \begin{aligned}
-Y_t&=\mathcal I(L_t,x_t),\\
-B_{t+1}&=\mathcal B(B_t,Y_t,E_t),\\
-A_{t+1}&=\mathcal U(Z_{t+1},D_{t+1},B_{t+1}).
-\end{aligned}
-}
-\]
-
-反馈关系可以通过不同的奖励、信用分配或其他机制实现。**动力学核心是后果改变后续真实训练动作，而动作改变下一阶段的持久功能组织。**
-
-RL-E01通过匹配因果分叉建立了后果绑定／反馈关系对实际参数更新和后续行为的作用；RL-E02–E04进一步检验了长期、历史依赖和随机条件中的信用关系。
-
-RL-E06从同一个已掌握四技能的共享 GRU 状态出发，比较均衡、轻度集中、高度集中和完全集中的正确反馈分配。在已测试的剂量序列 \(d_1<d_2<d_3<d_4\) 中：
-
-\[
-\boxed{
-\begin{aligned}
-P_{\mathrm{target}}^{\mathrm{share}}(d_1)
-&<P_{\mathrm{target}}^{\mathrm{share}}(d_2)
-<P_{\mathrm{target}}^{\mathrm{share}}(d_3)
-<P_{\mathrm{target}}^{\mathrm{share}}(d_4),\\
+s_0(d_1)&<s_0(d_2)<s_0(d_3)<s_0(d_4),\\
 \overline m_{\mathrm{other}}(d_1)
 &>\overline m_{\mathrm{other}}(d_2)
 >\overline m_{\mathrm{other}}(d_3)
 >\overline m_{\mathrm{other}}(d_4).
-\end{aligned}
-}
+\end{aligned}}
+\tag{21}
 \]
 
-实验结果：强化技能支撑份额由 **25.54%** 提升至 **35.20%**，其他技能平均 margin 由 **9.474** 降至 **3.962**。从完全集中反馈第 800 步的相同状态改为均衡反馈，其他技能准确率由 **70.31%** 恢复至 **99.48%**，被强化技能保持 **100%**。
+The mean reinforced-capability support shares are **25.54%, 26.47%, 27.50%, 35.20%**; the other-capability mean margins are **9.474, 9.130, 8.493, 3.962**.
 
-**反馈分配与持续训练可以重新引导持久功能支撑，并改变已有能力的保持与恢复。**
+At exclusive-feedback update 800, two recovery branches begin from the **same exact parameter–AdamW state**. Rebalanced feedback restores the other capabilities' mean accuracy from **70.31% to 99.48%** while retaining capability 0 at **100%**; training only the other three restores them to **99.83%** while capability 0 reaches **89.06%**. The associated functional-support profiles move toward the corresponding balanced configurations.
 
-## 4. 定量预测的具体实现：TL-P01
+Together these interventions establish feedback allocation as a causal control of *persistent functional reorganization* in the tested shared system.
 
-TL-E05的主要响应条件引出对**已经形成的实际更新**所导致的目标边界的预测。
+**Experimental anchors:** [RL-E05 protocol](experiments/gfg_rl_selective_positive_feedback_support_concentration_v1/PROTOCOL_FREEZE.md); [RL-E05 results](experiments/gfg_rl_selective_positive_feedback_support_concentration_v1/RESULTS.md); [RL-E06 frozen dose/recovery protocol](experiments/gfg_rl_selective_positive_feedback_dose_recovery_v1/PROTOCOL_FREEZE.md); [RL-E06 formal results](experiments/gfg_rl_selective_positive_feedback_dose_recovery_v1/RESULTS.md); [RL-E06 independent checker](experiments/gfg_rl_selective_positive_feedback_dose_recovery_v1/independent_checker.py).
 
-令正确类别为 \(y\)，竞争类别为 \(c\)，隐表示为 \(h\)，并定义：
+---
+
+## 4. Quantitative prediction from the established dynamics — TL-P01
+
+The realized-update and target-boundary measurements yield a concrete prediction task: **after an update has been formed, predict its effect on an identified target's decision boundary before evaluating the updated network on that target**.
+
+For a network with hidden representation \(h(\theta,x)\) and linear output rows \(w_k\), fix correct class \(y\) and competitor \(c\). At the receiving pre-state, set
 
 \[
-b_c=w_y-w_c,\quad
-\Delta b_c=\Delta w_y-\Delta w_c,
-\quad h'=Dh[\delta_t],\quad
-h''=D^2h[\delta_t,\delta_t].
+\begin{aligned}
+b_c&=w_y-w_c,&
+\Delta b_c&=\Delta w_y-\Delta w_c,\\
+h&=h(\theta_t,x),&
+h'&=Dh(\theta_t,x)[\delta_t],\\
+&&h''&=D^2h(\theta_t,x)[\delta_t,\delta_t].
+\end{aligned}
+\tag{22}
 \]
 
-则预测的更新后类别边界为：
+Here \(h'\) and \(h''\) are the first and second *directional responses of the pre-update hidden representation along the already formed actual update*. An affine output head can be written in the same form by augmenting \(h\) with a constant coordinate.
+
+The frozen quadratic-complete endpoint-gap estimator is
 
 \[
 \boxed{
 \begin{aligned}
-\widehat g_{y,c}={}&
-b_c^\top h+\Delta b_c^\top h
+\widehat g_{y,c}
+={}&b_c^\top h
++\Delta b_c^\top h
 +b_c^\top h'\\
 &+\Delta b_c^\top h'
-+\tfrac12 b_c^\top h''.
-\end{aligned}
-}
++\tfrac12\,b_c^\top h''.
+\end{aligned}}
+\tag{23}
 \]
 
-预测正确性由下式判断：
+All competitors are evaluated separately; the predicted endpoint capability is
 
 \[
+\boxed{
 \widehat C_{t+1,q}
 =\mathbf1\!\left[\min_{c\ne y}\widehat g_{y,c}>0\right].
+}
+\tag{24}
 \]
 
-nanoGPT确认集结果：**4,652／5,088 = 91.43%** 预测准确率，**91.49%** 四类能力转移宏平均召回率。
+The predictor combines the **initial target boundary**, **the target-specific geometry of the actual update**, and **the receiving-state directional response**. It is evaluated at the pre-response information boundary: the actual update is available, while the updated target output is revealed only during adjudication.
 
-TL-P01给出了上述统一关系的可计算预测实例。不同系统可以使用适合其状态与算子特性的预测实现。
+In the nanoGPT four-run confirmation split, the fixed algorithm obtains **4,652/5,088 = 91.43%** post-update boundary accuracy and **91.49%** macro recall across the four target-transition categories. Its primary score is a target-boundary result rather than next-token task accuracy. The same algorithm is independently applied to all 15,264 target records.
 
-## 5. 数学结构与实验关系对应
+**Experimental anchors:** [TL-P01 frozen protocol](experiments/gfg_nanogpt_actual_update_boundary_v1/PROTOCOL_FREEZE.md); [results](experiments/gfg_nanogpt_actual_update_boundary_v1/RESULTS.md); [independent checker](experiments/gfg_nanogpt_actual_update_boundary_v1/INDEPENDENT_CHECKER.py).
 
-| 动力学关系 | 对应实验 | 数学表达 |
+## 5. Cross-system experimental tests
+
+The core dynamical relations were remeasured under different architectures, learning mechanisms, targets, and inference operations. The table reports the **single-update boundary predictor's** accuracy and four-transition macro recall, alongside the system's experimental role.
+
+| System | Native test of the dynamics | Boundary-prediction accuracy | Four-transition macro recall |
+|---|---|---:|---:|
+| nanoGPT / Adam | Receiving-state exchanges, amplitude paths, component support, learned-version inference | **91.43%** | **91.49%** |
+| ResNet-18 / CIFAR-100 / SGD momentum | Image-classification target boundaries, momentum exchanges, residual-stage coalitions | **99.28%** | **97.99%** |
+| Diffusion U-Net / CIFAR-10 / AdamW | Identified image–timestep–noise targets, residual-error boundaries, denoising support | **99.60%** | **97.98%** |
+| Vision-MoE / CIFAR-100 / AdamW | Top-2 routing, expert coalitions, routed support, exact rollback | **99.63%** | **96.95%** |
+| Message-passing GNN / RMSprop | Graph-level targets, native functional support and update exchanges | **98.54%** | **98.62%** |
+| Hard-spiking SNN / Adagrad | Exact spike events, hard-threshold forward dynamics, native support interventions | **95.31%** | **70.74%** |
+
+The ResNet, diffusion, and Vision-MoE experiments independently reproduce the tested receiving-state response, nonlinear paths, and support reallocation under frozen protocols. The GNN retains one failed finite-amplitude frequency gate in its first seed (**8/9** gates passed there), while its other reported relation gates and the core intervention observations remain measured. The hard-spiking SNN passes **12/12** operational gates in each of four seeds; its lower boundary-transition recall identifies the distinct behavior of a local-derivative predictor when real hard-spike threshold crossings are involved.
+
+This separation between **underlying functional dynamics** and **a particular approximate endpoint predictor** is itself experimentally observable.
+
+**Experimental anchors:** [ResNet formal results](experiments/gfg_resnet_cifar_training_learning_generalization_v1/RESULTS.md); [diffusion formal results](experiments/gfg_ddpm_cifar_training_learning_generalization_v1/RESULTS.md); [Vision-MoE formal results](experiments/gfg_moe_cifar_training_learning_inference_generalization_v1/RESULTS.md); [GNN/SNN prediction transport](independent_stress_tests/tlp01_prediction/REPORT.md); [cross-system evidence scope](independent_stress_tests/EVIDENCE_SCOPE.md).
+
+## 6. Equation-to-evidence map
+
+| Dynamical object or relationship | Equations | Direct experimental basis |
 |---|---|---|
-| 状态与真实更新形成 | TL-E01–E03 | \(Z_t,A_t\mapsto Z_{t+1}\) |
-| 接收状态依赖 | TL-E03 | \(R_q(\theta_A,\delta)\ne R_q(\theta_B,\delta)\) 的实测实例 |
-| 有限幅度非线性 | TL-E04 | \(r_{t,q}(\alpha)\ne\alpha r_{t,q}(1)\) 的实测实例 |
-| 响应主要条件因子 | TL-E05 | F1／F3／F5 |
-| 分布式非加性支撑 | TL-E06 | \(I_{ij,q}\ne0\) 的实测实例 |
-| 持久支撑重组 | TL-E07 | \(\Delta P_{t,q}=\mathcal P_q(L_{t+1})-\mathcal P_q(L_t)\) |
-| 能力读出边界 | TL-E08 | \(C_{t+1,q}=\chi_q(m_{t,q}+R_{t,q})\) |
-| 冻结推理 | INF-E01 | \(Y=H(\Pi(L^*)),\,\Delta_{\mathrm{inf}}L=0\) |
-| 目标边界预测 | TL-P01 | \(\widehat g_{y,c}\) |
-| 反馈改变后续训练 | RL-E01–E04 | \(B_{t+1}\mapsto A_{t+1}\) |
-| 反馈驱动支撑再组织 | RL-E05–E06 | 反馈剂量、margin、支撑份额及恢复干预 |
+| Realized training actions, persistent receiving states, optimizer memory | (1)–(2) | TL-E01–E03; TL-G01–G03; GNN/SNN |
+| State-dependent response to the same formed update | (6)–(7) | TL-E03 and cross-system reciprocal update exchanges |
+| Actual finite-amplitude nonlinear response | (8)–(9) | TL-E04; TL-G01–G03; GNN/SNN |
+| Response-conditioning factor families F1/F3/F5 | (10) | TL-E05; run-isolated cross-system factor tests |
+| Distributed support and non-additive component effects | (11)–(14) | TL-E06; native coalition experiments in other systems |
+| Persistent support redistribution under actual updates | (3), (15)–(16) | TL-E07; cross-system before/after support interventions |
+| Target capability and boundary crossings | (3), (17) | TL-E08 and identity-aligned true endpoint records |
+| Query-conditioned frozen inference and learned-version dependence | (4), (18) | INF-E01; INF-G01; INF-G02; GNN/SNN |
+| Feedback-directed concentration and recovery | (5), (19)–(21) | RL-E05–E06 |
+| Quantitative prediction of an actual update's target boundary | (22)–(24) | TL-P01 and cross-system prediction tests |
 
-## 6. 统一表达
+## 7. Unified dynamical interpretation and source navigation
+
+The experimentally grounded relation can be summarized as
 
 \[
 \boxed{
 \begin{gathered}
-\text{接收状态 + 真实训练动作}\\
+\text{receiving state}+\text{realized training action}\\
 \Downarrow\\
-\text{同一次持久状态演化}\\
+\text{one persistent-state transition}\\
 \Downarrow\\
 \left\{
 \begin{array}{l}
-\text{目标特定功能响应}\\
-\text{分布式功能支撑重组}\\
-\text{目标能力边界变化}
+\text{target-specific functional response}\\
+\text{distributed functional-support reorganization}\\
+\text{capability-boundary outcome}
 \end{array}
 \right.\\
 \Downarrow\\
-\text{固定学习状态下调用与组合已形成的支撑}\\
+\text{query-conditioned use of the learned state}\\
 \Downarrow\\
-\text{行为后果反馈至后续真实训练动作}
-\end{gathered}
-}
+\text{behavioral consequence and subsequent feedback}\\
+\Downarrow\\
+\text{next realized training action}.
+\end{gathered}}
+\tag{25}
 \]
 
-**TLIR将Training、Learning、Inference和Reinforcement组织为同一人工神经系统中的耦合动力学关系：真实训练动作的功能效应依赖接收状态并可表现出非线性；训练持续重组分布式功能支撑；能力变化由目标特定边界读出；推理在固定学习状态下调用已有支撑；反馈将行为后果带回后续训练，进一步改变功能组织与能力。核心关系统一，具体实现自由。**
+**TLIR unifies training, learning, inference, and reinforcement through their experimentally resolved relationships.** A realized training action acts on a concrete receiving state; its finite functional response depends on that state; the transition reorganizes distributed functional support and changes target-specific readout boundaries; inference recruits support from the learned version in use; and feedback changes the future distribution of training actions, hence the subsequent learned functional organization.
 
-## 7. 论文与证据导航
+### Repository evidence and manuscript
 
-- [当前论文逐节实验对应图](TLIR_PAPER_EVIDENCE_MAP.md)
-- [原始与扩展实验索引](EXPERIMENT_INDEX.md)
-- [TL-E03／E04：真实更新交换与幅度路径](experiments/gfg_nanogpt_stepwise_support_transition_v1/)
-- [TL-E05：响应因子分析](experiments/gfg_nanogpt_response_factor_analysis_v1/)
-- [TL-E06：分布式功能支撑](experiments/gfg_nanogpt_support_redundancy_v1/)
-- [TL-E07：支撑重新分配](experiments/gfg_nanogpt_support_reallocation_audit_v1/)
-- [TL-E08：能力边界](experiments/gfg_nanogpt_identity_aligned_margin_crossing_v1/)
-- [INF-E01：冻结推理](experiments/gfg_nanogpt_training_learning_inference_projection_v1/)
-- [TL-P01：实际更新目标边界预测](experiments/gfg_nanogpt_actual_update_boundary_v1/RESULTS.md)
-- [反馈实验与证据链](RL_EVIDENCE_CHAIN.md)
-- [21组统一解释与14项外推](TLIR_SECTION5_21_PAIRS_14_EXTRAPOLATIONS.md)
-
-## 8. 规模—功能支撑—推理性能的精确展开
-
-本节由 V5 的功能支撑干预（TL-E06）、持续重组（TL-E07）、能力边界（TL-E08）与冻结推理（INF-E01）直接得到**规模—功能表现的数学关系**。不预设容量增长率、均匀支撑重叠、线性干扰或损失幂律。
-
-### 8.1 规模进入已学习状态与冻结推理
-
-以 \(N\) 表示模型的参数规模，\(L_N\) 表示在明确训练条件下形成的持久学习状态。V5 的推理关系写为：
-
-\[
-Y_q(N)=H_{N,q}\!\left(\Pi_{N,q}(L_N)\right).
-\]
-
-规模改变时，模型所形成的状态、可调用的功能支撑及其组合关系也由相应系统确定。以目标 margin \(m_q(N)\) 作为可观察功能读出，依据 TL-E08：
-
-\[
-C_q(N)=\mathbf1[m_q(N)>0].
-\]
-
-### 8.2 由 TL-E06 组件干预得到精确容斥恒等式
-
-对固定规模 \(N\) 的模型，沿用可实施的四组组件干预，记 \(\mathcal G=\{1,2,3,4\}\)，\(m_q(N;-T)\) 为关闭集合 \(T\subseteq\mathcal G\) 中所有组、其余组保持原状时的目标 margin。定义：
-
-\[
-J_{S,q}(N)
-=\sum_{T\subseteq S}(-1)^{|T|}m_q(N;-T),
-\qquad \varnothing\ne S\subseteq\mathcal G.
-\]
-
-当 \(S=\{i\}\)，这就是 TL-E06 中的单组件必要性读出差：
-
-\[
-J_{\{i\},q}(N)=m_q(N;\mathrm{full})-m_q(N;-i).
-\]
-
-当 \(S=\{i,j\}\)，正是 V5 记录的二阶非加性交互：
-
-\[
-J_{\{i,j\},q}(N)
-=m_{\mathrm{full}}-m_{-i}-m_{-j}+m_{-i,-j}.
-\]
-
-由容斥恒等式，四组组件全部开启时的目标 margin **精确满足**：
-
-\[
-\boxed{
-\begin{aligned}
-m_q(N;\mathrm{full})={}&m_q(N;-\mathcal G)\\
-&+\sum_i J_{\{i\},q}(N)
--\sum_{i<j}J_{\{i,j\},q}(N)\\
-&+\sum_{i<j<k}J_{\{i,j,k\},q}(N)
--J_{\mathcal G,q}(N).
-\end{aligned}
-}
-\]
-
-三阶、四阶项沿用完全相同的组件联合干预定义。它们没有被设为零；因此公式保留了TL-E06发现的非加性和协同结构。四组以外的网络部分始终保持同样的参考状态。该式是代数恒等式，不是拟合，也不要求支撑位置随机均匀。
-
-定义这一干预范围内的总功能贡献：
-
-\[
-F_q(N)=
-\sum_i J_{\{i\},q}(N)
--\sum_{i<j}J_{\{i,j\},q}(N)
-+\sum_{i<j<k}J_{\{i,j,k\},q}(N)
--J_{\mathcal G,q}(N).
-\]
-
-于是：
-
-\[
-\boxed{
-m_q(N)=m_{\emptyset,q}(N)+F_q(N),
-}
-\]
-
-这里 \(m_{\emptyset,q}(N)=m_q(N;-\mathcal G)\)，而 \(m_q(N)\) 是全部组件开启时的原始目标读出。
-
-### 8.3 两种模型规模的功能差异
-
-对于按相同任务读出与评价方法比较的规模 \(N_1,N_2\)，有：
-
-\[
-\boxed{
-\begin{aligned}
-m_q(N_2)-m_q(N_1)
-={}&[m_{\emptyset,q}(N_2)-m_{\emptyset,q}(N_1)]\\
-&+[F_q(N_2)-F_q(N_1)].
-\end{aligned}
-}
-\]
-
-该式指出，跨规模性能差异可精确分解为参考读出的变化与分布式功能支撑贡献（包括高阶交互）的变化。不同规模的具体组件无需一一对应，只要求各自的干预与目标读出有明确定义。
-
-### 8.4 由能力边界得到规模—推理表现关系
-
-将 TL-E08 的边界规则代入：
-
-\[
-\boxed{
-C_q(N)=\mathbf1\!\left[
-m_{\emptyset,q}(N)+F_q(N)>0
-\right].
-}
-\]
-
-对同一组 \(Q\) 个评价目标，整体正确率满足：
-
-\[
-\boxed{
-\operatorname{Acc}(N)=\frac1Q\sum_{q=1}^Q
-\mathbf1\!\left[m_{\emptyset,q}(N)+F_q(N)>0\right].
-}
-\]
-
-**解释：** 规模 \(N\) 对推理表现的作用，通过该规模系统实际形成的持久学习状态、分布式功能支撑和相互作用，最终体现在具体目标的能力边界上。TL-E07和RL-E06说明这些支撑效应又可受真实训练与反馈分配影响。
-
-### 8.5 定量规模幂律与上述恒等式的区别
-
-上述公式**无需额外的结构性假设**，已经建立规模、功能支撑与推理表现之间的精确表达。它没有凭空设定 \(K(N)=kN\)、均匀交叠、单位损失或幂律指数。
-
-要进一步得到 \(\operatorname{Acc}(N)\) 或损失关于 \(N\) 的特定幂律，就需要测量、识别或推导 \(m_{\emptyset,q}(N)\) 与各阶 \(J_{S,q}(N)\) 的跨规模演化关系。不能把一个尚未测得的 \(N^{-\alpha}\) 当作由 TL-E06／RL-E06 自动推出的结论。
-
-这一推导的直接实验任务是：**跨模型规模测量相同目标读出、四组可实施的组件干预及高阶作用，并与实际推理表现进行对照**。
+- [Final Science manuscript evidence map](TLIR_PAPER_EVIDENCE_MAP.md)
+- [Primary experiment index](EXPERIMENT_INDEX.md)
+- [Experimental instruments and native implementations](EXPERIMENTAL_INSTRUMENTS.md)
+- [Public evidence and reproduction matrix](PUBLIC_EVIDENCE_MATRIX.md)
+- [Historical positive/negative theory comparisons and derivations](TLIR_SECTION5_21_PAIRS_14_EXTRAPOLATIONS.md)
+- [Publication evidence archive](https://doi.org/10.5281/zenodo.22005307)
