@@ -599,45 +599,91 @@ From these facts, the core TLIR relationships follow naturally: an actual update
 
 **The theory is simple because its starting mechanisms are simple.** The experimental program measures the particular responses, support interactions, reorganizations, boundary transitions and feedback effects realized by actual neural networks.
 
-## 9. A proposed architecture: frozen open-weight backbone and incremental heads
+## 9. Frozen computation and small trainable transformations — a research proposal
 
-**Status: an untested architectural proposal motivated by TLIR, not a validated result of the present experiments.** This section records the idea for future examination. No new experiments have been performed for it.
+**Status:** This section records an **untested architectural proposal** motivated by the TLIR framework. It is not an additional experimental finding and does not claim that the architecture itself is new.
 
-### 9.1 A pretrained large backbone and newly trained small heads
+### 9.1 A task result is not a stored "capability"
 
-Use an existing **open-weight pretrained model** as a general computational backbone. After selecting it, **freeze its parameters** rather than repeatedly updating them for each new task.
-
-When a new target is introduced, attach a small trainable **head** that consumes the fixed backbone's numerical representations. Train only this head by ordinary backpropagation:
+In TLIR, the observable "capability" of a learned system on a specified target is a **readout of its computation**:
 
 \[
 \boxed{
-Y_k(x)=H_{\phi_k}\!\bigl(F_\theta(x)\bigr),
-\qquad \theta\ \text{frozen}.
+C_q(L)=\chi_q\!\left(m_q(L)\right).
 }
 \tag{31}
 \]
 
-Here \(F_\theta\) is the pretrained backbone and \(H_{\phi_k}\) is the new head. Importantly, **the backbone does not need to demonstrate the new target behavior on its own**. Its existing computations and the head's learned parameters may **jointly** produce a new, successful functional result. In TLIR's terms, "capability" is a target-dependent readout of the complete system's functional organization, not an independently stored entity that must already exist inside one module.
+For a correctness-based target, the readout answers whether the produced result satisfies the target condition. For a task family, performance must be evaluated across its specified inputs and conditions. **Neither case requires a separately stored internal object called a "capability."** Parameters and components implement computations; the evaluator names the resulting success or failure.
 
-### 9.2 Add without overwriting
+A one-parameter function may satisfy a simple target, whereas a general-purpose model may use billions of parameters to serve many different targets and input conditions. The parameter count of a model on which a behavior is observed **is not automatically a lower bound on the parameters needed to realize that behavior in a specialized system**. The task, rather than the label "capability," determines the computation required.
 
-After completing task A, freeze its head. To learn task B, add another head and change only that head's parameters. The same rule applies as further heads accumulate:
+This changes the design question. Do **not** ask whether a pretrained backbone already "has" the new target capability. Ask whether a **composition of fixed existing computation and small new computation** can produce the required outputs.
+
+### 9.2 Architecture: change a small part of the computation, freeze the rest
+
+Adopt an existing **open-weight pretrained model** as a large computational function \(F_\theta\). Keep its parameters \(\theta\) unchanged. Introduce small trainable transformations **before and/or after** that function:
 
 \[
 \boxed{
-\Delta\theta=0,\qquad
-\Delta\phi_j=0\ (j<k),\qquad
-\Delta\phi_k\ \text{trainable}.
+Y_k(x)=H_{\psi_k}\!\left(F_\theta\!\left(P_{\phi_k}(x)\right)\right),
+\qquad \theta\ \text{fixed}.
 }
 \tag{32}
 \]
 
-When existing heads must cooperate, a further small **combination head** can be trained over their outputs or representations while leaving the backbone and the source heads frozen. Thus **shared computation is retained, but later learning is not allowed to overwrite earlier learned parameters**. Ordinary backpropagation and existing optimizers remain usable; only the permitted parameter set changes.
+Here \(P_{\phi_k}\) is a trainable input-side transformation and \(H_{\psi_k}\) is a trainable output-side transformation for task \(k\). Either can be the identity, yielding three cases: **front-only, back-only, or front-and-back**. Only the newly introduced parameters need to be trained:
 
-### 9.3 Conditions and unresolved questions
+\[
+\boxed{
+\Delta\theta=0,\qquad
+\Delta\phi_k,\Delta\psi_k\ \text{permitted}.
+}
+\tag{33}
+\]
 
-The proposal does **not** require a separate, localized parameter block corresponding to each apparent "capability." A head and a backbone may jointly implement a function that neither implements alone. But a head can only operate on information available in the frozen representations and within its own expressivity. If the backbone has discarded distinctions required by a new task, a small final head may be insufficient.
+**The backbone is not required to solve the task on its own.** A new target result may be realized by the entire composed calculation even if none of its constituent modules produces that result independently.
 
-Freezing parameters protects the original computation of an existing backbone–head pair **when its input processing, routing, and inference path also remain unchanged**. Newly introduced automatic head selection or simultaneous head combination may still introduce mistakes. Head capacity, routing, cooperation, cumulative memory cost, and inference cost remain open engineering questions.
+For example, suppose the fixed function computes \(F(u,v)=u+v\). A small input-side transformation \(P(a,b)=(a,-b)\) gives
 
-**Research proposition, not an experimental claim:** adopt one pretrained open-weight backbone, freeze it, and accumulate small independently trained heads (and optional combination heads). Investigate whether their joint computations can extend task performance while preserving previous computation paths, without retraining or overwriting older modules.
+\[
+F(P(a,b))=a-b.
+\]
+
+The frozen function still performs addition; the **combined system** now computes subtraction. This illustrates computational composition, not the presence or transfer of an independent "subtraction capability."
+
+### 9.3 Backpropagation does not require updating the frozen computation
+
+With a **back-only** head, the fixed backbone first produces features; the loss is differentiated with respect to the output head's parameters. There is no need to compute parameter gradients for the frozen backbone.
+
+With a **front-only** or **front-and-back** design, gradients must pass **through the fixed backbone's operations** to reach the trainable input-side transformation. This is possible when the computation path is differentiable. Passing gradients through a component and **updating that component's parameters** are different things: the former can occur while \(\Delta\theta=0\).
+
+The intended economy is **few updated parameters**, not necessarily a forward/backward computation that avoids executing the large backbone.
+
+### 9.4 What determines whether a target can be realized?
+
+The question is whether small \(P_{\phi_k}\) and/or \(H_{\psi_k}\) exist such that the **whole composed function** satisfies the desired target over the relevant input set:
+
+\[
+\boxed{
+H_{\psi_k}\circ F_\theta\circ P_{\phi_k}
+\ \approx\ f_k^{*}.
+}
+\tag{34}
+\]
+
+This formulation does **not** require \(F_\theta\approx f_k^{*}\). It also does not guarantee a solution for every arbitrary target with arbitrarily small transformations.
+
+For a back-only head, if two inputs need different answers but the frozen backbone produces exactly the same representation for both, a deterministic output head cannot distinguish them. A front transformation may change what reaches the backbone and overcome some such collisions, but not every fixed computation is suitable: a backbone that returns a constant for every input, for example, cannot be made informative by a front transformation alone. The practical question is **what useful computation the frozen function can contribute and how little trainable computation is needed to achieve the target**.
+
+### 9.5 Relation to RL-E06, incremental reuse, and existing work
+
+[RL-E06](experiments/gfg_rl_selective_positive_feedback_dose_recovery_v1/RESULTS.md) established that a shared GRU which initially completed all four registered tasks could lose success on unreinforced tasks under concentrated positive feedback, then largely recover under redistributed feedback. The architecture and model size were unchanged; feedback changed the learned functional organization and thus the target readouts. This supports the **motivation to avoid unnecessary overwriting of established shared computations**, not a claim that frozen-backbone heads were tested in RL-E06.
+
+For incremental use, freeze the completed task-specific transformations when training the next ones. An optional small coordination module may combine their outputs without updating the older modules. Preserving parameters preserves an earlier task's original computational path only if that path, its inputs, and its routing are still used unchanged.
+
+The broad engineering family has substantial precedent, including [Head2Toe (ICML 2022)](https://proceedings.mlr.press/v162/evci22a.html) and [Visual Prompt Tuning (ECCV 2022)](https://www.ecva.net/papers/eccv_2022/papers_ECCV/html/4175_ECCV_2022_paper.php). **The proposal does not claim novelty for freezing pretrained weights or adding task-specific trainable modules.**
+
+**Research question left open:** For ordinary target functions that are practically reachable by appropriately sized networks, how often can a **mostly frozen pretrained computation**, supplemented by **small front and/or back transformations**, realize those targets with far fewer updated parameters—and preserve earlier task computations while new ones are added?
+
+**Central point:** "Capability" is a name for a target-dependent result, not an object that the backbone must already contain. The goal is to **reuse fixed calculations and train only the additional calculations needed to obtain the required result**.
