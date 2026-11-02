@@ -732,7 +732,7 @@ A(t)=\operatorname{erf}\!\left(\sqrt{\frac{\epsilon}{2L(t)}}\right).
 
 **核心结论。** μP的核心关系是：**在参数宽度增加时，调整各层的实际更新与前向缩放，使学习形成的功能变化保持有限而不消失、同时不导致logit发散。** 上述原MLP例子完成了这一关系的量级推导。Tensor Programs V的μTransfer进一步研究此参数化下最优超参数跨宽度的稳定性，其完整参数族证明与实测迁移效果仍属于原研究的进一步结果，不把“\(\Theta(1)\)响应”直接等同于“任意超参数必然可迁移”。
 
-**研究对照。** [Yang与Hu，Tensor Programs IV: Feature Learning in Infinite-Width Neural Networks，ICML 2021](https://proceedings.mlr.press/v139/yang21c.html)，特别是[附录E](https://proceedings.mlr.press/v139/yang21c/yang21c-supp.pdf)；[Yang等，Tensor Programs V: Tuning Large Neural Networks via Zero-Shot Hyperparameter Transfer，NeurIPS 2022](https://arxiv.org/abs/2203.03466)。
+**研究对照。** [Yang与Hu，Tensor Programs IV: Feature Learning in Infinite-Width Neural Networks，ICML 2021](https://proceedings.mlr.press/v139/yang21c.html)，特别是[附录E](https://proceedings.mlr.press/v139/yang21c/yang21c-supp.pdf)；[Yang等，Tensor Programs V: Tuning Large Neural Networks via Zero-Shot Hyperparameter Transfer，NeurIPS 2021](https://proceedings.nips.cc/paper_files/paper/2021/hash/8df7c2e3c3c3be098ef7b382bd2c37ba-Abstract.html)。
 
 **内部实验锚点。** TL-E03（接收状态决定实际功能响应）；TL-E04（有限幅度更新的非线性）；TL-E05（目标与动作几何）。
 
