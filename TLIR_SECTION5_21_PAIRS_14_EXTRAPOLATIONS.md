@@ -216,9 +216,7 @@ TLIR首先通过九项nanoGPT实验建立训练、学习、推理之间的动力
 ## 5.2 理论先行外推与独立研究对照
 理论先行外推从已建立的TLIR关系出发，使用被外推研究**原本采用的模型与数学条件**，推出相应的功能变化、稳定边界、风险或优化结果，不另立用于凑结论的假设。
 
-**已完成核心数学关系推导（13项）：** 5.2.1、5.2.2、5.2.3、5.2.4、5.2.5、5.2.6、5.2.7、5.2.9、5.2.10、5.2.11、5.2.12、5.2.13、5.2.14。每项列出TLIR入口、被研究理论原有条件、计算步骤、所得核心关系与研究对照。其中5.2.2的多维最大间隔方向沿用原研究的定理，5.2.6由原Chinchilla经验损失律推出最优配置；5.2.10在ICLR 2024可解的线性Grokking模型下推出迟发时间；5.2.11推导μP原MLP示例的核心响应量级而非全部参数族定理。
-
-**暂不处理（1项）：** 5.2.8 信息瓶颈。保留原稿的统一解释，不列为已完成数学推导。
+**已完成核心数学关系推导（14项）：** 5.2.1–5.2.14。每项列出TLIR入口、被研究理论原有条件、计算步骤、所得核心关系与研究对照。其中5.2.2的多维最大间隔方向沿用原研究的定理，5.2.6由原Chinchilla经验损失律推出最优配置；5.2.10在ICLR 2024可解的线性Grokking模型下推出迟发时间；5.2.11推导μP原MLP示例的核心响应量级而非全部参数族定理。5.2.8已将原Information Bottleneck统一解释替换为Dropout自适应正则化，直接由原GLM与独立Bernoulli屏蔽条件得到相应的精确正则项和功能更新关系。
 
 **判别标准：** 将“由数学条件直接得到的公式”与“将外部现象置于TLIR链条中的统一解释”分开；只有前者列为完成推导。
 
@@ -551,15 +549,94 @@ B_\ell=\frac{\partial F_\ell}{\partial\theta_\ell}.
 
 **内部锚点。** TL-E03（接收状态）；TL-E04（实际更新路径）；TL-E05（更新几何）。
 
-### 5.2.8 Information Bottleneck：信息压缩与功能支撑形成
+### 5.2.8 Dropout：随机特征屏蔽为什么等价于自适应正则化
 
-TLIR将Learning定义为功能支撑的持久重组。设隐藏表征为\(T_\ell\)，输入为\(X\)，信息瓶颈研究的量为互信息\(I(X;T_\ell)\)。当训练动作、噪声或正则化选择性抑制任务无关方向时，\(I(X;T_\ell)\)的变化可以成为支撑重组的一个可测投影；改变激活函数、噪声形式与表示映射后，内部功能形成与互信息曲线的对应关系也随之改变。
+**推导类型：使用Dropout研究自身的独立Bernoulli特征屏蔽与广义线性模型（GLM）条件，直接推出标签无关的正则项；在原GLM包含的高斯线性回归中，精确推出数据依赖的对角二次正则化，以及它怎样改变真实训练动作。**
 
-因此，TLIR把表示压缩定位为某些训练区域中的有效学习机制，并将可观察的分类正确性、信息量变化与真实功能组织分别作为不同的测量对象。
+**TLIR入口。** 式(1)–(2)把实际训练写为\(A_t=\mathcal U(Z_t,D_t,B_t)\)、\(\theta_{t+1}=\theta_t+\delta_t\)。训练时随机屏蔽特征，直接改变实际动作的形成；式(3)/(6)再测量该动作对任一固定目标的连续功能响应。式(4)区分训练时的随机屏蔽和冻结模型的推理调用。
 
-**独立研究对应。** Shwartz-Ziv与Tishby提出拟合—压缩的两阶段信息平面解释；Saxe等发现压缩阶段对网络结构和非线性具有显著依赖；Goldfeld等分析确定性网络的信息量估计及表征聚类；Kawaguchi等给出信息瓶颈控制泛化误差的理论。这些正反研究对应于不同接收状态、测量方式与动作条件下的表示组织。
+**使用的原理论条件。** Wager、Wang与Liang（NeurIPS 2013）研究广义线性模型的**独立特征Dropout**。令保留概率\(r\in(0,1]\)，各掩码\(z_{ij}\)独立服从\(\operatorname{Bernoulli}(r)\)，并使用原研究的倒置缩放\(\widetilde x_{ij}=x_{ij}z_{ij}/r\)，因此\(\mathbb E_z[\widetilde x_i]=x_i\)。GLM的单样本负对数似然为
 
-**内部实验锚点。** TL-E06：组件干预揭示分布式功能支撑；TL-E07：训练重组支撑；TL-E08：支撑变化与可观察正确性由读出边界联系。
+\[
+\ell_i(w;x_i,y_i)=A(w^\top x_i)-y_iw^\top x_i-\log h(y_i),
+\]
+
+其中\(A\)是原GLM的凸对数配分函数；不引入其他正则项或新的特征噪声模型。
+
+**第一步：由原Dropout屏蔽机制计算目标函数。** 令\(L_0(w)=n^{-1}\sum_i\ell_i(w;x_i,y_i)\)。对屏蔽变量取期望：
+
+\[
+\begin{aligned}
+\overline L_{\rm drop}(w)
+&=\frac1n\sum_i\mathbb E_z[\ell_i(w;\widetilde x_i,y_i)]\\
+&=L_0(w)+\mathcal R_{\rm drop}(w),\\
+\boxed{\mathcal R_{\rm drop}(w)
+&=\frac1n\sum_i\left[
+\mathbb E_z A(w^\top\widetilde x_i)-A(w^\top x_i)
+\right]\ge0.}
+\end{aligned}
+\]
+
+最后的不等式来自\(A\)凸、\(\mathbb E_z[\widetilde x_i]=x_i\)以及Jensen不等式。由于标签项对屏蔽取期望后不变，**\(\mathcal R_{\rm drop}\)不包含\(y_i\)**。这是原GLM条件下的精确分解，而不是额外猜测Dropout会产生何种惩罚。
+
+**第二步：在原GLM包含的高斯线性回归中算出正则项。** 对固定方差的高斯线性模型，归一化单位方差后\(A(u)=u^2/2\)，对应平方损失\(\ell_i=\tfrac12(y_i-w^\top x_i)^2+\mathrm{const}\)。因为独立屏蔽，
+
+\[
+\operatorname{Var}_z(w^\top\widetilde x_i)
+=\frac{1-r}{r}\sum_{j=1}^d w_j^2x_{ij}^2.
+\]
+
+令\(s_j^2=n^{-1}\sum_i x_{ij}^2\)，则
+
+\[
+\boxed{
+\overline L_{\rm drop}(w)
+=L_0(w)+\frac{1-r}{2r}\sum_{j=1}^d s_j^2w_j^2.
+}
+\]
+
+**这就是Dropout与数据依赖的对角\(L_2\)正则化之间的精确关系。** 特征坐标的惩罚系数由该坐标在训练数据中的平方均值和原始Dropout保留率决定。
+
+**第三步：代回TLIR实际更新，得到功能响应。** 对上述期望目标使用原有的梯度下降训练动作（单次随机掩码SGD的条件期望梯度也等于下式梯度），记\(D_s=\operatorname{diag}(s_1^2,\ldots,s_d^2)\)，则
+
+\[
+\boxed{
+\begin{aligned}
+\mathbb E_z[\delta_t\mid w_t]
+&=-\eta\nabla_w\overline L_{\rm drop}(w_t)\\
+&=-\eta\left[\nabla L_0(w_t)+\frac{1-r}{r}D_sw_t\right].
+\end{aligned}}
+\]
+
+这里的期望指**固定接收状态和训练数据、只平均Dropout掩码**；一次真实训练使用的仍是实际抽到的掩码所形成的动作\(\delta_t\)。
+
+对于线性模型，在固定查询\(x_q\)上的连续功能读出\(m_q(w)=w^\top x_q\)，TLIR功能响应恰好为
+
+\[
+\boxed{
+R_{t,q}
+=m_q(w_t+\delta_t)-m_q(w_t)
+=x_q^\top\delta_t.
+}
+\]
+
+所以随机屏蔽通过改变训练动作，使不同查询产生不同的目标功能响应；其期望更新含有上述自适应收缩项。**正则化并不是另一个独立的学习过程，而是原有随机训练机制对状态更新施加的确定性平均效应。**
+
+**第四步：训练与冻结推理的关系。** 对这一线性模型，因\(\mathbb E_z[\widetilde x]=x\)，
+
+\[
+\boxed{
+\mathbb E_z[f_w(\widetilde x)]=f_w(x)=w^\top x.
+}
+\]
+
+故训练时随机子模型预测的平均值，与冻结权重、关闭屏蔽后的线性推理**精确相同**。原Dropout论文在非线性深网中的测试时权重缩放/模型平均属于近似，不把线性模型的等式推广为所有非线性网络的恒等式。
+
+**推得的核心关系。** 在原广义线性模型与独立Dropout条件下，**随机特征屏蔽 \(\Rightarrow\) 标签无关的非负正则项**；在原高斯线性特例下进一步得到**精确的自适应二次惩罚 \(\Rightarrow\) 改变的实际梯度更新 \(\Rightarrow\) 查询相关的功能响应**。这与TLIR的训练—学习—冻结推理链直接衔接。
+
+**独立研究对照。** [Srivastava等，Dropout: A Simple Way to Prevent Neural Networks from Overfitting，JMLR 2014](https://www.jmlr.org/papers/v15/srivastava14a.html)；[Wager、Wang与Liang，Dropout Training as Adaptive Regularization，NeurIPS 2013](https://papers.nips.cc/paper_files/paper/2013/hash/38db3aed920cf82ab059bfccbd02be6a-Abstract.html)。
+
+**内部实验锚点。** TL-E03（形成的实际动作及接收状态影响功能响应）；TL-E04（有限幅度功能响应）；INF-E01（固定学习状态上的查询相关推理）。
 
 ### 5.2.9 Catastrophic Forgetting：旧目标失效的精确边界
 
