@@ -1,341 +1,758 @@
 ## 5.2 理论先行外推与独立研究对照
-理论先行外推从已建立的TLIR关系出发，依次确定动力学变量、数学假设、预测公式与预期结果，再与独立研究进行对照。以下十四项涉及优化稳定性、能力形成后的持续学习、递归反馈、泛化、表征演化、规模规律与训练动态等方向。
+理论先行外推从已建立的TLIR关系出发，使用被外推研究**原本采用的模型与数学条件**，推出相应的功能变化、稳定边界、风险或优化结果，不另立用于凑结论的假设。
+
+**已完成核心数学关系推导（14项）：** 5.2.1–5.2.14。每项列出TLIR入口、被研究理论原有条件、计算步骤、所得核心关系与研究对照。其中5.2.2的多维最大间隔方向沿用原研究的定理，5.2.6由原Chinchilla经验损失律推出最优配置；5.2.10在ICLR 2024可解的线性Grokking模型下推出迟发时间；5.2.11推导μP原MLP示例的核心响应量级而非全部参数族定理。5.2.8已将原Information Bottleneck统一解释替换为Dropout自适应正则化，直接由原GLM与独立Bernoulli屏蔽条件得到相应的精确正则项和功能更新关系。
+
+**判别标准：** 将“由数学条件直接得到的公式”与“将外部现象置于TLIR链条中的统一解释”分开；只有前者列为完成推导。
 
 ### 5.2.1 演化稳定性：Edge of Stability
 
-TLIR将一次训练写为接收状态与实际动作共同决定的转移：
+**推导类型：原理论条件下的局部稳定阈值。**
+
+**TLIR入口。** 实际更新形成与状态转移：\(\theta_{t+1}=\theta_t+\delta_t\)，一次功能响应为\(R_q(\theta_t,\delta_t)=m_q(\theta_t+\delta_t)-m_q(\theta_t)\)。
+
+**使用的原理论条件。** 普通梯度下降、固定学习率\(\eta>0\)，在驻点附近以局部二次损失近似，Hessian \(H=H^\top\) 在局部固定。这里分析的正是Edge of Stability文献的冻结局部线性稳定性问题。
+
+**逐步推导。**
 
 \[
-S_{t+1}=F(S_t,A_t),\qquad A_t=\pi(S_t),
+\delta_t=-\eta\nabla L(\theta_t),\qquad
+e_t=\theta_t-\theta^\star,\qquad
+\nabla L(\theta_t)\approx He_t.
 \]
 
-由此得到完整状态演化映射
+将实际动作代入TLIR状态转移，得
 
 \[
-S_{t+1}=\mathcal F(S_t)=F\bigl(S_t,\pi(S_t)\bigr).
+e_{t+1}=(I-\eta H)e_t.
 \]
 
-沿该映射的局部稳定性由其雅可比矩阵决定，边缘稳定区域对应\(\rho(D\mathcal F(S_t))\approx 1\)。对于普通梯度下降、局部二次损失和冻结的Hessian，参数更新映射的雅可比为
+在\(H v_i=\lambda_i v_i\)的特征方向上，
 
 \[
-J_t=I-\eta H_t.
+e_{i,t+1}=(1-\eta\lambda_i)e_{i,t}.
 \]
 
-沿正曲率特征方向，局部收缩条件为
+正曲率方向局部收缩，当且仅当
 
 \[
-|1-\eta\lambda_i|<1,
-\qquad \lambda_{\max}=\frac{2}{\eta}
-\quad\text{对应边缘阈值}.
+|1-\eta\lambda_i|<1
+\iff 0<\eta\lambda_i<2.
 \]
 
-这一阈值对应当前接收状态下的局部参数动力学。真实训练在一次有限更新之后，同时改变参数、曲率、优化器记忆和后续的功能响应，因此长期轨迹由连续变化的状态映射决定。由此推得：训练可以在短时越过冻结的局部稳定边界后，通过曲率及接收状态的再组织重新接近稳定区域；带动量与自适应预条件的优化器则具有由联合参数—优化器状态决定的边界。
+因此最高正曲率方向的局部边缘条件为
 
-独立研究中的对应结果包括：Cohen等观察到神经网络训练长期运行于Hessian边缘稳定区域；Lewkowycz等的catapult机制展示了高学习率下曲率重组与重新收敛；Damian等给出边缘稳定性中的自稳定机制；Cohen等关于自适应优化器的研究进一步揭示了预条件Hessian和优化器状态对稳定边界的作用。
+\[
+\boxed{\lambda_{\max}(H)=2/\eta.}
+\]
 
-**内部实验锚点。** TL-E03：实际更新响应依赖接收状态；TL-E04：有限幅度响应呈非线性；TL-E05：边界、更新几何和接收状态共同影响响应。
+**推得的结论。** \(2/\eta\)并不是额外赋予网络的“能力门槛”，而是所用梯度下降映射的局部稳定边界。实际训练改变接收状态，曲率也随之变化；冻结\(H\)的上述推导确定瞬时边界，不单独计算越界后的长期曲率演化。
+
+**研究对照。** Cohen等的Edge of Stability实验；Lewkowycz等的catapult轨迹。
+
+**内部锚点。** TL-E03（实际动作的接收状态依赖）；TL-E04（有限更新响应）。
 
 ### 5.2.2 能力形成后的持续学习：Implicit Bias与最大间隔
 
-TLIR将能力形成对应于目标读出边界的跨越，将Learning对应于此后仍可继续的持久功能重组。考虑线性可分的二分类任务，目标间隔为
+**推导类型：直接证明“读出已正确而状态仍变化”；最大间隔方向采用该理论既有定理。**
+
+**TLIR入口。** \(C_{t,q}=\mathbf1[m_q(\theta_t)>0]\)以及\(\theta_{t+1}=\theta_t+\delta_t\)。正确性是目标读出，不等于参数状态停止变化。
+
+**使用的原理论条件。** 无显式正则化、线性可分样本、线性分类器、logistic损失、梯度下降。这是Soudry等最大间隔研究的原有设定。
+
+**逐步推导。** 对样本\((x_i,y_i)\)（\(y_i\in\{-1,1\}\)）令\(m_i=y_iw^\top x_i\)，则
 
 \[
-m_i=y_iw^\top x_i.
+L(w)=\sum_i\log(1+e^{-m_i}),\qquad
+-\nabla L(w)=\sum_i\frac{y_i x_i}{1+e^{m_i}}.
 \]
 
-当所有\(m_i>0\)时，样本已经被正确分类；对于具有指数尾的logistic损失，梯度仍对边界附近的样本赋予更大的权重：
+即使所有\(m_i>0\)、训练正确率已经为\(100\%\)，右侧一般仍不为零：实际更新仍会移动\(w\)及各个间隔。
+
+为把这一点写成完全可解的例子，取同一原模型类中的一维可分样本\(x=y=1\)，采用梯度下降：
 
 \[
--\nabla L(w)\propto\sum_i y_i x_i e^{-m_i}.
+w_{t+1}=w_t+\frac{\eta}{1+e^{w_t}}.
 \]
 
-令\(w=ru\)、\(\|u\|=1\)，以及\(\gamma_i(u)=y_i u^\top x_i\)。当\(r\)增大时，
+\(w_t\)单调增长并趋于无穷；一旦\(w_t>0\)，任务的离散正确性始终为1，但更新仍严格为正。由
 
 \[
-L(w)\approx\sum_i e^{-r\gamma_i(u)},
+e^{w_{t+1}}-e^{w_t}
+=e^{w_t}\!\left(e^{\eta/(1+e^{w_t})}-1\right)
+\longrightarrow\eta
 \]
 
-其主导项来自归一化间隔最小的样本。沿持续降低损失的训练方向，长期组织趋向最大间隔问题：
+得到渐近关系
 
 \[
-\max_{\|u\|=1}\min_i y_i u^\top x_i.
+\boxed{w_t=\log t+O(1),\qquad C_t=1\ \text{而}\ \Delta w_t>0.}
 \]
 
-在相应的指数尾损失与渐近方向条件下，参数尺度具有对数增长形式：
+在多维线性可分情形，Soudry等已证明在其原有步长与损失条件下，梯度下降的**方向**趋向硬间隔SVM方向。该多维定理是被对照理论已有的数学结果，不把它冒称为仅由TLIR定义直接证明的全新定理。
+
+**推得的结论。** “外部正确性已饱和”与“内部学习状态持续演化”可以严格同时成立；优化轨迹还可选择特定的间隔方向。
+
+**研究对照。** [Soudry等，JMLR 2018](https://jmlr.org/papers/v19/18-188.html)。
+
+**内部锚点。** TL-E07（正确性不变时支撑仍可重组）；TL-E08（正确性边界）；RL-E06（已掌握后仍存在功能变化）。
+
+### 5.2.3 递归反馈的信息收缩与模型坍塌：有限样本吸收态
+
+**推导类型：在原模型坍塌论文的有限离散分布、逐代抽样、精确拟合设定下，直接推导尾部丢失概率和最终吸收态；对真实数据混合，推导原混合数据设定下的期望关系。**
+
+**TLIR入口。** TLIR式(5)允许推理生成的内容进入下一轮训练数据\(D_{t+1}\)，进而由训练动作改变持久模型状态；式(1)将此写为\(Z_{t+1}=\mathcal T(Z_t,\mathcal U(Z_t,D_t,B_t))\)。这里的\(t\)按**模型代际**计，而非一次优化器步。具体的生成、抽样与拟合映射使用被研究论文自己的定义。
+
+**使用的原理论条件。** Shumailov等（Nature 2024）的「有限离散分布、无函数逼近误差」模型：有限类别集合\(\{1,\ldots,K\}\)、每代样本数固定为\(M\ge 1\)、从上一代模型分布\(p_t\)独立抽样\(M\)次、下一代模型精确拟合这批样本的经验分布。不额外设定信息保留率、噪声衰减指数或模型容量关系。
+
+**逐步推导：一次代际反馈怎样丢失信息。** 对任一类别\(i\)，令其概率为\(q_t=p_t(i)\)，下一代计数\(N_{t+1,i}\)满足
 
 \[
-r(t)\sim\frac{1}{\gamma^\star}\log t.
+N_{t+1,i}\mid p_t\sim \operatorname{Binomial}(M,q_t),\qquad
+q_{t+1}=\frac{N_{t+1,i}}{M}.
 \]
 
-因此，可观察正确性达到稳定状态之后，实际训练动作仍继续改变参数方向、目标间隔和内部功能组织。Soudry等给出了线性可分logistic回归的最大间隔收敛定理；Nacson、Ji等研究揭示损失尾部对最终隐式组织的选择作用；Gunasekar等展示了优化几何改变隐式偏置的方式；Lyu与Li进一步研究了齐次神经网络中的间隔最大化行为。这些结果共同对应TLIR的“实际动作—持续学习—读出边界”关系。
-
-**内部实验锚点。** TL-E07：真实更新持续重组支撑；TL-E08：能力转变取决于读出边界；RL-E06：已掌握能力的平台期仍存在支撑与间隔变化。
-
-### 5.2.3 递归反馈的信息收缩与真实数据锚定
-
-TLIR闭环将当前推理产生的数据或反馈再次送入训练。设某一低概率信息模式在第\(t\)代有效训练分布中的占比为\(q_t\)，模型生成数据对该模式的平均保留率满足\(0<\rho<1\)。当后续数据完全来自前一代模型时，
+因此
 
 \[
-q_{t+1}=\rho q_t,
-\qquad q_t=q_0\rho^t\longrightarrow 0.
+\boxed{
+\begin{aligned}
+\Pr(q_{t+1}=0\mid q_t)&=(1-q_t)^M,\\
+\mathbb E[q_{t+1}\mid q_t]&=q_t,\\
+\operatorname{Var}(q_{t+1}\mid q_t)&=\frac{q_t(1-q_t)}{M}.
+\end{aligned}}
 \]
 
-这给出了递归替换条件下低概率模式持续衰减的动力学关系。若每一代有比例\(\alpha\)的真实数据参与训练，且该模式在真实数据中的占比为\(q_{\mathrm{real}}>0\)，则递推变为
+对于\(q_t\ll1/M\)，漏抽该类别的概率很高。**特别注意，单代期望概率并不下降**：这里的坍塌是有限抽样导致的随机支持集丢失，不是事先假定\(q_{t+1}=\rho q_t\)且\(\rho<1\)。
+
+**逐步推导：多代递归为什么到达吸收态。** 对整个分布，
 
 \[
-q_{t+1}=(1-\alpha)\rho q_t+\alpha q_{\mathrm{real}}.
+p_{t+1}=\frac1M\,\operatorname{Multinomial}(M,p_t).
 \]
 
-在\(\alpha>0\)时，该递推趋向非零固定点：
+一旦\(p_t(i)=0\)，纯递归抽样无法再产生类别\(i\)；一旦\(p_t=e_i\)（全部概率集中于一个类别），则\(p_{t+1}=e_i\)必然成立。因为\(M\)固定，经验分布只在有限个格点上取值；在任一非吸收态，下一代所有样本恰好相同的概率为\(\sum_i p_t(i)^M>0\)，因此以概率1最终进入某个\(e_i\)。再由各坐标的有界鞅性质，
 
 \[
-q^\star=\frac{\alpha q_{\mathrm{real}}}
-{1-(1-\alpha)\rho}>0.
+\boxed{
+p_t\xrightarrow[t\to\infty]{\mathrm{a.s.}}e_I,\qquad
+\Pr(I=i)=p_0(i).
+}
 \]
 
-两种数据组织方式由此产生不同的长期结果：纯递归替换导致尾部模式逐代收缩，持续真实数据输入为该模式提供稳定的信息来源。Shumailov等关于递归模型坍塌的研究观察到尾部模式的优先丢失；Gerstgrasser等和Fu等关于真实数据保留与混合的研究则给出了改变递归退化趋势的实验与理论结果。两组结果共同呈现了反馈分布决定持续学习方向的TLIR闭环机制。
+**核心结论：** 原有限离散模型中，纯生成数据逐代替换使支持集随机收缩，并最终坍塌到单一类别；该结果由原抽样—拟合映射推出，无需设定统一的逐代衰减率。
 
-**内部实验锚点。** RL-E01：反馈绑定影响实际更新；RL-E06：反馈分配与持续时间改变支撑和能力；TL-E07：训练动作引起持久支撑重组。
+**原研究中的另一种数据组织：持续混合真实数据。** 对采用固定比例\(\alpha\in(0,1]\)真实源数据、其余比例使用上一代生成数据的原有混合设定，设真实分布在类别\(i\)的概率为\(r_i>0\)。混合抽样概率是\(\widetilde q_t=(1-\alpha)q_t+\alpha r_i\)，因此
+
+\[
+\boxed{
+\mathbb E[q_{t+1}]=(1-\alpha)\mathbb E[q_t]+\alpha r_i
+=r_i+(1-\alpha)^{t+1}(q_0-r_i)
+}
+\]
+
+（最后一式取\(t\)从0开始）。并且在\(q_t=0\)时，下一代重新出现该类别的概率为
+
+\[
+\Pr(q_{t+1}>0\mid q_t=0)=1-(1-\alpha r_i)^M>0.
+\]
+
+因此真实数据使“缺失类别”不再是吸收态；结论是**长期期望与可恢复性**，而不是每代有限样本永远不丢失类别。另有Gerstgrasser等采用不同的「保留并累积历史数据」训练方案并证明相应线性模型的误差有界；两种数据方案不可混作同一个递推。
+
+**独立研究对照。** [Shumailov等，AI models collapse when trained on recursively generated data，Nature 2024](https://doi.org/10.1038/s41586-024-07566-y)；[Seddik等，How Bad is Training on Synthetic Data? (2024)](https://arxiv.org/abs/2404.05090)；[Gerstgrasser等，Is Model Collapse Inevitable? (2024)](https://arxiv.org/abs/2404.01413)。
+
+**内部实验锚点。** TLIR式(5)（输出回流训练）、式(1)（状态转移）；RL-E06（反馈数据组织改变持续功能结果）。
 
 ### 5.2.4 频率学习顺序：Spectral Bias与响应谱
 
-TLIR将训练效果表示为当前接收状态与实际动作共同产生的功能响应。对平方损失和梯度下降，在冻结接收状态的局部线性近似下，设输出残差为\(r_t\)、参数—输出雅可比为\(J_t\)，则
+**推导类型：原理论的核动力学条件下，直接推导模态收敛速率。**
+
+**TLIR入口。** 实际更新导致目标函数响应\(R_q(\theta,\delta)\)。对输出向量\(f_\theta\)作当前状态的一阶展开，可将参数动作映射到功能空间。
+
+**使用的原理论条件。** 平方损失、梯度下降，以及核谱研究采用的局部线性化/固定切线核条件。记目标向量为\(y\)，残差\(r_t=f_{\theta_t}-y\)，输出参数雅可比\(J_t\)。
+
+**逐步推导。**
 
 \[
-\Delta f_t\approx J_t\Delta\theta_t=-\eta J_tJ_t^\top r_t=-\eta K_t r_t.
+L=\tfrac12\|r_t\|^2,\quad
+\delta_t=-\eta J_t^\top r_t,\quad
+\Delta f_t\approx J_t\delta_t=-\eta J_tJ_t^\top r_t.
 \]
 
-当\(K_t\phi_k=\lambda_k\phi_k\)时，残差模态的局部演化为
+定义\(K_t=J_tJ_t^\top\)。在冻结\(K_t=K\)的局部演化中，
 
 \[
-r_{k,t+1}\approx(1-\eta\lambda_k)r_{k,t},\qquad
-r_k(t)\approx e^{-\eta\lambda_k t}r_k(0).
+r_{t+1}\approx(I-\eta K)r_t.
 \]
 
-因此，功能模态的形成时标由当前接收状态上的响应增益\(\lambda_k\)决定，\(\tau_k^{-1}\propto\lambda_k\)。在低频方向具有较大有效增益的条件下表现为低频优先；改变输入表示、数据几何或损失加权会改变有效响应谱，也会相应改变学习顺序。
+对\(K v_k=\lambda_kv_k\)作特征分解：
 
-**独立研究对应。** Cao等和Basri等通过核谱与特征函数建立频率依赖的收敛关系；Tancik等利用Fourier Features增强高频函数的学习；Yu、Yang与Townsend通过数据分布和Sobolev损失调整乃至反转频率偏好。这些结果共同对应“接收状态与实际动作→响应谱→模态形成顺序”的推导。
+\[
+\boxed{r_{k,t}\approx(1-\eta\lambda_k)^t r_{k,0}.}
+\]
 
-**内部实验锚点。** TL-E03：相同实际更新对不同接收状态产生不同响应；TL-E04：有限幅度响应具有非线性；TL-E07：训练持续重组功能支撑。
+当\(0<\eta\lambda_k<1\)时，\(\lambda_k\)越大，该模态的残差衰减越快。原Spectral Bias研究中，若相应输入分布和核的**傅里叶模态**满足低频具有较大的\(\lambda_k\)，便得到低频优先的顺序。
+
+**推得的结论。** TLIR的动作—响应关系在固定核区域分解为明确的模态形成速率；所谓“低频先学”来自原研究的核谱结构，而不是向TLIR另加一个普适的频率排序假设。
+
+**研究对照。** Basri等、Cao等的核谱与频率收敛研究；Tancik等的Fourier Features研究。
+
+**内部锚点。** TL-E03、TL-E04、TL-E07。
 
 ### 5.2.5 Benign Overfitting：插值解选择与总体风险
 
-考虑过参数线性回归\(y=X\beta^\star+\varepsilon\)，其中\(p>n\)，\(X\)满行秩。从零初始化用平方损失梯度下降并达到插值时，训练动作沿\(X\)的行空间选择最小范数解：
+**推导类型：使用原过参数线性回归设定，直接得到最小范数解的总体风险分解。**
+
+**TLIR入口。** 训练动作选择最终参数状态；训练集和总体分布的功能表现是同一状态上的**不同读出**，不能以训练误差代替总体风险。
+
+**使用的原理论条件。** \(y=X\beta^\star+\varepsilon\)、\(p>n\)、\(X\in\mathbb R^{n\times p}\)满行秩、平方损失、从零初始化的梯度下降收敛到最小范数插值解；测试输入协方差为\(\Sigma\)，训练噪声独立零均值且协方差\(\sigma^2I_n\)。这些均属于原良性过拟合/无正则最小二乘研究中的条件。
+
+**逐步推导。** 梯度始终属于\(X^\top\)的列空间，零初始化的极限插值解为
 
 \[
-\hat\beta=X^\top(XX^\top)^{-1}y,\qquad
-P_X=X^\top(XX^\top)^{-1}X.
+\hat\beta=X^\top(XX^\top)^{-1}y.
 \]
 
-于是
+令\(P_X=X^\top(XX^\top)^{-1}X\)，代入\(y\)得
 
 \[
-\hat\beta-\beta^\star=-(I-P_X)\beta^\star+X^\top(XX^\top)^{-1}\varepsilon.
+\hat\beta-\beta^\star
+=-(I-P_X)\beta^\star+X^\top(XX^\top)^{-1}\varepsilon.
 \]
 
-设总体输入协方差为\(\Sigma\)，噪声独立、零均值且协方差为\(\sigma^2 I\)。对训练噪声取条件期望，可将总体超额预测风险写为
+总体超额平方预测风险为
+\(R=(\hat\beta-\beta^\star)^\top\Sigma(\hat\beta-\beta^\star)\)。
+对训练噪声取条件期望，交叉项消失：
 
 \[
+\boxed{
 \begin{aligned}
 \mathbb E_\varepsilon[R\mid X]
 ={}&\beta^{\star\top}(I-P_X)\Sigma(I-P_X)\beta^\star\\
-&+\sigma^2\operatorname{tr}\!\left[\Sigma X^\top(XX^\top)^{-2}X\right].
-\end{aligned}
+&+\sigma^2\operatorname{tr}\!\left[
+\Sigma X^\top(XX^\top)^{-2}X
+\right].
+\end{aligned}}
 \]
 
-第一项反映未被训练数据覆盖的信号，第二项反映拟合噪声的方向在总体分布上的功能影响。由此推得：相同的零训练误差可以对应不同测试风险；当噪声主要被吸收到总体预测权重较小的方向时，插值与良好泛化可以同时出现。改变优化几何还会改变最终选中的插值解。
+**推得的结论。** 所有训练样本均可插值（训练误差为零），但总体风险由未覆盖信号和被放大的噪声方向共同决定。原论文关于有效秩/协方差谱的条件，决定第二项是否足够小，进而产生“良性”过拟合。
 
-**独立研究对应。** Bartlett等以协方差谱的有效秩刻画良性过拟合条件；Hastie等定量分析高维无正则最小二乘插值的测试风险；Gunasekar等证明优化几何影响所选解的隐式偏置。这些结果与“实际动作选择学习状态—总体功能几何决定泛化”的推导吻合。
+**研究对照。** [Hastie等，Annals of Statistics 2022](https://doi.org/10.1214/21-AOS2133)；Bartlett等的有效秩分析。
 
-**内部实验锚点。** TL-E03：响应取决于更新和接收状态；TL-E07：真实更新造成持续支撑重组；TL-E08：训练与测试目标的能力结果由各自读出边界确定。
+**内部锚点。** TL-E03（不同接收状态与实际更新）；TL-E08（目标依赖的读出）。
 
-### 5.2.6 Scaling Laws与Chinchilla：形成速率谱和计算瓶颈
+### 5.2.6 Scaling Laws与Chinchilla：给定原损失律时的计算最优解
 
-将尚未形成的功能误差分解为局部响应模态，设模态的衰减速率为\(\lambda\)，且小速率区域具有尺度分布
+**推导类型：原Chinchilla拟合函数条件下，直接求出最优模型—数据分配；幂律指数作为原研究输入。**
+
+**TLIR入口。** 模型大小、训练数据与动作历史共同决定学习后的状态，损失是相应状态上的功能读出。TLIR本身没有固定某个跨模型族的经验损失指数。
+
+**使用的原理论条件。** Hoffmann等使用的拟合形式（令\(N\)为参数规模、\(D\)为训练Token量）及计算量近似\(C=6ND\)：
 
 \[
-\rho(\lambda)\sim c\lambda^{\kappa-1},\qquad \kappa>0.
+L(N,D)=E+AN^{-a}+BD^{-b},
+\qquad A,B,a,b>0,\qquad C=6ND.
 \]
 
-对于近似按\(e^{-2\lambda t}\)衰减的模态，总体残差满足
+这里\(a,b\)取自**被外推对象已经拟合的**尺度指数，而不是从TLIR之外另造一组新指数。
+
+**逐步推导。** 固定计算量令\(M=C/6\)，\(D=M/N\)，于是
 
 \[
-L(t)-L_\infty\sim\int_0^\infty\rho(\lambda)e^{-2\lambda t}\,d\lambda
-\propto t^{-\kappa}.
+L(N)=E+AN^{-a}+BM^{-b}N^b.
 \]
 
-这给出了形成速率谱产生宏观幂律的一种动力学路径。进一步设模型规模\(N\)与训练数据暴露量\(D\)对应两个有效瓶颈：
+求导并令其为零：
 
 \[
-L(N,D)-L_\infty\approx AN^{-a}+BD^{-b},\qquad C\propto ND.
+-aAN^{-a-1}+bBM^{-b}N^{b-1}=0
 \]
-
-在固定计算预算\(C\)下最小化损失，得到
 
 \[
-N_\star\propto C^{b/(a+b)},\qquad
-D_\star\propto C^{a/(a+b)},\qquad
-L_\star(C)-L_\infty\propto C^{-ab/(a+b)}.
+\Longleftrightarrow\quad aAN^{-a}=bBD^{-b}.
 \]
 
-接收状态、数据分布与动作几何改变形成速率谱或有效瓶颈指数后，规模幂律和计算最优的模型—数据分配随之改变。
+解得
 
-**独立研究对应。** Kaplan等发现语言模型的规模幂律；Hoffmann等通过Chinchilla实验给出不同的最优模型与token配置；Bahri等从谱与不同缩放区域研究幂律来源；Bordelon、Atanasov与Pehlevan进一步建立含训练时间、样本规模、模型规模及特征学习作用的动力学缩放模型。
+\[
+\boxed{
+N_\star=
+\left(\frac{aA}{bB}\right)^{1/(a+b)}
+\left(\frac{C}{6}\right)^{b/(a+b)},\qquad
+D_\star=\frac{C}{6N_\star}
+\propto C^{a/(a+b)}.
+}
+\]
 
-**内部实验锚点。** TL-E03：接收状态制约实际更新效应；TL-E04：有限幅度响应的多种形态；TL-E07：更新导致功能支撑持续形成与变化；跨系统TLI实验：检验动力学角色跨架构的对应关系。
+代回原损失律：
+
+\[
+\boxed{L_\star(C)-E\propto C^{-ab/(a+b)}.}
+\]
+
+**推得的结论。** 在该论文给出的经验损失律成立的范围内，计算最优的参数与数据规模必须满足两项损失的边际平衡。**这里推导出的是最优配置，不是仅从TLIR方程“证明了幂律存在”。** TLIR提供不同训练状态、功能目标和数据条件如何进入问题的统一表述。
+
+**研究对照。** [Hoffmann等，Training Compute-Optimal Large Language Models (2022)](https://arxiv.org/abs/2203.15556)；Kaplan等的经验规模规律。
+
+**内部锚点。** TL-E03、TL-E04、TL-E07；跨架构TLI测试。
 
 ### 5.2.7 Dynamical Isometry：深层网络的动作—响应传输
 
-设第\(\ell\)层参数动作为\(\Delta\theta_\ell\)，其对最终输出的一阶作用为
+**推导类型：由原网络的分层复合与链式法则直接推出。**
+
+**TLIR入口。** 一个实际参数更新\(\delta\theta\)改变输出\(f_\theta\)，其局部功能响应由当前接收状态决定。
+
+**使用的原理论条件。** 可微的分层网络\(h^{\ell+1}=F_\ell(h^\ell,\theta_\ell)\)，以及Dynamical Isometry研究所考察的跨层雅可比及其奇异值。
+
+**逐步推导。** 对第\(\ell\)层参数做微小改动，首先有
 
 \[
-\delta f\approx\sum_\ell J_{L\leftarrow\ell}B_\ell\Delta\theta_\ell,
+\delta h^{\ell+1}\approx
+B_\ell\delta\theta_\ell,\qquad
+B_\ell=\frac{\partial F_\ell}{\partial\theta_\ell}.
 \]
 
-其中\(B_\ell\)将该层参数动作映射为局部激活变化，\(J_{L\leftarrow\ell}\)刻画从该层到输出端的传输。若跨层雅可比的奇异值趋近零或急剧增大，当前接收状态将不同方向的功能响应压缩或放大；当奇异值集中在1附近时，前向响应与反向训练信号可以跨深度保持相近量级。
-
-据此，Dynamical Isometry对应于接收状态中跨层动作—响应传输良好条件化的区域。改变正交初始化、残差路径、门控或激活函数，会改变该传输算子的谱及训练速度。
-
-**独立研究对应。** Saxe等研究正交初始化下深线性网络的学习动力学；Pennington等将Jacobian奇异值分布与深网训练速度联系起来；Xiao等在极深CNN中验证相应初始化；Tarnowski等和Bachlechner等展示残差结构与ReZero门控建立有效跨层传输的机制。
-
-**内部实验锚点。** TL-E03：实际动作的响应由接收状态决定；TL-E04：功能响应具有有限幅度结构；TL-E05：更新几何与接收状态共同制约目标响应。
-
-### 5.2.8 Information Bottleneck：信息压缩与功能支撑形成
-
-TLIR将Learning定义为功能支撑的持久重组。设隐藏表征为\(T_\ell\)，输入为\(X\)，信息瓶颈研究的量为互信息\(I(X;T_\ell)\)。当训练动作、噪声或正则化选择性抑制任务无关方向时，\(I(X;T_\ell)\)的变化可以成为支撑重组的一个可测投影；改变激活函数、噪声形式与表示映射后，内部功能形成与互信息曲线的对应关系也随之改变。
-
-因此，TLIR把表示压缩定位为某些训练区域中的有效学习机制，并将可观察的分类正确性、信息量变化与真实功能组织分别作为不同的测量对象。
-
-**独立研究对应。** Shwartz-Ziv与Tishby提出拟合—压缩的两阶段信息平面解释；Saxe等发现压缩阶段对网络结构和非线性具有显著依赖；Goldfeld等分析确定性网络的信息量估计及表征聚类；Kawaguchi等给出信息瓶颈控制泛化误差的理论。这些正反研究对应于不同接收状态、测量方式与动作条件下的表示组织。
-
-**内部实验锚点。** TL-E06：组件干预揭示分布式功能支撑；TL-E07：训练重组支撑；TL-E08：支撑变化与可观察正确性由读出边界联系。
-
-### 5.2.9 Catastrophic Forgetting：支撑重叠、响应符号与剩余边界间隔
-
-令旧目标\(q\)在状态\(S_t\)上的正确性间隔为\(m_q(S_t)>0\)。新任务产生实际更新\(\Delta_t\)，旧目标的一步响应为
+余下层以链式法则传递，令\(J_{L\leftarrow\ell+1}=\partial h^L/\partial h^{\ell+1}\)，于是
 
 \[
-\Delta m_q\approx \nabla_Sm_q(S_t)^\top\Delta_t
-+\frac12\Delta_t^\top H_q(S_t)\Delta_t.
+\boxed{\delta f\approx
+\sum_{\ell}J_{L\leftarrow\ell+1}B_\ell\delta\theta_\ell.}
 \]
 
-多步训练中，旧目标的边界间隔由这些带符号的响应累积改变。对局部SGD，若旧、新任务损失梯度分别为\(g_{\rm old}\)与\(g_{\rm new}\)，有
+同时，对从第\(\ell\)层发出的激活扰动\(v\)，有
 
 \[
-\Delta L_{\rm old}\approx-\eta g_{\rm old}^\top g_{\rm new}.
+\|J_{L\leftarrow\ell}v\|
+\in[\sigma_{\min}(J)\|v\|,\ \sigma_{\max}(J)\|v\|]
 \]
 
-负内积使旧损失倾向于上升，正内积则倾向于正向迁移；接近正交时旧损失的一阶变化较小。TLIR由此将遗忘、保持与正迁移联系到功能敏感子空间的重叠程度、响应符号和旧能力剩余边界间隔。EWC、GEM、OGD与Experience Replay分别通过不同动作约束调整这些关系。
+（当映射维度使最小奇异值不提供非零下界时，下界为0）。反传梯度沿相应转置雅可比传递。若相关非零奇异值集中于1附近，则这些方向上的信号与梯度跨层传输不发生大的范数放大或衰减；若谱极端偏离1，则出现明显的方向性放大或衰减。
 
-**独立研究对应。** Kirkpatrick等用Fisher信息保护旧任务敏感参数；Lopez-Paz与Ranzato通过历史梯度约束旧任务损失；Farajtabar等通过功能近似正交投影保护旧输出；Doan等研究NTK子空间重叠对遗忘的作用；Rolnick等用经验回放缓解旧能力损失。
+**推得的结论。** Dynamical Isometry描述的是固定当前状态上**计算和梯度的传输条件**，由原网络复合结构直接推出。它不是对每个实际参数更新必然高效的承诺，因为局部参数映射\(B_\ell\)也参与实际功能响应。
 
-**内部实验锚点。** TL-E03：旧能力响应依赖新动作进入的接收状态；TL-E07：支撑重组；TL-E08：间隔跨越产生正确性改变；RL-E06：正确反馈过度集中导致旧技能间隔侵蚀，重新均衡反馈恢复其准确率。
+**研究对照。** [Pennington、Schoenholz与Ganguli，NeurIPS 2017](https://arxiv.org/abs/1711.04735)。
 
-### 5.2.10 Grokking：持续内部形成与后期泛化读出
+**内部锚点。** TL-E03（接收状态）；TL-E04（实际更新路径）；TL-E05（更新几何）。
 
-将训练目标与总体泛化目标分别表示为当前学习状态的读出：
+### 5.2.8 Dropout：随机特征屏蔽为什么等价于自适应正则化
+
+**推导类型：使用Dropout研究自身的独立Bernoulli特征屏蔽与广义线性模型（GLM）条件，直接推出标签无关的正则项；在原GLM包含的高斯线性回归中，精确推出数据依赖的对角二次正则化，以及它怎样改变真实训练动作。**
+
+**TLIR入口。** 式(1)–(2)把实际训练写为\(A_t=\mathcal U(Z_t,D_t,B_t)\)、\(\theta_{t+1}=\theta_t+\delta_t\)。训练时随机屏蔽特征，直接改变实际动作的形成；式(3)/(6)再测量该动作对任一固定目标的连续功能响应。式(4)区分训练时的随机屏蔽和冻结模型的推理调用。
+
+**使用的原理论条件。** Wager、Wang与Liang（NeurIPS 2013）研究广义线性模型的**独立特征Dropout**。令保留概率\(r\in(0,1]\)，各掩码\(z_{ij}\)独立服从\(\operatorname{Bernoulli}(r)\)，并使用原研究的倒置缩放\(\widetilde x_{ij}=x_{ij}z_{ij}/r\)，因此\(\mathbb E_z[\widetilde x_i]=x_i\)。GLM的单样本负对数似然为
 
 \[
-C_{\rm train}=B_{\rm train}(S_t),\qquad
-C_{\rm pop}=B_{\rm pop}(S_t).
+\ell_i(w;x_i,y_i)=A(w^\top x_i)-y_iw^\top x_i-\log h(y_i),
 \]
 
-训练目标可以先跨越正确性边界，而支撑总体泛化的内部功能坐标\(z_t\)继续演化。对于一个缓慢形成的局部模态，设
+其中\(A\)是原GLM的凸对数配分函数；不引入其他正则项或新的特征噪声模型。
+
+**第一步：由原Dropout屏蔽机制计算目标函数。** 令\(L_0(w)=n^{-1}\sum_i\ell_i(w;x_i,y_i)\)。对屏蔽变量取期望：
 
 \[
-z_{t+1}-z_t\approx-\gamma(z_t-z^\star),\qquad 0<\gamma\ll1.
+\begin{aligned}
+\overline L_{\rm drop}(w)
+&=\frac1n\sum_i\mathbb E_z[\ell_i(w;\widetilde x_i,y_i)]\\
+&=L_0(w)+\mathcal R_{\rm drop}(w),\\
+\boxed{\mathcal R_{\rm drop}(w)
+&=\frac1n\sum_i\left[
+\mathbb E_z A(w^\top\widetilde x_i)-A(w^\top x_i)
+\right]\ge0.}
+\end{aligned}
 \]
 
-当\(z_t\)达到总体读出阈值\(z_c\)时，训练集早已饱和的系统可以出现测试正确率的迟发提升。该推导把内部连续形成与外部离散读出联系起来；优化器、正则化与数据条件通过实际动作和形成速率影响两次边界跨越之间的间隔。
+最后的不等式来自\(A\)凸、\(\mathbb E_z[\widetilde x_i]=x_i\)以及Jensen不等式。由于标签项对屏蔽取期望后不变，**\(\mathcal R_{\rm drop}\)不包含\(y_i\)**。这是原GLM条件下的精确分解，而不是额外猜测Dropout会产生何种惩罚。
 
-**独立研究对应。** Power等报告训练表现饱和很久之后出现测试泛化；Nanda等追踪到回路形成、放大与清理等连续机制阶段。两者分别提供外部能力轨迹和内部功能形成过程。
-
-**内部实验锚点。** TL-E06：分布式支撑及组件作用；TL-E07：真实更新持续重组支撑；TL-E08：目标读出边界；TL-P01：预测更新后能力类别。
-
-### 5.2.11 μP：跨宽度的功能动作与超参数迁移
-
-对某层表示变换\(h^{\ell+1}=W^\ell h^\ell\)，宽度改变时，一次训练动作引起的局部表示变化为
+**第二步：在原GLM包含的高斯线性回归中算出正则项。** 对固定方差的高斯线性模型，归一化单位方差后\(A(u)=u^2/2\)，对应平方损失\(\ell_i=\tfrac12(y_i-w^\top x_i)^2+\mathrm{const}\)。因为独立屏蔽，
 
 \[
-\delta h^{\ell+1}
-\approx\Delta W^\ell h^\ell+W^\ell\delta h^\ell.
+\operatorname{Var}_z(w^\top\widetilde x_i)
+=\frac{1-r}{r}\sum_{j=1}^d w_j^2x_{ij}^2.
 \]
 
-为保持特征学习的非退化动力学，需要各学习层的有效表示变化在宽度增长时维持相应的有限量级，例如
+令\(s_j^2=n^{-1}\sum_i x_{ij}^2\)，则
 
 \[
-\Delta W^\ell h^\ell=O(1),\qquad n\rightarrow\infty.
+\boxed{
+\overline L_{\rm drop}(w)
+=L_0(w)+\frac{1-r}{2r}\sum_{j=1}^d s_j^2w_j^2.
+}
 \]
 
-因此，跨尺度应保持的是各层实际动作所产生的功能响应及其形成区域。输入层、隐藏层和输出层角色不同，采用相应的参数化和学习率缩放可以维护这种功能动态的一致性，并为超参数迁移提供基础。
+**这就是Dropout与数据依赖的对角\(L_2\)正则化之间的精确关系。** 特征坐标的惩罚系数由该坐标在训练数据中的平方均值和原始Dropout保留率决定。
 
-**独立研究对应。** Yang与Hu在Tensor Programs IV中研究支持无限宽特征学习的参数化；Yang等在Tensor Programs V中通过μP展示由小模型向大模型的超参数迁移。二者对应“层级实际动作幅度—功能响应—跨宽度动力学保持”的关系。
-
-**内部实验锚点。** TL-E03：更新进入的接收状态改变响应；TL-E04：实际更新的有限幅度响应；TL-E05：目标相关更新几何和接收状态的共同作用。
-
-### 5.2.12 Sharpness与SAM：局部几何的坐标变化和有效优化干预
-
-一次局部参数扰动\(\delta\)对损失的响应近似满足
+**第三步：代回TLIR实际更新，得到功能响应。** 对上述期望目标使用原有的梯度下降训练动作（单次随机掩码SGD的条件期望梯度也等于下式梯度），记\(D_s=\operatorname{diag}(s_1^2,\ldots,s_d^2)\)，则
 
 \[
-\Delta L\approx g^\top\delta+\frac12\delta^\top H\delta.
+\boxed{
+\begin{aligned}
+\mathbb E_z[\delta_t\mid w_t]
+&=-\eta\nabla_w\overline L_{\rm drop}(w_t)\\
+&=-\eta\left[\nabla L_0(w_t)+\frac{1-r}{r}D_sw_t\right].
+\end{aligned}}
 \]
 
-同一输入—输出函数可以具有不同参数化，原始Hessian谱和邻域锐度因坐标变换而改变。将参数邻域\(\mathcal D\)中的损失变化纳入训练目标，则得到一类稳健优化动作：
+这里的期望指**固定接收状态和训练数据、只平均Dropout掩码**；一次真实训练使用的仍是实际抽到的掩码所形成的动作\(\delta_t\)。
+
+对于线性模型，在固定查询\(x_q\)上的连续功能读出\(m_q(w)=w^\top x_q\)，TLIR功能响应恰好为
 
 \[
-L_{\rm robust}(\theta)=\max_{\delta\in\mathcal D}L(\theta+\delta).
+\boxed{
+R_{t,q}
+=m_q(w_t+\delta_t)-m_q(w_t)
+=x_q^\top\delta_t.
+}
 \]
 
-TLIR将参数锐度解释为当前接收状态的局部几何读数，将SAM解释为根据该读数改变实际动作的优化策略。局部几何指标的坐标依赖性与利用这一指标改善优化结果，可以在同一状态—动作—响应链中同时成立。
+所以随机屏蔽通过改变训练动作，使不同查询产生不同的目标功能响应；其期望更新含有上述自适应收缩项。**正则化并不是另一个独立的学习过程，而是原有随机训练机制对状态更新施加的确定性平均效应。**
 
-**独立研究对应。** Dinh等构造功能保持而锐度显著变化的重参数化反例；Foret等通过SAM在多种训练任务中改善泛化。两类结果分别刻画几何表述和实际优化干预。
-
-**内部实验锚点。** TL-E03：接收状态依赖；TL-E04：有限幅度响应的非线性；TL-E05：目标边界、更新几何、接收状态三类响应条件。
-
-### 5.2.13 Gradient Noise Scale：批量噪声与有效训练动作
-
-设单样本随机梯度的均值为\(g\)、协方差为\(\Sigma_g(S_t)\)。对独立采样近似下的批量大小\(B\)，局部梯度估计为
+**第四步：训练与冻结推理的关系。** 对这一线性模型，因\(\mathbb E_z[\widetilde x]=x\)，
 
 \[
-\hat g_B=g+\xi_B,\qquad
-\mathbb E[\xi_B]=0,\qquad
-\operatorname{Cov}(\xi_B)=\frac{\Sigma_g(S_t)}{B}.
+\boxed{
+\mathbb E_z[f_w(\widetilde x)]=f_w(x)=w^\top x.
+}
 \]
 
-对当前参数—输出雅可比\(J_t\)，梯度动作产生的局部功能响应满足
+故训练时随机子模型预测的平均值，与冻结权重、关闭屏蔽后的线性推理**精确相同**。原Dropout论文在非线性深网中的测试时权重缩放/模型平均属于近似，不把线性模型的等式推广为所有非线性网络的恒等式。
+
+**推得的核心关系。** 在原广义线性模型与独立Dropout条件下，**随机特征屏蔽 \(\Rightarrow\) 标签无关的非负正则项**；在原高斯线性特例下进一步得到**精确的自适应二次惩罚 \(\Rightarrow\) 改变的实际梯度更新 \(\Rightarrow\) 查询相关的功能响应**。这与TLIR的训练—学习—冻结推理链直接衔接。
+
+**独立研究对照。** [Srivastava等，Dropout: A Simple Way to Prevent Neural Networks from Overfitting，JMLR 2014](https://www.jmlr.org/papers/v15/srivastava14a.html)；[Wager、Wang与Liang，Dropout Training as Adaptive Regularization，NeurIPS 2013](https://papers.nips.cc/paper_files/paper/2013/hash/38db3aed920cf82ab059bfccbd02be6a-Abstract.html)。
+
+**内部实验锚点。** TL-E03（形成的实际动作及接收状态影响功能响应）；TL-E04（有限幅度功能响应）；INF-E01（固定学习状态上的查询相关推理）。
+
+### 5.2.9 Catastrophic Forgetting：旧目标失效的精确边界
+
+**推导类型：直接由TLIR功能响应和正确性读出式推出，SGD梯度解释采用遗忘理论原条件。**
+
+**TLIR入口。**
 
 \[
-\Delta f\approx-\eta J_t\hat g_B,\qquad
-\operatorname{Cov}(\Delta f)
-\approx\frac{\eta^2}{B}J_t\Sigma_g(S_t)J_t^\top.
+R_{t,q}=m_q(\theta_{t+1})-m_q(\theta_t),\qquad
+C_{t,q}=\mathbf1[m_q(\theta_t)>0].
 \]
 
-因此，批量大小改变的是实际训练动作在功能空间中的噪声强度。随着接收状态、梯度均值、梯度协方差和优化器几何演化，训练从噪声主导向有效响应或曲率约束主导的区域转移，形成任务与训练阶段相关的临界批量规模。
-
-**独立研究对应。** McCandlish等用Gradient Noise Scale预测有效大批量范围并观察其随训练阶段变化；Shallue等系统比较不同任务的数据并行效率；Hoffer等通过调整训练时长缩小大批量泛化差距。这些结果对应接收状态与有效动作噪声的变化。
-
-**内部实验锚点。** TL-E03：优化器记忆和接收状态影响实际更新；TL-E05：更新几何F3与接收状态F5影响目标响应。
-
-### 5.2.14 Double Descent：插值边界的噪声放大与后续支撑再分配
-
-在过参数线性回归中，训练噪声对插值解的贡献为
+**第一步：精确累计，不需要线性近似。**
 
 \[
-\hat\beta_{\rm noise}=X^+\varepsilon.
+\boxed{
+m_q(\theta_T)=m_q(\theta_0)+\sum_{t=0}^{T-1}R_{t,q}.
+}
 \]
 
-设\(X=U\operatorname{diag}(s_i)V^\top\)，则总体预测风险中的噪声项包含
+对于初始已正确的旧目标\(m_q(\theta_0)>0\)，在时刻\(T\)的目标失败当且仅当
 
 \[
-R_{\rm noise}\propto\operatorname{tr}(\Sigma X^+X^{+\top})
-\sim\sum_i\frac{w_i}{s_i^2},
+\boxed{
+\sum_{t=0}^{T-1}R_{t,q}\leq-m_q(\theta_0).
+}
 \]
 
-其中\(w_i\)表示奇异方向在总体输入分布上的相应权重。当系统靠近插值边界、部分奇异值很小时，拟合噪声的动作响应被放大，形成测试误差峰。继续增加参数冗余，并由实际优化动作选择较低范数或较低总体影响的解时，噪声支撑分散，测试误差可再次下降。
+同一个公式还描述保持与恢复：后续的正向功能响应可以使间隔重新跨过零边界，重新得到正确结果。
 
-因此，Double Descent可理解为“逼近误差下降→插值边界响应放大→阈值后的低影响支撑再分配”。正则化、提前停止、数据噪声与谱结构通过改变上述过程影响误差峰的位置和幅度。
+**第二步：代入被研究对象采用的SGD。** 若新任务的损失为\(L_{\rm new}\)，其更新为\(\delta_t=-\eta g_{\rm new}\)。在可微读出和局部小步长条件下，
 
-**独立研究对应。** Belkin等将Double Descent与插值阈值联系起来；Hastie等给出高维无正则插值风险的数学分析；Nakkiran等在现代神经网络中报告模型、样本和训练轮次方向上的Double Descent。三条研究路线对应同一插值—解选择—总体读出关系。
+\[
+R_{t,q}\approx-\eta\nabla_\theta m_q(\theta_t)^\top g_{\rm new}.
+\]
 
-**内部实验锚点。** TL-E03与TL-E04：当前接收状态上的有限更新响应；TL-E07：训练引起支撑组织变化；TL-E08：能力由目标边界读出。
+如果旧目标采用可微损失\(L_{\rm old}\)，则
+
+\[
+\boxed{
+\Delta L_{\rm old}
+\approx-\eta g_{\rm old}^\top g_{\rm new}.
+}
+\]
+
+梯度点积为负时，当前新任务更新使旧损失的一阶变化为正；为正时则为负。多个任务共享同一批参数，所以一次动作可同时改变许多目标的间隔。
+
+**推得的结论。** 遗忘首先是旧目标函数的计算结果越过正确性边界；它不是“能力实体”从参数中消失。保护旧任务的方法本质上是在改变旧目标上累计的功能响应轨迹。
+
+**研究对照。** Kirkpatrick等的EWC；Lopez-Paz与Ranzato的GEM；梯度投影与经验回放研究。
+
+**内部锚点。** TL-E03、TL-E07、TL-E08；[RL-E06](experiments/gfg_rl_selective_positive_feedback_dose_recovery_v1/RESULTS.md)（先掌握、后退化、再恢复）。
+
+### 5.2.10 Grokking：训练/测试读出的不同跨界时间
+
+**推导类型：使用被外推Grokking可解研究的线性教师—学生模型、实际梯度流与随机矩阵谱，直接推出训练/测试损失轨迹以及延迟泛化时间。**
+
+**TLIR入口。** 式(2)实际参数更新和式(3)/(17)的目标连续读出、离散正确性边界。训练集目标和测试分布目标是**同一个学习状态**的两类读出；正确性可以先后跨越各自的阈值。
+
+**使用的原理论条件。** Levi、Beck、Bar-Sinai（ICLR 2024）的无偏置线性教师—学生设定：输入\(x\sim\mathcal N(0,I_d)\)，教师参数\(T\)、学生参数\(S_t\)；平方损失，标量输出，\(n\)个固定训练样本，零权重衰减，梯度流；训练协方差\(\Sigma_{\rm tr}=\frac1n\sum_jx_jx_j^\top\)，总体协方差为\(I_d\)，高维极限\(d,n\to\infty\)，\(\lambda=d/n\in(0,1)\)固定；原论文的Marčenko–Pastur谱、各向同性初始化，以及误差阈值\(\epsilon\)。
+
+**第一步：由TLIR更新代入原模型的优化动作。** 记\(D_t=S_t-T\)，训练与测试的两个连续读出为
+
+\[
+L_{\rm tr}(D)=D^\top\Sigma_{\rm tr}D,\qquad
+L_{\rm gen}(D)=D^\top D.
+\]
+
+原梯度流在时间尺度\(\eta_0\)下满足
+
+\[
+\dot D(t)=-2\eta_0\Sigma_{\rm tr}D(t),\qquad
+\boxed{D(t)=e^{-2\eta_0\Sigma_{\rm tr}t}D_0}.
+\]
+
+代入同一状态的两个读出，得**精确**损失演化：
+
+\[
+\boxed{
+\begin{aligned}
+L_{\rm tr}(t)&=D_0^\top e^{-4\eta_0\Sigma_{\rm tr}t}\Sigma_{\rm tr}D_0,\\
+L_{\rm gen}(t)&=D_0^\top e^{-4\eta_0\Sigma_{\rm tr}t}D_0.
+\end{aligned}}
+\]
+
+**第二步：代入原论文使用的协方差谱。** 设\(\nu\)遵循\(\lambda=d/n\)下的Marčenko–Pastur谱，在原论文的各向同性初始方向及大维度近似下：
+
+\[
+L_{\rm tr}(t)\approx\mathbb E_\nu[\nu e^{-4\eta_0\nu t}],\qquad
+L_{\rm gen}(t)\approx\mathbb E_\nu[e^{-4\eta_0\nu t}].
+\]
+
+其正谱下端为\(\nu_-=(1-\sqrt\lambda)^2\)。当\(\eta_0t\gg\sqrt\lambda/(1-\sqrt\lambda)^2\)时，原论文的谱端点渐近给出
+
+\[
+\boxed{
+L_{\rm tr}(t)\simeq
+\frac{e^{-4\eta_0(1-\sqrt\lambda)^2t}}
+{16\sqrt{\pi}\lambda^{3/4}(\eta_0t)^{3/2}},
+\qquad
+L_{\rm gen}(t)\simeq\frac{L_{\rm tr}(t)}{(1-\sqrt\lambda)^2}.
+}
+\]
+
+**第三步：用原论文的正确率读出计算迟发时间。** 每个输入的正确性由误差是否小于\(\epsilon\)定义：
+
+\[
+C_x(t)=\mathbf1[(D(t)^\top x)^2<\epsilon].
+\]
+
+在相应高斯读出近似下
+
+\[
+A(t)=\operatorname{erf}\!\left(\sqrt{\frac{\epsilon}{2L(t)}}\right).
+\]
+
+原论文用\(A=\operatorname{erf}(\sqrt2)\approx95.45\%\)作为跨界标准，对应\(L(t^*)=\epsilon/4\)。分别求\(L_{\rm tr}(t_{\rm tr}^*)\)和\(L_{\rm gen}(t_{\rm gen}^*)\)到达该阈值的时间，在小\(\epsilon\)渐近下：
+
+\[
+\boxed{
+\Delta t_{\rm grok}=t_{\rm gen}^*-t_{\rm tr}^*
+\simeq-\frac{\ln(1-\sqrt\lambda)}
+{2\eta_0(1-\sqrt\lambda)^2}>0,\quad 0<\lambda<1.
+}
+\]
+
+**核心结论。** 训练、测试都从同一条连续参数轨迹得到；在原模型的两种读出几何及同一正确性阈值下，测试正确率可远晚于训练正确率跃升。时间差不仅存在，而且由原研究的\(\lambda,\eta_0\)条件定量给出。整个过程无需假设外部读出跃升时突然生成独立“能力”。
+
+**研究对照。** [Levi、Beck与Bar-Sinai，Grokking in Linear Estimators—A Solvable Model that Groks without Understanding，ICLR 2024](https://proceedings.iclr.cc/paper_files/paper/2024/hash/8c0a85ee3eddb1858d9142f0d51d67b2-Abstract-Conference.html)；[Žunkovič与Ilievski，Grokking phase transitions in learning local rules with gradient descent，JMLR 2024](https://www.jmlr.org/papers/v25/22-1228.html)。
+
+**内部实验锚点。** TL-E03（接收状态决定响应）；TL-E07（训练继续时支撑可重组）；TL-E08（连续间隔与离散边界）；TL-P01（目标边界预测）。
+
+### 5.2.11 μP：宽度增长时保持非退化功能更新
+
+**推导类型：使用Tensor Programs IV的原MLP参数化与SGD条件，直接得到更新量级和输出稳定性；进一步使用该论文的第一层修改，说明各层特征学习的条件。**
+
+**TLIR入口。** 式(2) \(\theta_{t+1}=\theta_t+\delta_t\)和式(6) \(R_q(\theta,\delta)=m_q(\theta+\delta)-m_q(\theta)\)。跨宽度比较必须检查实际参数动作在**功能/表征空间**造成的响应，而不能只比较参数增量数值。
+
+**使用的原理论条件。** Yang与Hu（ICML 2021，Tensor Programs IV）附录E的两隐藏层线性MLP演示及其SGD宽度极限：隐藏宽度\(n\to\infty\)，\(h=U\xi\)、\(\bar h=Wh\)，\(h^\top h=\Theta(n)\)，中间层与输出层原始高斯初始化尺度为\(n^{-1/2}\)，损失对输出的导数\(\chi=\mathcal L'(f,y)=\Theta(1)\)。该附录给出输出缩放\(f=n^{-1/2}v\bar h\)，学习率\(\eta_n\propto n^{-c}\)，并研究固定输入上的单次实际SGD动作。
+
+**第一步：把原参数化与动作代入TLIR响应。** 对中间层的一个SGD动作，该论文附录E.1直接按链式求导得到
+
+\[
+\Delta\bar h
+=-n^{-c-1/2}\chi\,v^\top(h^\top h),\qquad
+\Delta f
+=-n^{-c-1}\chi(vv^\top)(h^\top h).
+\]
+
+在它自己的初始化尺度下，每个\(v_j=\Theta(n^{-1/2})\)、\(vv^\top=\Theta(1)\)、\(h^\top h=\Theta(n)\)，故
+
+\[
+\boxed{
+\Delta\bar h_j=\Theta(n^{-c}),\qquad
+\Delta f=\Theta(n^{-c}).
+}
+\]
+
+若\(c>0\)，固定步数内特征与输出更新趋零；若\(c=0\)，则
+
+\[
+\boxed{\Delta\bar h_j=\Theta(1),\qquad \Delta f=\Theta(1).}
+\]
+
+这从原前向计算和实际反向更新直接给出**宽度增长但功能更新仍非退化**的量级条件。
+
+**第二步：为什么必须连输出缩放一起调整。** 原论文将上述\(n^{-1/2}\)的输出缩放与标准参数化对照：按原标准输出缩放、却让隐藏特征发生\(\Theta(1)\)的更新时，输出权重与已更新特征的相关项可使logit达到\(\Theta(\sqrt n)\)并失去稳定性；采用附录E.1的μP输出缩放时该项为\(\Theta(1)\)。因此不能只要求某一层“大幅更新”，还要同时控制输出的稳定量级。
+
+**第三步：第一层也参与特征学习。** 原论文进一步把第一层参数化指数改为\(a_1=-1/2,b_1=1/2\)（并在输出层取\(a_{L+1}=1/2,c=0\)），使输入层的实际更新传入隐藏特征也保持非退化；不同层须分别满足相应的初始化和更新缩放条件。该条件来自Tensor Programs IV的参数化定义与证明，而不是额外假设各层采用相同学习率。
+
+**核心结论。** μP的核心关系是：**在参数宽度增加时，调整各层的实际更新与前向缩放，使学习形成的功能变化保持有限而不消失、同时不导致logit发散。** 上述原MLP例子完成了这一关系的量级推导。Tensor Programs V的μTransfer进一步研究此参数化下最优超参数跨宽度的稳定性，其完整参数族证明与实测迁移效果仍属于原研究的进一步结果，不把“\(\Theta(1)\)响应”直接等同于“任意超参数必然可迁移”。
+
+**研究对照。** [Yang与Hu，Tensor Programs IV: Feature Learning in Infinite-Width Neural Networks，ICML 2021](https://proceedings.mlr.press/v139/yang21c.html)，特别是[附录E](https://proceedings.mlr.press/v139/yang21c/yang21c-supp.pdf)；[Yang等，Tensor Programs V: Tuning Large Neural Networks via Zero-Shot Hyperparameter Transfer，NeurIPS 2021](https://proceedings.nips.cc/paper_files/paper/2021/hash/8df7c2e3c3c3be098ef7b382bd2c37ba-Abstract.html)。
+
+**内部实验锚点。** TL-E03（接收状态决定实际功能响应）；TL-E04（有限幅度更新的非线性）；TL-E05（目标与动作几何）。
+
+### 5.2.12 Sharpness与SAM：同一函数的不同参数几何与训练动作
+
+**推导类型：使用原研究的函数保持重参数化与SAM的邻域优化定义，得到两个可以同时成立的结论。**
+
+**TLIR入口。** 参数状态与目标函数读出不是一回事。参数坐标可变化而输入—输出函数不变；训练策略则通过改变实际动作\(\delta_t\)改变后续状态。
+
+**使用的原理论条件。** Sharpness重参数化研究使用的正齐次/乘积参数冗余；SAM论文使用的参数邻域最坏损失目标。以下取相同原理的最简单二参数乘积计算。
+
+**逐步推导：函数不变，参数锐度改变。** 令模型输出\(f(a,b)=ab\)，平方损失
+
+\[
+L(a,b)=\tfrac12(ab-1)^2.
+\]
+
+对任意\(c>0\)，变换\((a,b)\mapsto(ca,b/c)\)保持\(ab\)及函数结果完全不变。在达到拟合\(ab=1\)的点，
+
+\[
+H=\nabla^2L=
+\begin{pmatrix}b^2&ab\\ab&a^2\end{pmatrix}
+\]
+
+的特征值为\(0\)和\(a^2+b^2\)。重参数化后，最大特征值成为
+
+\[
+\boxed{\lambda_{\max}'=c^2a^2+b^2/c^2,}
+\]
+
+可随\(c\)显著改变，**同一功能结果却有不同参数锐度**。
+
+**逐步推导：SAM改变实际训练动作。** SAM的原目标是
+
+\[
+L_{\rm SAM}(\theta)=
+\max_{\|\epsilon\|\leq\rho}L(\theta+\epsilon).
+\]
+
+对当前点做一阶展开，若\(g=\nabla L(\theta)\ne0\)，最坏扰动近似为
+
+\[
+\epsilon^\star\approx \rho\frac{g}{\|g\|},
+\qquad
+\delta_{\rm SAM}\approx-\eta\nabla L(\theta+\epsilon^\star).
+\]
+
+这与普通SGD的\(-\eta g\)是不同的训练动作，从而可产生不同的实际功能响应。
+
+**推得的结论。** “参数锐度不是唯一的函数性质”与“使用邻域损失设计训练动作可以改变训练结果”不矛盾：一个说的是参数坐标度量，另一个说的是状态更新规则。
+
+**研究对照。** [Dinh等，Sharp Minima Can Generalize For Deep Nets](https://arxiv.org/abs/1703.04933)；[Foret等，SAM，ICLR 2021](https://research.google/pubs/sharpness-aware-minimization-for-efficiently-improving-generalization/)。
+
+**内部锚点。** TL-E03、TL-E04、TL-E05。
+
+### 5.2.13 Gradient Noise Scale：随机梯度如何变成目标功能响应噪声
+
+**推导类型：沿用原批量梯度独立采样条件，直接计算参数与功能空间方差。**
+
+**TLIR入口。** 实际动作\(\delta_t\)作用于当前接收状态，目标响应\(R_q(\theta_t,\delta_t)\)由该动作和目标决定。
+
+**使用的原理论条件。** 从同一固定训练分布独立抽取\(B\)个样本；单样本梯度\(g_i\)有均值\(g\)、协方差\(\Sigma_g\)；采用普通SGD、小步长局部线性近似。这是梯度噪声规模分析的基础条件。
+
+**逐步推导。** 平均梯度及其协方差：
+
+\[
+\hat g_B=\frac1B\sum_{i=1}^B g_i,\qquad
+\mathbb E[\hat g_B]=g,\qquad
+\operatorname{Cov}(\hat g_B)=\frac{\Sigma_g}{B}.
+\]
+
+实际参数更新为\(\delta=-\eta\hat g_B\)，故
+
+\[
+\boxed{
+\operatorname{Cov}(\delta)=\frac{\eta^2}{B}\Sigma_g.
+}
+\]
+
+对一个固定目标\(q\)，令其功能读出的参数梯度为\(j_q=\nabla_\theta m_q(\theta)\)，则
+
+\[
+R_q(\theta,\delta)\approx j_q^\top\delta
+=-\eta j_q^\top\hat g_B.
+\]
+
+因而
+
+\[
+\boxed{
+\begin{aligned}
+\mathbb E[R_q]&\approx-\eta j_q^\top g,\\
+\operatorname{Var}(R_q)&\approx
+\frac{\eta^2}{B}j_q^\top\Sigma_gj_q.
+\end{aligned}}
+\]
+
+对输出向量\(f\)及其雅可比\(J\)，同理得到
+
+\[
+\boxed{
+\operatorname{Cov}(\Delta f)\approx
+\frac{\eta^2}{B}J\Sigma_gJ^\top.
+}
+\]
+
+**推得的结论。** 批量大小不仅改变更新噪声，还通过当前模型的目标敏感方向，改变**具体任务的功能响应噪声**。原研究中的梯度噪声规模可由\(\operatorname{tr}\Sigma_g/\|g\|^2\)表征其典型量级；是否为有效批量瓶颈仍由原优化问题决定。
+
+**研究对照。** [McCandlish等，An Empirical Model of Large-Batch Training](https://arxiv.org/abs/1812.06162)。
+
+**内部锚点。** TL-E03（接收状态）；TL-E05（目标—更新几何）。
+
+### 5.2.14 Double Descent：高斯线性原模型中的显式风险曲线
+
+**推导类型：只采用原研究的各向同性高斯设计和最小范数/最小二乘解，直接推导插值边界两侧的期望风险。**
+
+**TLIR入口。** 模型规模\(p\)改变可选的参数化函数空间；训练动作选择一个最终参数解；测试误差是该解对新输入的功能读出。它不是独立的“能力实体”。
+
+**使用的原理论条件。** 取经典Double Descent研究中的纯噪声各向同性线性模型：\(X\in\mathbb R^{n\times p}\)各元素独立服从\(N(0,1)\)，\(y=\varepsilon\)且\(\varepsilon\sim N(0,\sigma^2I_n)\)，测试\(x\sim N(0,I_p)\)与训练独立；\(p<n\)用普通最小二乘，\(p>n\)用最小范数插值解。此处计算的是测试**超额预测风险**，不包含新标签自身的不可约噪声。
+
+**逐步推导：欠参数区间\(p<n-1\)。**
+
+\[
+\hat\beta=(X^\top X)^{-1}X^\top\varepsilon.
+\]
+
+对训练噪声与独立测试输入取期望，
+
+\[
+\mathbb E R
+=\sigma^2\,\mathbb E_X
+\operatorname{tr}[(X^\top X)^{-1}].
+\]
+
+利用该原高斯设计的Wishart逆矩阵期望，得到
+
+\[
+\boxed{\mathbb ER=\sigma^2\frac{p}{n-p-1},\quad p<n-1.}
+\]
+
+**逐步推导：过参数区间\(p>n+1\)。**
+
+\[
+\hat\beta=X^\top(XX^\top)^{-1}\varepsilon,\qquad
+\mathbb E R=\sigma^2\mathbb E_X
+\operatorname{tr}[(XX^\top)^{-1}],
+\]
+
+从而
+
+\[
+\boxed{\mathbb ER=\sigma^2\frac{n}{p-n-1},\quad p>n+1.}
+\]
+
+在插值阈值附近，这些逆矩阵期望发散；远离阈值、\(p\)继续增大后，第二式下降。这样便直接得到**先升至峰值、再下降**的Double Descent风险形状。
+
+**推得的结论。** 这个反常曲线是原线性回归的解与训练/测试分布共同确定的计算结果；无需另加“参数变多后噪声支撑必然重新分配”的新假设。对非零真实信号或一般协方差，可继续使用5.2.5的偏差—方差分解及原研究条件。
+
+**研究对照。** [Hastie、Montanari、Rosset与Tibshirani，Annals of Statistics 2022](https://doi.org/10.1214/21-AOS2133)；Belkin等的插值阈值研究。
+
+**内部锚点。** TL-E03（参数更新与状态）；TL-E08（目标依赖读出）。
