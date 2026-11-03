@@ -1,25 +1,25 @@
 # TLIR research evidence
 
-Evidence companion for **Unified dynamics of training, learning, inference, and reinforcement in neural networks** (current Science manuscript; underlying experiments also have earlier conference versions).
+Evidence companion for **Unified dynamics of training, learning, inference, and reinforcement in neural networks** (current **10-page PNAS-format manuscript**; underlying experiments also have prior Science and conference versions).
 
-**Start here: [paper-to-evidence map](TLIR_PAPER_EVIDENCE_MAP.md).** It follows the current 23-page Science manuscript (Figures 1–3 and Tables 1–3): nine nanoGPT TLI experiments, TL-E05-derived prediction, five additional TLI systems, GRU feedback closure, and cross-field interpretation.
+**Start here: [PNAS paper-to-evidence map](TLIR_PAPER_EVIDENCE_MAP.md).** It follows the current **10-page PNAS manuscript** (Figure 1 p. 2; Table 1 p. 3; Figure 2 p. 5; Tables 2–3 and Figure 3 p. 6; unified dynamical equations (10) p. 7; three representative extrapolations (15)–(21) pp. 9–10). It links nine nanoGPT TLI experiments, TL-E05-derived prediction, five additional TLI systems, GRU feedback closure, and cross-field interpretation to their source evidence. The original [23-page Science manuscript navigation](TLIR_SCIENCE_23PAGE_EVIDENCE_MAP_ARCHIVE.md) is archived separately.
 
 | Read in paper order | Evidence |
 |---|---|
-| Training and learning | [TL-E01–TL-E08](TLIR_PAPER_EVIDENCE_MAP.md#2-experimental-establishment-of-tli-open-loop-dynamics) |
-| Frozen inference | [INF-E01](TLIR_PAPER_EVIDENCE_MAP.md#23-inference-frozen-recruitment-of-learned-support) |
+| Training and learning | [TL-E01–TL-E08](TLIR_PAPER_EVIDENCE_MAP.md#2-experimental-establishment-of-tli-open-loop-dynamics-pnas-pages-24) |
+| Frozen inference | [INF-E01](TLIR_PAPER_EVIDENCE_MAP.md#23-inference-frozen-recruitment-of-learned-support-pnas-page-4) |
 | Derived prediction | [TL-P01](TLIR_PAPER_EVIDENCE_MAP.md#31-prediction-derived-from-tl-e05) |
 | Cross-system TLI | [ResNet, diffusion, **MoE**, GNN and SNN](TLIR_PAPER_EVIDENCE_MAP.md#32-six-tli-systems) |
-| Reinforcement | [GRU RL-E05 / RL-E06](TLIR_PAPER_EVIDENCE_MAP.md#4-reinforcement-feedback-closure-in-the-shared-gru) |
-| Figures and tables | [Panel-by-panel map](TLIR_PAPER_EVIDENCE_MAP.md#figures-and-tables-exact-mapping-to-the-23-page-manuscript) |
+| Reinforcement | [GRU RL-E05 / RL-E06](TLIR_PAPER_EVIDENCE_MAP.md#4-reinforcement-feedback-closure-in-the-shared-gru-pnas-pages-45) |
+| Figures and tables | [Panel-by-panel map](TLIR_PAPER_EVIDENCE_MAP.md#figures-and-tables-exact-mapping-to-the-10-page-pnas-manuscript) |
 
-**Section 5 — unified explanations and theory-first extrapolations:** The manuscript presents eight representative positive/negative comparisons and three representative derivations. The [organized complete record](TLIR_SECTION5_21_PAIRS_14_EXTRAPOLATIONS.md) contains all **21 historical positive/negative explanations** and **14 theory-first extrapolations**. Separate files: [21 explanations](TLIR_HISTORICAL_STRESS_TEST_21.md) · [14 extrapolations](TLIR_THEORY_FIRST_14_DERIVATIONS.md).
+**Unified equations, explanations and theory-first extrapolations:** The PNAS manuscript presents the complete coupled system as **equation (10)** on page 7, eight representative positive/negative comparisons on pages 7–9, and three representative derivations on pages 9–10. The [organized complete record](TLIR_SECTION5_21_PAIRS_14_EXTRAPOLATIONS.md) contains all **21 historical positive/negative explanations** and **14 theory-first extrapolations**. Separate files: [21 explanations](TLIR_HISTORICAL_STRESS_TEST_21.md) · [14 extrapolations](TLIR_THEORY_FIRST_14_DERIVATIONS.md).
 
 The full public source snapshot and the separate GNN/SNN subtree are copied here, including the [MoE experiment](experiments/gfg_moe_cifar_training_learning_inference_generalization_v1/). Original GFG experiments and RL-E01–E04 remain available below. The original repository is not modified or replaced.
 
 See [import provenance and availability limits](EVIDENCE_IMPORT.md), [import checks](EVIDENCE_IMPORT_CHECKS.json), and the [original Zenodo evidence](https://doi.org/10.5281/zenodo.22032772). The [Release mirror](https://github.com/wind342/tlir-research-evidence/releases/tag/zenodo-22032772-mirror) provides the original ten evidence ZIPs without recompression.
 
-The supplied confidential review PDF is not uploaded. Existing `manuscripts/tlir_v8/` assets and the legacy map below refer to an older manuscript version. Archived PASS receipts are not claims that all experiments were rerun during this import.
+The current PNAS manuscript PDF is not yet published as a binary asset in this repository; page references are based on the 10-page PNAS PDF checked on 2026-11-04. Existing `manuscripts/tlir_v8/` assets and the legacy `MANUSCRIPT_EVIDENCE_MAP.md` refer to older versions, and the 23-page Science map has been [archived explicitly](TLIR_SCIENCE_23PAGE_EVIDENCE_MAP_ARCHIVE.md). Archived PASS receipts are not claims that all experiments were rerun during this import.
 
 ## Original research-evidence collection (preserved)
 
