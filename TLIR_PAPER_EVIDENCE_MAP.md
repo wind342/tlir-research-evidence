@@ -1,16 +1,33 @@
 # TLIR paper: section, figure and evidence map
 
-This navigation corresponds to the **23-page final Science manuscript** *Unified dynamics of training, learning, inference, and reinforcement in neural networks* (`TLIR_Science_Final-7.pdf`), containing three figures and three numbered tables. It maps the current manuscript to the preserved protocols, programs, evidence records and validators. Earlier conference manuscript materials are identified separately in the repository.
+This navigation corresponds to the **current 10-page PNAS-format manuscript** *Unified dynamics of training, learning, inference, and reinforcement in neural networks* (`TLIR_PNAS_All_35_Headings_Checked_10pages.pdf`; independently revised for PDF-text and affiliation corrections on 2026-11-04). It maps the **actual PNAS page, figure, table and equation locations** to the preserved experimental contracts, programs, results and validators. The previous 23-page Science navigation is archived without changing its historical assertions in [TLIR_SCIENCE_23PAGE_EVIDENCE_MAP_ARCHIVE.md](TLIR_SCIENCE_23PAGE_EVIDENCE_MAP_ARCHIVE.md). Earlier conference materials are identified separately in this repository.
+
+**PNAS navigation at a glance**
+
+| PNAS page | Actual manuscript content | Evidence entry |
+|---|---|---|
+| 1 | Abstract, Significance Statement and introduction | This map, §1 |
+| 2 | Figure 1 (TLIR closed loop), experiments and instruments start | §2; [Experimental instruments](EXPERIMENTAL_INSTRUMENTS.md) |
+| 3 | Table 1 documents **experimental equations (1)–(9)**; training/learning and equations (1)–(4) | §2.1–2.2 |
+| 4 | Frozen inference, predictor, five other TLI systems; equations (5)–(9); GRU section begins | §2.3, §3, §4 |
+| 5 | GRU feedback results, **Figure 2** (14 evidence subpanels) | §4, figure panels below |
+| 6 | **Table 2**, **Table 3**, **Figure 3**, in that order | §3.2, Table 3, figure panels below |
+| 7 | **Unified dynamical system, equation (10)**; simple theory equations (11)–(14); unified explanations begin | §5 and §6 |
+| 8–9 | Representative positive and contrasting findings (eight comparisons) | §6; [21 complete comparisons](TLIR_HISTORICAL_STRESS_TEST_21.md) |
+| 9–10 | Three representative **theory-first extrapolations**, equations (15)–(21); conclusion, disclosures and references | §6; [14 full derivations](TLIR_THEORY_FIRST_14_DERIVATIONS.md) |
+
+**Equation numbering convention:** PNAS equation **(10)** is the complete coupled TLIR system, whereas the repository’s expanded [TLIR_UNIFIED_DYNAMICS_V5.md](TLIR_UNIFIED_DYNAMICS_V5.md) indexes the same dynamical roles as **(1)–(5)**. These numbering systems must not be interchanged. PNAS **Table 1** indexes experimental relations **(1)–(9)** only; it does *not* list the unified system (10). The three representative extrapolations use small source marks **[T] TLIR equation / [A] original-study assumption / [R] recovered relation**.
+
 
 Read in discovery order: **nine nanoGPT TLI experiments → TL-E05-derived prediction → five additional TLI systems → GRU feedback interventions → cross-field interpretation**. Six systems test TLI; GRU is a seventh system for feedback closure, not an additional complete TLI chain.
 
-## 1. Introduction
+## 1. Introduction (PNAS page 1)
 
 The introduction motivates the common dynamical relationship. Its experimental authorities are the following sections, not additional experiment IDs. GFG foundations and four instruments remain available under [EXPERIMENT_INDEX.md](EXPERIMENT_INDEX.md) and [EXPERIMENTAL_INSTRUMENTS.md](EXPERIMENTAL_INSTRUMENTS.md).
 
-## 2. Experimental establishment of TLI open-loop dynamics
+## 2. Experimental establishment of TLI open-loop dynamics (PNAS pages 2–4)
 
-### 2.1 Training: realized updates and receiving states
+### 2.1 Training: realized updates and receiving states (PNAS page 3)
 
 | Experiment | Question / evidence | Protocol and execution | Results / checks |
 |---|---|---|---|
@@ -20,7 +37,7 @@ The introduction motivates the common dynamical relationship. Its experimental a
 | TL-E04 | Finite-amplitude response paths, including nonlinear morphologies | [Amplitude-path protocol](experiments/gfg_nanogpt_stepwise_support_transition_v1/B_UPDATE_AMPLITUDE_PATH_PROTOCOL.json) | [Path validator](experiments/gfg_nanogpt_stepwise_support_transition_v1/amplitude_path_validator.py), [GFG validator](experiments/gfg_nanogpt_stepwise_support_transition_v1/amplitude_path_gfg_validator.py) |
 | TL-E05 | Seven frozen conditioning-factor blocks across 12 development runs, 72 finite-amplitude sections and 15,264 identity-aligned target responses; F1 target boundary, F3 target-update geometry and F5 receiving state identified as primary families | [Frozen contract](experiments/gfg_nanogpt_response_factor_analysis_v1/FACTOR_ANALYSIS_CONTRACT.md), [analysis and cross-run matching](experiments/gfg_nanogpt_response_factor_analysis_v1/analysis.py), [2,000 clustered-bootstrap resamples and factor-order/leave-one-out tests](experiments/gfg_nanogpt_response_factor_analysis_v1/runner.py) | [Independent validator](experiments/gfg_nanogpt_response_factor_analysis_v1/validator.py); [public verification record](PUBLIC_EVIDENCE_MATRIX.md) |
 
-### 2.2 Learning: distributed support and capability boundaries
+### 2.2 Learning: distributed support and capability boundaries (PNAS pages 3–4)
 
 | Experiment | Question / evidence | Protocol / code / checker |
 |---|---|---|
@@ -30,7 +47,7 @@ The introduction motivates the common dynamical relationship. Its experimental a
 
 Undefined allocations are not zero support. TL-E08's measured endpoint facts are distinct from TL-P01's predictions, even when the archived ledger supports both analyses.
 
-### 2.3 Inference: frozen recruitment of learned support
+### 2.3 Inference: frozen recruitment of learned support (PNAS page 4)
 
 **INF-E01:** 13 nanoGPT histories, 52 historical checkpoint comparisons; target/query-conditioned recruitment, non-additive combinations, exact learned-version rollback and restoration.
 
@@ -39,7 +56,7 @@ Undefined allocations are not zero support. TL-E08's measured endpoint facts are
 - [Independent checker](experiments/gfg_nanogpt_training_learning_inference_projection_v1/independent.py), [strict audit](experiments/gfg_nanogpt_training_learning_inference_projection_v1/strict_audit.py)
 - [Public evidence boundary](experiments/gfg_nanogpt_training_learning_inference_projection_v1/PUBLIC_EVIDENCE.md)
 
-## 3. Prediction and cross-system validation
+## 3. Prediction and cross-system validation (PNAS page 4; Tables 2–3 page 6)
 
 ### 3.1 Prediction derived from TL-E05
 
@@ -51,7 +68,7 @@ The direct predictor uses the already-formed update and pre-response internal qu
 
 ### 3.2 Six TLI systems
 
-**Manuscript Table 2 (page 23)** lists all seven systems: these six TLI chains plus the separate GRU feedback-closure study.
+**PNAS Table 2 (page 6)** lists all seven systems: these six TLI chains plus the separate GRU feedback-closure study.
 
 | System | Identity | Protocol / code | Results / check |
 |---|---|---|---|
@@ -81,7 +98,7 @@ GNN preserves its failed nonlinear-frequency gate for seed 20261024 (4/256, 1.56
 
 GNN/SNN prediction authorities: [protocol](independent_stress_tests/tlp01_prediction/FROZEN_PROTOCOL.json), [code](independent_stress_tests/tlp01_prediction/tlp01_cross_system.py), [report](independent_stress_tests/tlp01_prediction/REPORT.md), [machine metrics](independent_stress_tests/tlp01_prediction/ADJUDICATION_REPORT.json), [checker](independent_stress_tests/tlp01_prediction/independent_checker.py). The public subtree does not contain the full sealed target ledger or all pretarget/native endpoint files required by that checker. Do not describe this import as a fresh 10,272-target recomputation.
 
-## 4. Reinforcement: feedback closure in the shared GRU
+## 4. Reinforcement: feedback closure in the shared GRU (PNAS pages 4–5)
 
 | Experiment | Scope | Protocol | Results / checker |
 |---|---|---|---|
@@ -94,19 +111,23 @@ RL-E06 retains all 12 seeds. The update-800 other-skill accuracy is 70.31%; reba
 
 **RL-E06 feedback allocation (reported in the Section 4 text, not as a numbered table):** 60 episodes per update: balanced 15/15/15/15, mild 30/10/10/10, high 45/5/5/5, exclusive 60/0/0/0.
 
-## 5. Cross-field explanations, theory-first extrapolations, and conclusion
+## 5. Unified dynamical equations and a simple theory (PNAS page 7)
 
-The manuscript's cross-field section (pages 9–14) presents **eight representative positive/negative explanations** and **three representative theory-first extrapolations**. The full analysis accompanying this section is preserved as [21 historical comparisons](TLIR_HISTORICAL_STRESS_TEST_21.md), [14 theory-first extrapolations](TLIR_THEORY_FIRST_14_DERIVATIONS.md), and an [organized combined record](TLIR_SECTION5_21_PAIRS_14_EXTRAPOLATIONS.md). The conclusion appears on page 15.
+**Equation (10)** is the coupled system covering training action and state, finite functional response, persistent support reorganization, capability readout, frozen inference and feedback closure. See [TLIR_UNIFIED_DYNAMICS_V5.md](TLIR_UNIFIED_DYNAMICS_V5.md) for the expanded presentation and [equation-to-evidence navigation](TLIR_UNIFIED_DYNAMICS_V5.md#6-equation-to-evidence-map). The paper’s simple theory displays **(11)** one update with opposed responses, **(12)** a finite-amplitude nonlinear response, **(13)** a capability-boundary crossing, and **(14)** the inference→feedback→training closure.
 
-## Figures and tables: exact mapping to the 23-page manuscript
+## 6. Unified explanations, theory-first extrapolations, and conclusion (PNAS pages 7–10)
 
-**Figure 1 (page 15)** shows the Training–Learning–Inference–Reinforcement closed loop. **Figure 2 (page 16)** contains 14 experimental subplots and two colorbars, grouped by Training (a1–a4), Learning (b1–b3), Inference (c1–c3) and Reinforcement (d1–d4). **Figure 3 (page 17)** summarizes the six within-system TLI test chains, retaining the GNN partial nonlinear-frequency gate.
+**Unified explanations (pages 7–9):** eight representative positive/contrasting comparisons. **Theory-first extrapolations (pages 9–10):** three representative deductions—catastrophic forgetting **(15)–(17)**, Grokking **(18)–(20)**, and Double Descent **(21)**—using the paper’s [T]/[A]/[R] source marks. The **conclusion appears on page 10**. The full analysis accompanying these representatives remains accessible as [21 historical comparisons](TLIR_HISTORICAL_STRESS_TEST_21.md), [14 theory-first extrapolations](TLIR_THEORY_FIRST_14_DERIVATIONS.md) and the [organized combined record](TLIR_SECTION5_21_PAIRS_14_EXTRAPOLATIONS.md); the separate [14-item mathematical audit](TLIR_14_EXTRAPOLATIONS_MATH_AUDIT_2026-11-03.md) records formula provenance and conditions.
+
+## Figures and tables: exact mapping to the 10-page PNAS manuscript
+
+**Figure 1 (page 2)** shows the Training–Learning–Inference–Reinforcement closed loop. **Figure 2 (page 5)** contains 14 experimental subplots grouped by Training (a1–a4), Learning (b1–b3), Inference (c1–c3) and Reinforcement (d1–d4). **Figure 3 (page 6)** summarizes the six within-system TLI test chains, retaining the GNN partial nonlinear-frequency gate. **Tables 2–3 and Figure 3 share page 6** in that sequence.
 
 | Manuscript table | Page | Exact subject |
 |---|---:|---|
-| **Table 1** | 22 | Scientific purpose and principal notation of the ten numbered equations (1)–(10) |
-| **Table 2** | 23 | Seven neural systems: six TLI chains and the GRU feedback study |
-| **Table 3** | 23 | Post-update target-boundary classification: accuracy and four-way macro recall for six TLI systems |
+| **Table 1** | 3 | Scientific purpose and principal notation of the nine experimental equations **(1)–(9)**; coupled TLIR system **(10)** is on page 7, outside Table 1 |
+| **Table 2** | 6 | Seven neural systems: six TLI chains and the GRU feedback study |
+| **Table 3** | 6 | Post-update target-boundary classification: accuracy and four-way macro recall for six TLI systems |
 
 The RL-E06 balanced/mild/high/exclusive 60-episode allocations appear in Section 4 prose, not as an additional numbered table.
 
@@ -126,7 +147,7 @@ The RL-E06 balanced/mild/high/exclusive 60-episode allocations appear in Section
 | d3 | RL-E05 | All 168 proper-subset rollbacks (14 × 12); not the failed temporal criterion |
 | d4 | RL-E06 | Common update-800 state, continued exclusive feedback versus two recovery allocations |
 
-The new Figure 2 plotting bundle is not part of the imported public snapshots. This map identifies its experiment authorities; it does not claim to redistribute private plotting sources or all historical trajectories. The already-public [v8 figure sources](manuscripts/tlir_v8/README.md) are an **older version** and must not be substituted for this three-figure PDF.
+The current PNAS Figure 2 plotting bundle is not part of the imported public snapshots. This map identifies its experiment authorities; it does not claim to redistribute private plotting sources or all historical trajectories. The already-public [v8 figure sources](manuscripts/tlir_v8/README.md) are an **older version** and must not be substituted for this three-figure PDF.
 
 ## Availability and verification
 
