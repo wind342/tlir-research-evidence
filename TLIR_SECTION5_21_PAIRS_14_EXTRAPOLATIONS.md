@@ -226,7 +226,7 @@ TLIR首先通过九项nanoGPT实验建立训练、学习、推理之间的动力
 
 **推导类型：原理论条件下的局部稳定阈值。**
 
-**逐式来源标记。** **[T]** 原方程：\(\theta_{t+1}=\theta_t+\delta_t\)，\(Z_{t+1}=\mathcal T(Z_t,A_t)\)。**[A]** 原研究的局部二次模型与梯度下降：\(\delta_t=-\eta He_t\)，\(H=H^\top\)、\(e_t=\theta_t-\theta^\star\)。代入得到 \(e_{t+1}=(I-\eta H)e_t\)，再投影到 \(H\) 的每个特征方向。**[R]** 仅在正曲率方向的局部线性稳定边界：\(\lvert1-\eta\lambda_i\rvert<1\)，最高正曲率方向临界 \(\eta\lambda_{\max}=2\)。这里的 \([R]\) 是**局部边缘条件**，不是任意非凸训练全程都满足的稳定等式。
+**逐式来源标记。** <sup>[T]</sup> 原方程：\(\theta_{t+1}=\theta_t+\delta_t\)，\(Z_{t+1}=\mathcal T(Z_t,A_t)\)。<sup>[A]</sup> 原研究的局部二次模型与梯度下降：\(\delta_t=-\eta He_t\)，\(H=H^\top\)、\(e_t=\theta_t-\theta^\star\)。代入得到 \(e_{t+1}=(I-\eta H)e_t\)，再投影到 \(H\) 的每个特征方向。<sup>[R]</sup> 仅在正曲率方向的局部线性稳定边界：\(\lvert1-\eta\lambda_i\rvert<1\)，最高正曲率方向临界 \(\eta\lambda_{\max}=2\)。这里的 \([R]\) 是**局部边缘条件**，不是任意非凸训练全程都满足的稳定等式。
 
 **TLIR作用对象。** 实际更新形成与状态转移：\(\theta_{t+1}=\theta_t+\delta_t\)，一次功能响应为\(R_q(\theta_t,\delta_t)=m_q(\theta_t+\delta_t)-m_q(\theta_t)\)。
 
@@ -275,7 +275,7 @@ e_{i,t+1}=(1-\eta\lambda_i)e_{i,t}.
 
 **推导类型：直接证明“读出已正确而状态仍变化”；最大间隔方向采用该理论既有定理（不在此重证多维定理）。**
 
-**逐式来源标记。** **[T]** 原方程：\(\theta_{t+1}=\theta_t+\delta_t\)、\(R_{t,q}=m_q(L_{t+1})-m_q(L_t)\)、\(C_{t,q}=\chi_q(m_q(L_t))\)。**[A]** 原论文线性可分 logistic 回归与梯度下降；在一维实例中 \(m(w)=w\)，\(\delta_t=\eta/(1+e^{w_t})\)。因此一旦 \(w_t>0\)，\(\chi(m)=1\) 持续不变，而 \(\delta_t>0\)；由 \(e^{w_{t+1}}-e^{w_t}\to\eta\) 得 \(w_t=\log t+O(1)\)。**[R]** 已正确的离散读出与持续状态更新可以同时成立；多维向最大间隔方向收敛则是 **Soudry 等的原有定理**，本一维计算并未单独重证多维定理。
+**逐式来源标记。** <sup>[T]</sup> 原方程：\(\theta_{t+1}=\theta_t+\delta_t\)、\(R_{t,q}=m_q(L_{t+1})-m_q(L_t)\)、\(C_{t,q}=\chi_q(m_q(L_t))\)。<sup>[A]</sup> 原论文线性可分 logistic 回归与梯度下降；在一维实例中 \(m(w)=w\)，\(\delta_t=\eta/(1+e^{w_t})\)。因此一旦 \(w_t>0\)，\(\chi(m)=1\) 持续不变，而 \(\delta_t>0\)；由 \(e^{w_{t+1}}-e^{w_t}\to\eta\) 得 \(w_t=\log t+O(1)\)。<sup>[R]</sup> 已正确的离散读出与持续状态更新可以同时成立；多维向最大间隔方向收敛则是 **Soudry 等的原有定理**，本一维计算并未单独重证多维定理。
 
 **TLIR作用对象。** \(C_{t,q}=\mathbf1[m_q(\theta_t)>0]\)以及\(\theta_{t+1}=\theta_t+\delta_t\)。正确性是目标读出，不等于参数状态停止变化。
 
@@ -322,7 +322,7 @@ e^{w_{t+1}}-e^{w_t}
 
 **推导类型：在原模型坍塌论文的有限离散分布、逐代抽样、精确拟合设定下，直接推导尾部丢失概率和最终吸收态；对真实数据混合，推导原混合数据设定下的期望关系。**
 
-**逐式来源标记。** **[T]** 原反馈闭环 \(Y_t=\mathcal I(L_t,x_t,c_t)\)、\(B_{t+1}=\mathcal B(B_t,Y_t,E_t)\)、\(A_{t+1}=\mathcal U(Z_{t+1},D_{t+1},B_{t+1})\)、\(Z_{t+2}=\mathcal T(Z_{t+1},A_{t+1})\)。这里把一次模型代际递归视为一次闭环转移，而非一个优化步。**[A]** 原文有限离散支持、固定 \(M\) 次独立采样、每代精确拟合经验频率：\(N_{t+1,i}\mid p_t\sim\mathrm{Bin}(M,q_t)\)，\(q_{t+1}=N_{t+1,i}/M\)。**[R]** \(\Pr(q_{t+1}=0\mid q_t)=(1-q_t)^M\)、\(\mathbb E(q_{t+1}\mid q_t)=q_t\)；有限状态吸收链最终在某一类别的点质量处吸收。添加固定比例真实数据后，缺失类别不再是吸收态，恢复概率由原混合抽样条件计算。**切勿把随机支持消失改写成每代期望概率必然下降。**
+**逐式来源标记。** <sup>[T]</sup> 原反馈闭环 \(Y_t=\mathcal I(L_t,x_t,c_t)\)、\(B_{t+1}=\mathcal B(B_t,Y_t,E_t)\)、\(A_{t+1}=\mathcal U(Z_{t+1},D_{t+1},B_{t+1})\)、\(Z_{t+2}=\mathcal T(Z_{t+1},A_{t+1})\)。这里把一次模型代际递归视为一次闭环转移，而非一个优化步。<sup>[A]</sup> 原文有限离散支持、固定 \(M\) 次独立采样、每代精确拟合经验频率：\(N_{t+1,i}\mid p_t\sim\mathrm{Bin}(M,q_t)\)，\(q_{t+1}=N_{t+1,i}/M\)。<sup>[R]</sup> \(\Pr(q_{t+1}=0\mid q_t)=(1-q_t)^M\)、\(\mathbb E(q_{t+1}\mid q_t)=q_t\)；有限状态吸收链最终在某一类别的点质量处吸收。添加固定比例真实数据后，缺失类别不再是吸收态，恢复概率由原混合抽样条件计算。**切勿把随机支持消失改写成每代期望概率必然下降。**
 
 **TLIR作用对象。** TLIR式(4)描述冻结推理，式(5)描述推理后果回流反馈及后续训练数据\(D_{t+1}\)，进而由训练动作改变持久模型状态；式(1)的状态转移将此写为\(Z_{t+1}=\mathcal T(Z_t,\mathcal U(Z_t,D_t,B_t))\)。这里的\(t\)按**模型代际**计，而非一次优化器步。具体的生成、抽样与拟合映射使用被研究论文自己的定义。
 
@@ -384,13 +384,13 @@ p_t\xrightarrow[t\to\infty]{\mathrm{a.s.}}e_I,\qquad
 
 **独立研究对照。** [Shumailov等，AI models collapse when trained on recursively generated data，Nature 2024](https://doi.org/10.1038/s41586-024-07566-y)；[Seddik等，How Bad is Training on Synthetic Data? (2024)](https://arxiv.org/abs/2404.05090)；[Gerstgrasser等，Is Model Collapse Inevitable? (2024)](https://arxiv.org/abs/2404.01413)。
 
-**内部实验锚点。** TLIR式(5)（输出回流训练）、式(1)（状态转移）；RL-E06（反馈数据组织改变持续功能结果）。
+**内部实验锚点。** TLIR式(4)–(5)（冻结推理输出及后续反馈回流）、式(1)（状态转移）；RL-E06（反馈数据组织改变持续功能结果）。
 
 ### 5.2.4 频率学习顺序：Spectral Bias与响应谱
 
 **推导类型：原理论的核动力学条件下，直接推导模态收敛速率。**
 
-**逐式来源标记。** **[T]** 原状态转移 \(\theta_{t+1}=\theta_t+\delta_t\)，功能响应 \(R_{t,q}=m_q(\theta_{t+1})-m_q(\theta_t)\)。**[A]** 平方损失、GD、原研究采用的局部线性化 \(J=\partial f/\partial\theta\) 和在相应区间固定的核 \(K=JJ^\top\)。代入 \(\delta_t=-\eta J^\top(f_t-y)\) 得 \(\Delta f_t\approx-\eta K(f_t-y)\)；沿 \(Kv_k=\lambda_kv_k\) 的模态重复迭代。**[R]** \(r_{k,t}\approx(1-\eta\lambda_k)^t r_{k,0}\)；只有在**原模型的傅里叶核谱**满足低频特征值较大时才得到低频先学，不是TLIR额外宣布的通用频率排序。
+**逐式来源标记。** <sup>[T]</sup> 原状态转移 \(\theta_{t+1}=\theta_t+\delta_t\)，功能响应 \(R_{t,q}=m_q(\theta_{t+1})-m_q(\theta_t)\)。<sup>[A]</sup> 平方损失、GD、原研究采用的局部线性化 \(J=\partial f/\partial\theta\) 和在相应区间固定的核 \(K=JJ^\top\)。代入 \(\delta_t=-\eta J^\top(f_t-y)\) 得 \(\Delta f_t\approx-\eta K(f_t-y)\)；沿 \(Kv_k=\lambda_kv_k\) 的模态重复迭代。<sup>[R]</sup> \(r_{k,t}\approx(1-\eta\lambda_k)^t r_{k,0}\)；只有在**原模型的傅里叶核谱**满足低频特征值较大时才得到低频先学，不是TLIR额外宣布的通用频率排序。
 
 **TLIR作用对象。** 实际更新导致目标函数响应\(R_q(\theta,\delta)\)。对输出向量\(f_\theta\)作当前状态的一阶展开，可将参数动作映射到功能空间。
 
@@ -428,7 +428,7 @@ r_{t+1}\approx(I-\eta K)r_t.
 
 **推导类型：使用原过参数线性回归设定，直接得到最小范数解的总体风险分解。**
 
-**逐式来源标记。** **[T]** 原训练转移 \(\theta_{t+1}=\theta_t+\delta_t\)；可将测试风险看作固定总体分布上的连续功能读出 \(m_{\rm test}(\theta)\)，于是 \(R_{t,\rm test}=m_{\rm test}(\theta_{t+1})-m_{\rm test}(\theta_t)\)。**[A]** 原最小范数线性回归：\(y=X\beta^\star+\varepsilon\)，零初始化平方损失梯度下降、\(p>n\)、\(X\) 满行秩、测试协方差 \(\Sigma\)。由原训练动作选取 \(\hat\beta=X^\top(XX^\top)^{-1}y\)，代入总体风险并对零均值独立噪声取条件期望。**[R]** 风险分解为 \(\beta^{\star\top}(I-P_X)\Sigma(I-P_X)\beta^\star+\sigma^2\operatorname{tr}[\Sigma X^\top(XX^\top)^{-2}X]\)。这是**条件期望等式**，不是单个测试样本的必然值。
+**逐式来源标记。** <sup>[T]</sup> 原训练转移 \(\theta_{t+1}=\theta_t+\delta_t\)；可将测试风险看作固定总体分布上的连续功能读出 \(m_{\rm test}(\theta)\)，于是 \(R_{t,\rm test}=m_{\rm test}(\theta_{t+1})-m_{\rm test}(\theta_t)\)。<sup>[A]</sup> 原最小范数线性回归：\(y=X\beta^\star+\varepsilon\)，零初始化平方损失梯度下降、\(p>n\)、\(X\) 满行秩、测试协方差 \(\Sigma\)。由原训练动作选取 \(\hat\beta=X^\top(XX^\top)^{-1}y\)，代入总体风险并对零均值独立噪声取条件期望。<sup>[R]</sup> 风险分解为 \(\beta^{\star\top}(I-P_X)\Sigma(I-P_X)\beta^\star+\sigma^2\operatorname{tr}[\Sigma X^\top(XX^\top)^{-2}X]\)。这是**条件期望等式**，不是单个测试样本的必然值。
 
 **TLIR作用对象。** 训练动作选择最终参数状态；训练集和总体分布的功能表现是同一状态上的**不同读出**，不能以训练误差代替总体风险。
 
@@ -472,7 +472,7 @@ r_{t+1}\approx(I-\eta K)r_t.
 
 **推导类型：原Chinchilla拟合函数条件下，直接求出最优模型—数据分配；幂律指数作为原研究输入。**
 
-**逐式来源标记。** **[T]** 训练动作与状态转移 \(A_t=\mathcal U(Z_t,D_t,B_t)\)、\(Z_{t+1}=\mathcal T(Z_t,A_t)\)，训练后的损失是学习状态的连续功能读出。**[A]** **Hoffmann 等实测拟合的** \(\mathcal L(N,D)=E+AN^{-a}+BD^{-b}\)，以及计算预算约束 \(C=6ND\)，其中指数 \(a,b\) **不是TLIR自身推导出来的**。令 \(D=C/(6N)\)，对 \(N\) 求导得到 \(aAN^{-a}=bBD^{-b}\)。**[R]** \(N_\star=(aA/bB)^{1/(a+b)}(C/6)^{b/(a+b)}\)、\(D_\star=C/(6N_\star)\)，并有 \(\mathcal L_\star-E\propto C^{-ab/(a+b)}\)。验证范围是**在原经验损失律为真时恢复计算最优条件**，不等于推出规模幂律本身。
+**逐式来源标记。** <sup>[T]</sup> 训练动作与状态转移 \(A_t=\mathcal U(Z_t,D_t,B_t)\)、\(Z_{t+1}=\mathcal T(Z_t,A_t)\)，训练后的损失是学习状态的连续功能读出。<sup>[A]</sup> **Hoffmann 等实测拟合的** \(\mathcal L(N,D)=E+AN^{-a}+BD^{-b}\)，以及计算预算约束 \(C=6ND\)，其中指数 \(a,b\) **不是TLIR自身推导出来的**。令 \(D=C/(6N)\)，对 \(N\) 求导得到 \(aAN^{-a}=bBD^{-b}\)。<sup>[R]</sup> \(N_\star=(aA/bB)^{1/(a+b)}(C/6)^{b/(a+b)}\)、\(D_\star=C/(6N_\star)\)，并有 \(\mathcal L_\star-E\propto C^{-ab/(a+b)}\)。验证范围是**在原经验损失律为真时恢复计算最优条件**，不等于推出规模幂律本身。
 
 **TLIR作用对象。** 模型大小、训练数据与动作历史共同决定学习后的状态，损失是相应状态上的功能读出。TLIR本身没有固定某个跨模型族的经验损失指数。
 
@@ -529,7 +529,7 @@ D_\star=\frac{C}{6N_\star}
 
 **推导类型：由原网络的分层复合与链式法则直接推出。**
 
-**逐式来源标记。** **[T]** 原功能响应 \(R_q=m_q(\theta+\delta\theta)-m_q(\theta)\)，其局部形式是 \(R_q\approx\nabla_\theta m_q^\top\delta\theta\)。**[A]** 原分层网络 \(h^{\ell+1}=F_\ell(h^\ell,\theta_\ell)\) 与可微链式法则，层间Jacobian记为 \(J_{L\leftarrow\ell+1}\)。逐层传播 \(\delta h^{\ell+1}=B_\ell\delta\theta_\ell\)，得 **[R]** \(\delta f\approx\sum_\ell J_{L\leftarrow\ell+1}B_\ell\delta\theta_\ell\)。这里是**局部一阶响应**；动态等距仅约束对应 Jacobian 的奇异值传输，不单独保证所有更新具有良好泛化效果。若矩阵有非零核空间，**全空间**范数下界为零，不能把仅对非零奇异子空间有效的下界误写成对所有输入成立。
+**逐式来源标记。** <sup>[T]</sup> 原功能响应 \(R_q=m_q(\theta+\delta\theta)-m_q(\theta)\)，其局部形式是 \(R_q\approx\nabla_\theta m_q^\top\delta\theta\)。<sup>[A]</sup> 原分层网络 \(h^{\ell+1}=F_\ell(h^\ell,\theta_\ell)\) 与可微链式法则，层间Jacobian记为 \(J_{L\leftarrow\ell+1}\)。逐层传播 \(\delta h^{\ell+1}=B_\ell\delta\theta_\ell\)，得 <sup>[R]</sup> \(\delta f\approx\sum_\ell J_{L\leftarrow\ell+1}B_\ell\delta\theta_\ell\)。这里是**局部一阶响应**；动态等距仅约束对应 Jacobian 的奇异值传输，不单独保证所有更新具有良好泛化效果。若矩阵有非零核空间，**全空间**范数下界为零，不能把仅对非零奇异子空间有效的下界误写成对所有输入成立。
 
 **TLIR作用对象。** 一个实际参数更新\(\delta\theta\)改变输出\(f_\theta\)，其局部功能响应由当前接收状态决定。
 
@@ -569,7 +569,7 @@ B_\ell=\frac{\partial F_\ell}{\partial\theta_\ell}.
 
 **推导类型：使用Dropout研究自身的独立Bernoulli特征屏蔽与广义线性模型（GLM）条件，直接推出标签无关的正则项；在原GLM包含的高斯线性回归中，精确推出数据依赖的对角二次正则化，以及它怎样改变真实训练动作。**
 
-**逐式来源标记。** **[T]** 原训练动作 \(\theta_{t+1}=\theta_t+\delta_t\) 与功能响应 \(R_{t,q}=m_q(\theta_{t+1})-m_q(\theta_t)\)。**[A]** Wager 等的独立Bernoulli特征遮蔽、倒置缩放 \(\tilde x_j=z_jx_j/r\)、GLM对数配分函数 \(A(u)\) 凸。对遮蔽取期望，标签线性项不变，得到 **[R]** \(\overline L_{\rm drop}=L_0+\frac1n\sum_i\{\mathbb E_zA(w^\top\tilde x_i)-A(w^\top x_i)\}\ge L_0\)。原高斯线性特例 \(A(u)=u^2/2\) 时，该差值精确等于 \((1-r)/(2r)\sum_j s_j^2w_j^2\)。**[T→A]** 代回更新得 \(\mathbb E_z[\delta_t\mid w_t]=-\eta\nabla\overline L_{\rm drop}\)，单次抽到的实际动作并不等于该期望。对非线性网络不能把测试期望等同关系当成精确恒等式。
+**逐式来源标记。** <sup>[T]</sup> 原训练动作 \(\theta_{t+1}=\theta_t+\delta_t\) 与功能响应 \(R_{t,q}=m_q(\theta_{t+1})-m_q(\theta_t)\)。<sup>[A]</sup> Wager 等的独立Bernoulli特征遮蔽、倒置缩放 \(\tilde x_j=z_jx_j/r\)、GLM对数配分函数 \(A(u)\) 凸。对遮蔽取期望，标签线性项不变，得到 <sup>[R]</sup> \(\overline L_{\rm drop}=L_0+\frac1n\sum_i\{\mathbb E_zA(w^\top\tilde x_i)-A(w^\top x_i)\}\ge L_0\)。原高斯线性特例 \(A(u)=u^2/2\) 时，该差值精确等于 \((1-r)/(2r)\sum_j s_j^2w_j^2\)。**[T→A]** 代回更新得 \(\mathbb E_z[\delta_t\mid w_t]=-\eta\nabla\overline L_{\rm drop}\)，单次抽到的实际动作并不等于该期望。对非线性网络不能把测试期望等同关系当成精确恒等式。
 
 **TLIR作用对象。** 式(1)–(2)把实际训练写为\(A_t=\mathcal U(Z_t,D_t,B_t)\)、\(\theta_{t+1}=\theta_t+\delta_t\)。训练时随机屏蔽特征，直接改变实际动作的形成；式(3)再测量该动作对任一固定目标的连续功能响应。式(4)区分训练时的随机屏蔽和冻结模型的推理调用。
 
@@ -660,7 +660,7 @@ R_{t,q}
 
 **推导类型：直接由TLIR功能响应和正确性读出式推出，SGD梯度解释采用遗忘理论原条件。**
 
-**逐式来源标记。** **[T]** 原响应 \(R_{t,q}=m_q(L_{t+1})-m_q(L_t)\) 与能力读出 \(C_{t,q}=\mathbf1[m_q(L_t)>0]\)。精确求和得 \(m_q(L_T)=m_q(L_0)+\sum_{t<T}R_{t,q}\)，故对最初 \(m_q(L_0)>0\) 的目标，**[R]** 失效当且仅当 \(\sum_{t<T}R_{t,q}\le-m_q(L_0)\)。**[A]** 原持续学习分析的SGD更新 \(\delta_t=-\eta\nabla L_{\rm new}(\theta_t)\) 和可微读出，另外给出**一阶近似** \(R_{t,q}\approx-\eta\nabla m_q^\top\nabla L_{\rm new}\)；旧任务损失的相应变化为 \(\Delta L_{\rm old}\approx-\eta g_{\rm old}^\top g_{\rm new}\)。请区分前一条精确边界与后一条局部近似。
+**逐式来源标记。** <sup>[T]</sup> 原响应 \(R_{t,q}=m_q(L_{t+1})-m_q(L_t)\) 与能力读出 \(C_{t,q}=\mathbf1[m_q(L_t)>0]\)。精确求和得 \(m_q(L_T)=m_q(L_0)+\sum_{t<T}R_{t,q}\)，故对最初 \(m_q(L_0)>0\) 的目标，<sup>[R]</sup> 失效当且仅当 \(\sum_{t<T}R_{t,q}\le-m_q(L_0)\)。<sup>[A]</sup> 原持续学习分析的SGD更新 \(\delta_t=-\eta\nabla L_{\rm new}(\theta_t)\) 和可微读出，另外给出**一阶近似** \(R_{t,q}\approx-\eta\nabla m_q^\top\nabla L_{\rm new}\)；旧任务损失的相应变化为 \(\Delta L_{\rm old}\approx-\eta g_{\rm old}^\top g_{\rm new}\)。请区分前一条精确边界与后一条局部近似。
 
 **TLIR作用对象。**
 
@@ -714,9 +714,9 @@ R_{t,q}\approx-\eta\nabla_\theta m_q(\theta_t)^\top g_{\rm new}.
 
 **推导类型：使用被外推Grokking可解研究的线性教师—学生模型、实际梯度流与随机矩阵谱，直接推出训练/测试损失轨迹以及延迟泛化时间。**
 
-**逐式来源标记。** **[T]** 原状态更新 \(\theta_{t+1}=\theta_t+\delta_t\) 在原研究的梯度流极限中给出连续状态 \(D(t)\)；TLIR响应 \(R_{t,q}=m_q(L_{t+1})-m_q(L_t)\)，能力读出 \(C_{t,q}=\chi_q(m_q(L_t))\)。**[A]** Levi、Beck与Bar-Sinai的高斯线性教师—学生模型、零权重衰减、平方损失梯度流、训练协方差 \(\Sigma_{\rm tr}\)、总体协方差 \(I\)，以及原文使用的Marčenko–Pastur谱和同一正确率阈值。代入更新得 \(D(t)=e^{-2\eta_0\Sigma_{\rm tr}t}D_0\)，同一状态的两个连续读出分别是 \(L_{\rm tr}(t)=D_0^\top e^{-4\eta_0\Sigma_{\rm tr}t}\Sigma_{\rm tr}D_0\) 与 \(L_{\rm gen}(t)=D_0^\top e^{-4\eta_0\Sigma_{\rm tr}t}D_0\)。对**原研究的**准确率阈值 \(L=\epsilon/4\)，可等价选择TLIR读出 \(m_q=\epsilon/4-L_q\)、\(\chi_q(m)=\mathbf1[m\ge0]\)。由原谱边缘渐近得到 **[R]** \(\Delta t_{\rm grok}\simeq-\ln(1-\sqrt\lambda)/[2\eta_0(1-\sqrt\lambda)^2]\)，其中 \(0<\lambda<1\)。这个时间公式属于**特定渐近区域的结果**，不是仅由TLIR形式方程独立确定的常数。
+**逐式来源标记。** <sup>[T]</sup> 原状态更新 \(\theta_{t+1}=\theta_t+\delta_t\) 在原研究的梯度流极限中给出连续状态 \(D(t)\)；TLIR响应 \(R_{t,q}=m_q(L_{t+1})-m_q(L_t)\)，能力读出 \(C_{t,q}=\chi_q(m_q(L_t))\)。<sup>[A]</sup> Levi、Beck与Bar-Sinai的标量输出（\(d_{\rm out}=1\)）高斯线性教师—学生模型、零权重衰减、平方损失梯度流、训练协方差 \(\Sigma_{\rm tr}\)、总体协方差 \(I\)，以及原文使用的Marčenko–Pastur谱和同一正确率阈值。代入更新得 \(D(t)=e^{-2\eta_0\Sigma_{\rm tr}t}D_0\)，同一状态的两个连续读出分别是 \(L_{\rm tr}(t)=D_0^\top e^{-4\eta_0\Sigma_{\rm tr}t}\Sigma_{\rm tr}D_0\) 与 \(L_{\rm gen}(t)=D_0^\top e^{-4\eta_0\Sigma_{\rm tr}t}D_0\)。对**原研究的**准确率阈值 \(L=\epsilon/4\)，可等价选择TLIR读出 \(m_q=\epsilon/4-L_q\)、\(\chi_q(m)=\mathbf1[m\ge0]\)。由原谱边缘渐近得到 <sup>[R]</sup> \(\Delta t_{\rm grok}\simeq-\ln(1-\sqrt\lambda)/[2\eta_0(1-\sqrt\lambda)^2]\)，其中 \(0<\lambda<1\)。这个时间公式属于**特定渐近区域的结果**，不是仅由TLIR形式方程独立确定的常数。
 
-**TLIR作用对象。** 式(2)实际参数更新和式(3)/(17)的目标连续读出、离散正确性边界。训练集目标和测试分布目标是**同一个学习状态**的两类读出；正确性可以先后跨越各自的阈值。
+**TLIR作用对象。** 式(2)的实际参数更新及式(3)的连续功能响应与离散能力读出。训练集目标和测试分布目标是**同一个学习状态**的两类读出；正确性可以先后跨越各自的阈值。
 
 **使用的原理论条件。** Levi、Beck、Bar-Sinai（ICLR 2024）的无偏置线性教师—学生设定：输入\(x\sim\mathcal N(0,I_d)\)，教师参数\(T\)、学生参数\(S_t\)；平方损失，标量输出，\(n\)个固定训练样本，零权重衰减，梯度流；训练协方差\(\Sigma_{\rm tr}=\frac1n\sum_jx_jx_j^\top\)，总体协方差为\(I_d\)，高维极限\(d,n\to\infty\)，\(\lambda=d/n\in(0,1)\)固定；原论文的Marčenko–Pastur谱、各向同性初始化，以及误差阈值\(\epsilon\)。
 
@@ -795,7 +795,7 @@ A(t)=\operatorname{erf}\!\left(\sqrt{\frac{\epsilon}{2L(t)}}\right).
 
 **推导类型：使用Tensor Programs IV的原MLP参数化与SGD条件，直接得到更新量级和输出稳定性；进一步使用该论文的第一层修改，说明各层特征学习的条件。**
 
-**逐式来源标记。** **[T]** 原实际动作 \(\theta_{t+1}=\theta_t+\delta_t\) 和功能响应 \(R_{t,q}=m_q(\theta_t+\delta_t)-m_q(\theta_t)\)。**[A]** Yang与Hu《Tensor Programs IV》附录E.1的线性MLP参数化、输出缩放 \(f=n^{-1/2}v\bar h\)、相关权重尺度与学习率 \(\eta_n\propto n^{-c}\)。对该论文的**同一SGD动作**按链式法则计算中间特征变化和输出响应，得到 **[R]** \(\Delta\bar h_j=\Theta(n^{-c})\)、\(\Delta f=\Theta(n^{-c})\)；当 \(c=0\) 时单步两者均为 \(\Theta(1)\)。这是原附录的**单步、特定参数化量级**；不据此直接声称完整μP所有层及μTransfer定理都已由此独立证明。
+**逐式来源标记。** <sup>[T]</sup> 原实际动作 \(\theta_{t+1}=\theta_t+\delta_t\) 和功能响应 \(R_{t,q}=m_q(\theta_t+\delta_t)-m_q(\theta_t)\)。<sup>[A]</sup> Yang与Hu《Tensor Programs IV》附录E.1的线性MLP参数化、输出缩放 \(f=n^{-1/2}v\bar h\)、相关权重尺度与学习率 \(\eta_n\propto n^{-c}\)。对该论文的**同一SGD动作**按链式法则计算中间特征变化和输出响应，得到 <sup>[R]</sup> \(\Delta\bar h_j=\Theta(n^{-c})\)、\(\Delta f=\Theta(n^{-c})\)；当 \(c=0\) 时单步两者均为 \(\Theta(1)\)。这是原附录的**单步、特定参数化量级**；不据此直接声称完整μP所有层及μTransfer定理都已由此独立证明。
 
 **TLIR作用对象。** 式(2) \(\theta_{t+1}=\theta_t+\delta_t\)和式(3) \(R_q(\theta,\delta)=m_q(\theta+\delta)-m_q(\theta)\)。跨宽度比较必须检查实际参数动作在**功能/表征空间**造成的响应，而不能只比较参数增量数值。
 
@@ -841,7 +841,7 @@ A(t)=\operatorname{erf}\!\left(\sqrt{\frac{\epsilon}{2L(t)}}\right).
 
 **推导类型：使用原研究的函数保持重参数化与SAM的邻域优化定义，得到两个可以同时成立的结论。**
 
-**逐式来源标记。** **[T]** 原训练动作 \(\theta_{t+1}=\theta_t+\delta_t\)、响应 \(R_{t,q}=m_q(\theta_{t+1})-m_q(\theta_t)\)。**[A]** Dinh等的函数保持重参数化，以及Foret等SAM的参数邻域目标。取原思想的二参数乘积特例 \(f(a,b)=ab\)：在 \(ab=1\) 时，坐标重标定 \((a,b)\mapsto(ca,b/c)\) 保持输出却把Hessian非零特征值改成 **[R]** \(\lambda_{\max}'=c^2a^2+b^2/c^2\)。原SAM目标 \(\max_{\|\epsilon\|\le\rho}L(\theta+\epsilon)\) 的一阶扰动 \(\epsilon^\star\approx\rho g/\|g\|\) 使训练动作变为 \(\delta_{\rm SAM}\approx-\eta\nabla L(\theta+\epsilon^\star)\)。两者描述不同对象：前者是参数几何，后者是执行动作；**两个近似号不能改成精确等号**。
+**逐式来源标记。** <sup>[T]</sup> 原训练动作 \(\theta_{t+1}=\theta_t+\delta_t\)、响应 \(R_{t,q}=m_q(\theta_{t+1})-m_q(\theta_t)\)。<sup>[A]</sup> Dinh等的函数保持重参数化，以及Foret等SAM的参数邻域目标。取原思想的二参数乘积特例 \(f(a,b)=ab\)：在 \(ab=1\) 时，坐标重标定 \((a,b)\mapsto(ca,b/c)\) 保持输出却把Hessian非零特征值改成 <sup>[R]</sup> \(\lambda_{\max}'=c^2a^2+b^2/c^2\)。原SAM目标 \(\max_{\|\epsilon\|\le\rho}L(\theta+\epsilon)\) 的一阶扰动 \(\epsilon^\star\approx\rho g/\|g\|\) 使训练动作变为 \(\delta_{\rm SAM}\approx-\eta\nabla L(\theta+\epsilon^\star)\)。两者描述不同对象：前者是参数几何，后者是执行动作；**两个近似号不能改成精确等号**。
 
 **TLIR作用对象。** 参数状态与目标函数读出不是一回事。参数坐标可变化而输入—输出函数不变；训练策略则通过改变实际动作\(\delta_t\)改变后续状态。
 
@@ -895,7 +895,7 @@ L_{\rm SAM}(\theta)=
 
 **推导类型：沿用原批量梯度独立采样条件，直接计算参数与功能空间方差。**
 
-**逐式来源标记。** **[T]** 原响应 \(R_{t,q}=m_q(\theta_t+\delta_t)-m_q(\theta_t)\)。**[A]** McCandlish等使用的独立样本梯度与普通SGD条件：\(g_i\) 的均值 \(g\)，协方差 \(\Sigma_g\)，批量大小 \(B\)；此处 \(B\) 是**batch size**，不同于TLIR反馈变量 \(B_t\)。由 \(\delta=-\eta B^{-1}\sum_{i=1}^{B}g_i\) 得精确的参数动作协方差 \(\operatorname{Cov}(\delta)=\eta^2\Sigma_g/B\)。再将 **[T]** 的 \(R\) 在接收点一阶展开，**[R]** \(\operatorname{Var}(R_{t,q})\approx\eta^2 j_q^\top\Sigma_gj_q/B\)，\(\operatorname{Cov}(\Delta f)\approx\eta^2 J\Sigma_gJ^\top/B\)；原梯度噪声尺度是 \(\operatorname{tr}\Sigma_g/\|g\|^2\)。这里的功能方差关系是**线性化近似**。
+**逐式来源标记。** <sup>[T]</sup> 原响应 \(R_{t,q}=m_q(\theta_t+\delta_t)-m_q(\theta_t)\)。<sup>[A]</sup> McCandlish等使用的独立样本梯度与普通SGD条件：\(g_i\) 的均值 \(g\)，协方差 \(\Sigma_g\)，批量大小 \(B\)；此处 \(B\) 是**batch size**，不同于TLIR反馈变量 \(B_t\)。由 \(\delta=-\eta B^{-1}\sum_{i=1}^{B}g_i\) 得精确的参数动作协方差 \(\operatorname{Cov}(\delta)=\eta^2\Sigma_g/B\)。再将 <sup>[T]</sup> 的 \(R\) 在接收点一阶展开，<sup>[R]</sup> \(\operatorname{Var}(R_{t,q})\approx\eta^2 j_q^\top\Sigma_gj_q/B\)，\(\operatorname{Cov}(\Delta f)\approx\eta^2 J\Sigma_gJ^\top/B\)；原梯度噪声尺度是 \(\operatorname{tr}\Sigma_g/\|g\|^2\)。这里的功能方差关系是**线性化近似**。
 
 **TLIR作用对象。** 实际动作\(\delta_t\)作用于当前接收状态，目标响应\(R_q(\theta_t,\delta_t)\)由该动作和目标决定。
 
@@ -954,7 +954,7 @@ R_q(\theta,\delta)\approx j_q^\top\delta
 
 **推导类型：只采用原研究的各向同性高斯设计和最小范数/最小二乘解，直接推导插值边界两侧的期望风险。**
 
-**逐式来源标记。** **[T]** 原状态更新 \(\theta_{t+1}=\theta_t+\delta_t\)；将测试总体风险记作同一最终学习状态的功能读出 \(m_{\rm test}(L)\)，其步间变化由 \(R_{t,\rm test}=m_{\rm test}(L_{t+1})-m_{\rm test}(L_t)\) 给出。**[A]** Hastie等各向同性零信号高斯回归的原始模型 \(X_{ij}\sim N(0,1)\)、\(y=\varepsilon\sim N(0,\sigma^2I_n)\)、独立测试协方差 \(I_p\)、零初始化最小二乘/最小范数解。通过原训练动作收敛到对应解：欠参数 \(\hat\beta=(X^\top X)^{-1}X^\top\varepsilon\)，过参数 \(\hat\beta=X^\top(XX^\top)^{-1}\varepsilon\)。代入**原模型的**总体风险读出并使用Wishart逆期望，得到 **[R]** \(\mathbb E R_{\rm test}=\sigma^2 p/(n-p-1)\)（\(p<n-1\)）或 \(\sigma^2 n/(p-n-1)\)（\(p>n+1\)）。这是噪声**超额风险**而非包含不可约噪声的总MSE；曲线的定量形式来自原高斯设定，不由TLIR单独给出。
+**逐式来源标记。** <sup>[T]</sup> 原状态更新 \(\theta_{t+1}=\theta_t+\delta_t\)；将测试总体风险记作同一最终学习状态的功能读出 \(m_{\rm test}(L)\)，其步间变化由 \(R_{t,\rm test}=m_{\rm test}(L_{t+1})-m_{\rm test}(L_t)\) 给出。<sup>[A]</sup> Hastie等各向同性零信号高斯回归的原始模型 \(X_{ij}\sim N(0,1)\)、\(y=\varepsilon\sim N(0,\sigma^2I_n)\)、独立测试协方差 \(I_p\)、零初始化最小二乘/最小范数解。通过原训练动作收敛到对应解：欠参数 \(\hat\beta=(X^\top X)^{-1}X^\top\varepsilon\)，过参数 \(\hat\beta=X^\top(XX^\top)^{-1}\varepsilon\)。代入**原模型的**总体风险读出并使用Wishart逆期望，得到 <sup>[R]</sup> \(\mathbb E R_{\rm test}=\sigma^2 p/(n-p-1)\)（\(p<n-1\)）或 \(\sigma^2 n/(p-n-1)\)（\(p>n+1\)）。这是噪声**超额风险**而非包含不可约噪声的总MSE；曲线的定量形式来自原高斯设定，不由TLIR单独给出。
 
 **TLIR作用对象。** 模型规模\(p\)改变可选的参数化函数空间；训练动作选择一个最终参数解；测试误差是该解对新输入的功能读出。它不是独立的“能力实体”。
 
