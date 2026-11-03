@@ -2,7 +2,7 @@
 
 Evidence companion for **Unified dynamics of training, learning, inference, and reinforcement in neural networks** (current **10-page PNAS-format manuscript**; underlying experiments also have prior Science and conference versions).
 
-**Start here: [PNAS paper-to-evidence map](TLIR_PAPER_EVIDENCE_MAP.md).** It follows the current **10-page PNAS manuscript** (Figure 1 p. 2; Table 1 p. 3; Figure 2 p. 5; Tables 2–3 and Figure 3 p. 6; unified dynamical equations (10) p. 7; three representative extrapolations (15)–(21) pp. 9–10). It links nine nanoGPT TLI experiments, TL-E05-derived prediction, five additional TLI systems, GRU feedback closure, and cross-field interpretation to their source evidence. The original [23-page Science manuscript navigation](TLIR_SCIENCE_23PAGE_EVIDENCE_MAP_ARCHIVE.md) is archived separately.
+**Start here: [PNAS paper-to-evidence map](TLIR_PAPER_EVIDENCE_MAP.md).** It follows the current **10-page PNAS manuscript** (Figure 1 p. 2; Table 1 p. 3; Figure 2 p. 5; Tables 2–3 and Figure 3 p. 6; unified dynamical equations (10) p. 7; three representative extrapolations (15)–(29) pp. 9–10). It links nine nanoGPT TLI experiments, TL-E05-derived prediction, five additional TLI systems, GRU feedback closure, and cross-field interpretation to their source evidence. The original [23-page Science manuscript navigation](TLIR_SCIENCE_23PAGE_EVIDENCE_MAP_ARCHIVE.md) is archived separately.
 
 | Read in paper order | Evidence |
 |---|---|
