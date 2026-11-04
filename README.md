@@ -15,6 +15,8 @@ Evidence companion for **Unified dynamics of training, learning, inference, and 
 
 **Unified equations, explanations and theory-first extrapolations:** The PNAS manuscript presents the complete coupled system as **equation (10)** on page 7, eight representative positive/negative comparisons on pages 7–9, and three representative derivations on pages 9–10. The [organized complete record](TLIR_SECTION5_21_PAIRS_14_EXTRAPOLATIONS.md) contains all **21 historical positive/negative explanations** and **14 theory-first extrapolations**. Separate files: [21 explanations](TLIR_HISTORICAL_STRESS_TEST_21.md) · [14 extrapolations](TLIR_THEORY_FIRST_14_DERIVATIONS.md).
 
+**Exploratory mathematics (separate from the 14 formal extrapolations):** the [TLIR functional-support → capability/loss → scaling-law derivation](TLIR_THEORY_FIRST_14_DERIVATIONS.md) is recorded in section **5.2.E1**, beside section 5.2.6. It is a Gaussian-sequence/spectral-model analysis, not a new frozen experiment or a proof of Transformer/Chinchilla exponents.
+
 The full public source snapshot and the separate GNN/SNN subtree are copied here, including the [MoE experiment](experiments/gfg_moe_cifar_training_learning_inference_generalization_v1/). Original GFG experiments and RL-E01–E04 remain available below. The original repository is not modified or replaced.
 
 See [import provenance and availability limits](EVIDENCE_IMPORT.md), [import checks](EVIDENCE_IMPORT_CHECKS.json), and the [original Zenodo evidence](https://doi.org/10.5281/zenodo.22032772). The [Release mirror](https://github.com/wind342/tlir-research-evidence/releases/tag/zenodo-22032772-mirror) provides the original ten evidence ZIPs without recompression.
