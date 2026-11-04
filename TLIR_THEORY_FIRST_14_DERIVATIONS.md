@@ -310,6 +310,235 @@ D_\star=\frac{C}{6N_\star}
 
 **内部锚点。** TL-E03、TL-E04、TL-E07；跨架构TLI测试。
 
+### 5.2.E1（探索性，不计入14项）Scaling Laws：从TLIR功能支撑、能力与损失到谱模型规模关系
+
+**状态：EXPLORATORY / 探索性数学外推。** 本节是对统一方程的一次可核查的数学应用尝试，**不计入5.2.1–5.2.14已完成的14项正式外推，不代表新增实测结果，也不修改正文或已有冻结实验结论**。特别与5.2.6区分：5.2.6以原Chinchilla经验损失函数为输入，求计算最优分配；本节在一个**可求解的经典高斯序列/正交谱学习特例**中，不预设损失幂律，而是先计算功能支撑贡献，再得到损失与规模的渐近关系。它不是对真实Transformer或Chinchilla拟合指数的证明。
+
+**逐式来源标记。** <sup>[T]</sup> 表示论文第7页统一动力学方程(10)及其组件干预测量（本仓库的[统一动力学方程](TLIR_UNIFIED_DYNAMICS_V5.md)）；<sup>[A]</sup> 表示本探索采用的经典高斯序列观测、正交特征、谱衰减、梯度下降与（仅在相关步骤使用的）谱截断或预算条件；<sup>[R]</sup> 表示代入计算得到的结果。**原论文已建立的TLIR定义不因本例而改变**。本节特定的回归任务能力读出与Shapley联盟值，仅是TLIR一般公式的一种实例化。
+
+**TLIR方程入口 [T]。** 对持久学习状态、实际动作、目标响应、干预支撑、能力和冻结推理，使用
+
+\[
+\begin{gathered}
+Z_t=(L_t,\omega_t),\quad A_t=\mathcal U(Z_t,D_t,B_t),\quad
+Z_{t+1}=\mathcal T(Z_t,A_t),\\
+\theta_{t+1}=\theta_t+\delta_t,\qquad
+R_{t,q}=m_q(L_{t+1})-m_q(L_t),\\
+P_{t,q}=\mathcal P_q(L_t;\mathcal J_q),\qquad
+\Delta P_{t,q}=P_{t+1,q}-P_{t,q},\qquad
+C_{t,q}=\chi_q(m_q(L_t)),\\
+S_{x,c}^{\mathrm{active}}=\Pi_{x,c}(L^*),\qquad
+Y_{x,c}=H_{x,c}(S_{x,c}^{\mathrm{active}}),\qquad
+\Delta_{\mathrm{inf}}L=0.
+\end{gathered}
+\]
+
+本节采用监督训练，不使用反馈闭环；这不改变TLIR的反馈方程定义。具体损失与能力的关系由任务的原生输出和读出规则计算，**不将能力等同于参数数目、模式数或损失本身**。
+
+**经典可求解条件 [A]。** 在高斯正交基上取独立 \(x_k\sim N(0,1)\)，真实目标函数为 \(y=f^*(x)=\sum_{k\ge1}a_kx_k\)，并要求 \(\sum_ka_k^2<\infty\)。参数规模为 \(N\) 的此特例最多表示前 \(N\) 个模式；实际启用 \(M\le N\) 个模式。冻结推理将模式的已学习输出调用并组合：
+
+\[
+\Pi_x(L^*)=(z_1,\ldots,z_M),\quad z_k=\theta_kx_k,\qquad
+H_x(\Pi_x(L^*))=\widehat y(x)=\sum_{k=1}^{M}z_k.
+\]
+
+为了可精确计算训练数据的影响，采用**高斯序列观测模型**：每个启用模式的观测系数 \(\widetilde a_{k,D}=a_k+\sigma D^{-1/2}\xi_k\)，其中 \(\xi_k\) 独立同分布为 \(N(0,1)\)，且独立于测试输入。这里 \(D\) 表示每个系数的**有效观测规模**，不是未经额外论证即可等同于真实语言模型训练Token数；这个观测模型也不自动等同于直接对普通i.i.d.样本做最小二乘。训练使用系数平方目标 \(Q_M(\theta)=\frac12\sum_{k\le M}(\theta_k-\widetilde a_{k,D})^2\)，零初始化、步长 \(0<\eta<2\)。
+
+**第一步：用固定联盟干预将TLIR功能支撑连到能力与损失 [T]+[A]→[R]。** 对目标 \(q=(x,y)\)，指定容许回归误差 \(\varepsilon>0\)，取此任务的功能读出与能力判定为
+
+\[
+m_q(L)=\varepsilon^2-(y-\widehat y)^2,\qquad
+C_q(L)=\mathbf1[m_q(L)>0].
+\]
+
+按固定干预协议 \(\mathcal J_q\) 对注册模式执行全部联盟 \(S\subseteq\{1,\ldots,M\}\)，其联盟读出是
+
+\[
+v_q(S;L)=\varepsilon^2-\left(y-\sum_{k\in S}z_k\right)^2.
+\]
+
+以论文的联盟Shapley测量定义有符号功能贡献 \(\varphi_{k,q}\)。Shapley的联盟边际平均及完备性给出**精确等式**：
+
+\[
+\boxed{\varphi_{k,q}=z_k(2y-\widehat y),\qquad
+\sum_{k=1}^{M}\varphi_{k,q}=2y\widehat y-\widehat y^2.}
+\tag{E1}
+\]
+
+若全关闭的基线 \(b_q=v_q(\varnothing;L)=\varepsilon^2-y^2\)，则
+\(m_q(L)=b_q+\sum_k\varphi_{k,q}(L)\)。对固定目标 \(q\) 在实际训练前后比较，\(b_q\) 不变，故TLIR实际功能响应为
+
+\[
+\boxed{
+R_{t,q}=\sum_k\Delta\varphi_{t,k,q},\qquad
+\Delta\ell_{t,q}=-\tfrac12 R_{t,q}
+=-\tfrac12\sum_k\Delta\varphi_{t,k,q}.
+}
+\tag{E2}
+\]
+
+这里的任务平方损失与能力读出由**同一完整支撑分解**给出：
+
+\[
+\boxed{
+\ell_q(L)=\tfrac12(y-\widehat y)^2
+=\tfrac12\left(y^2-\sum_k\varphi_{k,q}(L)\right),\qquad
+C_q(L)=\mathbf1\left[\sum_k\varphi_{k,q}(L)>y^2-\varepsilon^2\right].
+}
+\tag{E3}
+\]
+
+这些等式需要**保留全部有符号贡献、全关闭基线和同一固定联盟协议**，不能把仅含正贡献的归一化支撑占比代入。此简化模型的前向输出是加性的，联盟读出的非加性交互来自**平方读出**；它不声称已在该模型中复现真实深度网络内部的一切非加性组件机制。
+
+**第二步：用TLIR实际训练转移计算支撑贡献的演化 [T]+[A]→[R]。** 经典梯度动作实例化为
+\(\delta_{t,k}=-\eta(\theta_{t,k}-\widetilde a_{k,D})\)。
+代入 \(\theta_{t+1,k}=\theta_{t,k}+\delta_{t,k}\)，令 \(s_t=1-(1-\eta)^t\)，则
+
+\[
+\boxed{\theta_{t,k}=s_t\widetilde a_{k,D}.}
+\tag{E4}
+\]
+
+由(E1)，先对独立高斯测试输入求期望，再对系数观测噪声求期望：
+
+\[
+\begin{aligned}
+\mathbb E_{x,\xi}[\varphi_{t,k,q}]
+&=2a_k\mathbb E_\xi[\theta_{t,k}]
+-\mathbb E_\xi[\theta_{t,k}^2]\\
+&=\boxed{(2s_t-s_t^2)a_k^2-\frac{s_t^2\sigma^2}{D}}.
+\end{aligned}
+\tag{E5}
+\]
+
+所以训练充分收敛时（\(s_t\to1\)）：
+
+\[
+\boxed{\mathbb E[\varphi_{\infty,k}]=a_k^2-\sigma^2/D.}
+\tag{E6}
+\]
+
+**这里由训练后的实际支撑贡献进入损失计算，而不是先输入一个经验损失幂律。** 期望功能贡献可以为负；这代表此固定平方读出下该模式的净贡献被估计误差抵消，并不是“存在负的能力实体”。
+
+**第三步：从功能支撑求出平均损失，再代入经典谱条件 [T]+[A]→[R]。** 在任意训练时刻，由(E3)精确得到
+
+\[
+\begin{aligned}
+\mathbb E\mathcal L_t(M,D)
+&=\frac12\left(\sum_{k\ge1}a_k^2
+-\sum_{k\le M}\mathbb E[\varphi_{t,k}]\right)\\
+&=\frac12\left[
+\sum_{k>M}a_k^2+
+(1-s_t)^2\sum_{k\le M}a_k^2+
+\frac{s_t^2\sigma^2M}{D}\right].
+\end{aligned}
+\tag{E7}
+\]
+
+在收敛极限，取经典幂律谱条件 \(a_k^2=\Lambda k^{-(1+\alpha)}\)，其中 \(\Lambda>0,\alpha>0\)，则
+
+\[
+\begin{aligned}
+\mathbb E\mathcal L_\infty(M,D)
+&=\frac12\left[
+\Lambda\sum_{k>M}k^{-(1+\alpha)}
++\frac{\sigma^2M}{D}\right]\\
+&\sim \boxed{\frac{\Lambda}{2\alpha}M^{-\alpha}
++\frac{\sigma^2M}{2D}}
+\qquad(M\to\infty).
+\end{aligned}
+\tag{E8}
+\]
+
+这里**谱幂律属于目标函数的经典条件 [A]；损失幂律是把它代入TLIR支撑—损失计算后得到的结果 [R]**。若把全部 \(N\) 个模式训练至收敛，即 \(M=N\)，直接得到
+
+\[
+\boxed{
+\mathbb E\mathcal L_\infty(N,D)
+\sim\frac{\Lambda}{2\alpha}N^{-\alpha}
++\frac{\sigma^2N}{2D}.
+}
+\tag{E9}
+\]
+
+(E9)是一个显式的模型—数据规模关系，**但不是**Chinchilla的可分离加性拟合形式。
+
+**第四步：只在引入经典最优谱截断时，得到Chinchilla型双变量幂律数量级 [A]→[R]。** 将 \(M\) 视为可选的有效学习模式数，并受限于 \(M\le N\)。对(E8)求驻点，
+
+\[
+M_D=\left(\frac{\Lambda D}{\sigma^2}\right)^{1/(\alpha+1)},\qquad
+M_*=\min\{N,M_D\}
+\quad\text{（连续近似；整数模式取邻近值）}.
+\]
+
+当 \(N,D\) 共同增长、\(\sigma^2>0\) 且采用这一截断规则时，分情况比较表示误差与估计误差得到
+
+\[
+\boxed{
+\mathbb E\mathcal L_\infty(N,D;M_*)
+=
+\Theta\left(
+N^{-\alpha}+D^{-\alpha/(\alpha+1)}
+\right).
+}
+\tag{E10}
+\]
+
+(E10)的意义是**两个规模变量的幂律数量级**；它不主张原Chinchilla的经验系数、指数或严格可分离等式已经被重现，也不把最优截断当作任意网络训练都会自行发生的事实。
+
+**第五步：从同一冻结功能状态计算能力—损失关系 [T]+[A]→[R]。** 固定训练后状态 \(L\)，在独立测试输入上，预测误差是高斯变量，
+
+\[
+e(x;L)=f^*(x)-\widehat y(x)\mid L\sim N(0,V(L)),
+\]
+
+\[
+V(L)=\sum_{k\le M}(a_k-\theta_k)^2+\sum_{k>M}a_k^2,\qquad
+\overline{\mathcal L}(L)=\tfrac12V(L).
+\]
+
+因此，对于上述预先指定的回归容许误差边界 \(\varepsilon>0\)，
+
+\[
+\boxed{
+\Pr_x(C_q=1\mid L)
+=\Pr_x(|e|<\varepsilon\mid L)
+=\operatorname{erf}\left(\frac{\varepsilon}{2\sqrt{\overline{\mathcal L}(L)}}\right).
+}
+\tag{E11}
+\]
+
+这是**固定学习状态下**的精确能力成功率—平均平方损失关系；\(V(L)=0\) 时按极限取成功率1。若再对训练噪声平均，不能直接把 \(\mathbb E_L[\overline{\mathcal L}(L)]\) 填进非线性的 \(\operatorname{erf}\) 并称为精确等式。它也不是一般分类能力或语言模型交叉熵的通用公式。
+
+**第六步：可选的计算最优关系 [A]→[R]。** 只分析**全部 \(N\) 个模式参与计算和训练**的(E9)，采用该特例的预算近似 \(\mathcal K=\kappa ND\)，代入 \(D=\mathcal K/(\kappa N)\)：
+
+\[
+\mathbb E\mathcal L_\infty(N,\mathcal K)
+\sim\frac{\Lambda}{2\alpha}N^{-\alpha}
++\frac{\sigma^2\kappa}{2\mathcal K}N^2.
+\]
+
+对 \(N\) 求导令零，得到
+
+\[
+\boxed{
+N_*\asymp\mathcal K^{1/(\alpha+2)},\qquad
+D_*\asymp\mathcal K^{(\alpha+1)/(\alpha+2)},\qquad
+\mathcal L_*(\mathcal K)\asymp\mathcal K^{-\alpha/(\alpha+2)}.
+}
+\tag{E12}
+\]
+
+这一预算计算没有偷换到(E10)的截断训练条件；其指数也不需要与Chinchilla实测指数一致。
+
+**探索所得与适用边界。** (E1)–(E3)把TLIR的干预支撑、功能响应、冻结推理和目标能力/损失读出精确连接起来；(E4)–(E8)给出实际训练动作形成支撑贡献并产生平均损失的计算链条；(E9)–(E12)在明确经典谱及训练选择条件下得到可检验的规模关系。**这里已经实现的是TLIR方程组织下的可求解特例外推，而不是从TLIR方程单独固定普遍指数。** 原特例是Gaussian sequence/linear orthogonal features、干净教师测试目标、平方损失；它不等同于Transformer的全训练动态、交叉熵、多Token条件分布或真实语料统计。本节没有新增运行验证，也不改变5.2.6对于原Chinchilla损失律的输入地位。
+
+**校核说明。** (E1)–(E3)已用四组件全联盟枚举作独立代数数值核对，Shapley贡献与直接平方损失在浮点精度内相等；(E4)–(E12)是公开可逐步复核的解析推导，尚未通过独立实验检验其对真实规模曲线的预测。
+
+**研究对照（不把本例冒称为原论文的完整模型）。** [Bahri等，Explaining neural scaling laws，PNAS 2024，DOI:10.1073/pnas.2311878121](https://doi.org/10.1073/pnas.2311878121)（随机特征与谱结构的规模律研究）；[Bordelon、Atanasov与Pehlevan，A Dynamical Model of Neural Scaling Laws，ICML 2024](https://proceedings.mlr.press/v235/bordelon24a.html)（可求解随机特征训练动力学）；[Hoffmann等，Training Compute-Optimal Large Language Models，2022](https://arxiv.org/abs/2203.15556)（经验Chinchilla律，与本特例作对照）。
+
+**内部实验锚点（并非本节新验证）。** TL-E03/04（真实更新与有限响应）；TL-E06/07（干预定义的功能支撑及重组）；TL-E08（能力边界）；INF-E01及INF-G01/G02（冻结推理与已训练组件版本）。这些实验支持TLIR各关系本身；**不被当作本节(E8)–(E12)谱指数的直接实测证据**。
+
 ### 5.2.7 Dynamical Isometry：深层网络的动作—响应传输
 
 **推导类型：由原网络的分层复合与链式法则直接推出。**
