@@ -5,7 +5,7 @@
 
 **已完成核心数学关系推导（14项）：** 5.2.1–5.2.14。每项列出TLIR入口、被研究理论原有条件、计算步骤、所得核心关系与研究对照。其中5.2.2的多维最大间隔方向沿用原研究的定理，5.2.6由原Chinchilla经验损失律推出最优配置；5.2.10在ICLR 2024可解的线性Grokking模型下推出迟发时间；5.2.11推导μP原MLP示例的核心响应量级而非全部参数族定理。5.2.8已将原Information Bottleneck统一解释替换为Dropout自适应正则化，直接由原GLM与独立Bernoulli屏蔽条件得到相应的精确正则项和功能更新关系。
 
-**判别标准：** 将“由数学条件直接得到的公式”与“将外部现象置于TLIR链条中的统一解释”分开；只有前者列为完成推导。
+**公式右上角来源标记：** <sup>[T]</sup> 为原TLIR方程，<sup>[A]</sup> 为被外推原研究使用的模型/条件，<sup>[R]</sup> 为实际代入和计算得到的结果。所有独立展示公式逐组标记；一组中有多个代数步骤时标记其最终推导性质，原始输入由紧邻的[A]文本明确区分。探索性E1保留原编号并补来源标记。\n\n**判别标准：** 将“由数学条件直接得到的公式”与“将外部现象置于TLIR链条中的统一解释”分开；只有前者列为完成推导。
 
 ### 5.2.1 演化稳定性：Edge of Stability
 
@@ -23,18 +23,21 @@
 \delta_t=-\eta\nabla L(\theta_t),\qquad
 e_t=\theta_t-\theta^\star,\qquad
 \nabla L(\theta_t)\approx He_t.
+\qquad {}^{\scriptscriptstyle\text{[A]}}
 \]
 
 将实际动作代入TLIR状态转移，得
 
 \[
 e_{t+1}=(I-\eta H)e_t.
+\qquad {}^{\scriptscriptstyle\text{[R]}}
 \]
 
 在\(H v_i=\lambda_i v_i\)的特征方向上，
 
 \[
 e_{i,t+1}=(1-\eta\lambda_i)e_{i,t}.
+\qquad {}^{\scriptscriptstyle\text{[R]}}
 \]
 
 正曲率方向局部收缩，当且仅当
@@ -42,12 +45,14 @@ e_{i,t+1}=(1-\eta\lambda_i)e_{i,t}.
 \[
 |1-\eta\lambda_i|<1
 \iff 0<\eta\lambda_i<2.
+\qquad {}^{\scriptscriptstyle\text{[R]}}
 \]
 
 因此最高正曲率方向的局部边缘条件为
 
 \[
 \boxed{\lambda_{\max}(H)=2/\eta.}
+\qquad {}^{\scriptscriptstyle\text{[R]}}
 \]
 
 **推得的结论。** \(2/\eta\)并不是额外赋予网络的“能力门槛”，而是所用梯度下降映射的局部稳定边界。实际训练改变接收状态，曲率也随之变化；冻结\(H\)的上述推导确定瞬时边界，不单独计算越界后的长期曲率演化。
@@ -71,6 +76,7 @@ e_{i,t+1}=(1-\eta\lambda_i)e_{i,t}.
 \[
 L(w)=\sum_i\log(1+e^{-m_i}),\qquad
 -\nabla L(w)=\sum_i\frac{y_i x_i}{1+e^{m_i}}.
+\qquad {}^{\scriptscriptstyle\text{[A]}}
 \]
 
 即使所有\(m_i>0\)、训练正确率已经为\(100\%\)，右侧一般仍不为零：实际更新仍会移动\(w\)及各个间隔。
@@ -79,6 +85,7 @@ L(w)=\sum_i\log(1+e^{-m_i}),\qquad
 
 \[
 w_{t+1}=w_t+\frac{\eta}{1+e^{w_t}}.
+\qquad {}^{\scriptscriptstyle\text{[A]}}
 \]
 
 \(w_t\)单调增长并趋于无穷；一旦\(w_t>0\)，任务的离散正确性始终为1，但更新仍严格为正。由
@@ -87,12 +94,14 @@ w_{t+1}=w_t+\frac{\eta}{1+e^{w_t}}.
 e^{w_{t+1}}-e^{w_t}
 =e^{w_t}\!\left(e^{\eta/(1+e^{w_t})}-1\right)
 \longrightarrow\eta
+\qquad {}^{\scriptscriptstyle\text{[R]}}
 \]
 
 得到渐近关系
 
 \[
 \boxed{w_t=\log t+O(1),\qquad C_t=1\ \text{而}\ \Delta w_t>0.}
+\qquad {}^{\scriptscriptstyle\text{[R]}}
 \]
 
 在多维线性可分情形，Soudry等已证明在其原有步长与损失条件下，梯度下降的**方向**趋向硬间隔SVM方向。该多维定理是被对照理论已有的数学结果，不把它冒称为仅由TLIR定义直接证明的全新定理。
@@ -118,6 +127,7 @@ e^{w_{t+1}}-e^{w_t}
 \[
 N_{t+1,i}\mid p_t\sim \operatorname{Binomial}(M,q_t),\qquad
 q_{t+1}=\frac{N_{t+1,i}}{M}.
+\qquad {}^{\scriptscriptstyle\text{[A]}}
 \]
 
 因此
@@ -129,6 +139,7 @@ q_{t+1}=\frac{N_{t+1,i}}{M}.
 \mathbb E[q_{t+1}\mid q_t]&=q_t,\\
 \operatorname{Var}(q_{t+1}\mid q_t)&=\frac{q_t(1-q_t)}{M}.
 \end{aligned}}
+\qquad {}^{\scriptscriptstyle\text{[R]}}
 \]
 
 对于\(q_t\ll1/M\)，漏抽该类别的概率很高。**特别注意，单代期望概率并不下降**：这里的坍塌是有限抽样导致的随机支持集丢失，不是事先假定\(q_{t+1}=\rho q_t\)且\(\rho<1\)。
@@ -137,6 +148,7 @@ q_{t+1}=\frac{N_{t+1,i}}{M}.
 
 \[
 p_{t+1}=\frac1M\,\operatorname{Multinomial}(M,p_t).
+\qquad {}^{\scriptscriptstyle\text{[A]}}
 \]
 
 一旦\(p_t(i)=0\)，纯递归抽样无法再产生类别\(i\)；一旦\(p_t=e_i\)（全部概率集中于一个类别），则\(p_{t+1}=e_i\)必然成立。因为\(M\)固定，经验分布只在有限个格点上取值；在任一非吸收态，下一代所有样本恰好相同的概率为\(\sum_i p_t(i)^M>0\)，因此以概率1最终进入某个\(e_i\)。再由各坐标的有界鞅性质，
@@ -146,6 +158,7 @@ p_{t+1}=\frac1M\,\operatorname{Multinomial}(M,p_t).
 p_t\xrightarrow[t\to\infty]{\mathrm{a.s.}}e_I,\qquad
 \Pr(I=i)=p_0(i).
 }
+\qquad {}^{\scriptscriptstyle\text{[R]}}
 \]
 
 **核心结论：** 原有限离散模型中，纯生成数据逐代替换使支持集随机收缩，并最终坍塌到单一类别；该结果由原抽样—拟合映射推出，无需设定统一的逐代衰减率。
@@ -157,12 +170,14 @@ p_t\xrightarrow[t\to\infty]{\mathrm{a.s.}}e_I,\qquad
 \mathbb E[q_{t+1}]=(1-\alpha)\mathbb E[q_t]+\alpha r_i
 =r_i+(1-\alpha)^{t+1}(q_0-r_i)
 }
+\qquad {}^{\scriptscriptstyle\text{[R]}}
 \]
 
 （最后一式取\(t\)从0开始）。并且在\(q_t=0\)时，下一代重新出现该类别的概率为
 
 \[
 \Pr(q_{t+1}>0\mid q_t=0)=1-(1-\alpha r_i)^M>0.
+\qquad {}^{\scriptscriptstyle\text{[R]}}
 \]
 
 因此真实数据使“缺失类别”不再是吸收态；结论是**长期期望与可恢复性**，而不是每代有限样本永远不丢失类别。另有Gerstgrasser等采用不同的「保留并累积历史数据」训练方案并证明相应线性模型的误差有界；两种数据方案不可混作同一个递推。
@@ -187,18 +202,21 @@ p_t\xrightarrow[t\to\infty]{\mathrm{a.s.}}e_I,\qquad
 L=\tfrac12\|r_t\|^2,\quad
 \delta_t=-\eta J_t^\top r_t,\quad
 \Delta f_t\approx J_t\delta_t=-\eta J_tJ_t^\top r_t.
+\qquad {}^{\scriptscriptstyle\text{[R]}}
 \]
 
 定义\(K_t=J_tJ_t^\top\)。在冻结\(K_t=K\)的局部演化中，
 
 \[
 r_{t+1}\approx(I-\eta K)r_t.
+\qquad {}^{\scriptscriptstyle\text{[R]}}
 \]
 
 对\(K v_k=\lambda_kv_k\)作特征分解：
 
 \[
 \boxed{r_{k,t}\approx(1-\eta\lambda_k)^t r_{k,0}.}
+\qquad {}^{\scriptscriptstyle\text{[R]}}
 \]
 
 当\(0<\eta\lambda_k<1\)时，\(\lambda_k\)越大，该模态的残差衰减越快。原Spectral Bias研究中，若相应输入分布和核的**傅里叶模态**满足低频具有较大的\(\lambda_k\)，便得到低频优先的顺序。
@@ -223,6 +241,7 @@ r_{t+1}\approx(I-\eta K)r_t.
 
 \[
 \hat\beta=X^\top(XX^\top)^{-1}y.
+\qquad {}^{\scriptscriptstyle\text{[R]}}
 \]
 
 令\(P_X=X^\top(XX^\top)^{-1}X\)，代入\(y\)得
@@ -230,6 +249,7 @@ r_{t+1}\approx(I-\eta K)r_t.
 \[
 \hat\beta-\beta^\star
 =-(I-P_X)\beta^\star+X^\top(XX^\top)^{-1}\varepsilon.
+\qquad {}^{\scriptscriptstyle\text{[R]}}
 \]
 
 总体超额平方预测风险为
@@ -245,6 +265,7 @@ r_{t+1}\approx(I-\eta K)r_t.
 \Sigma X^\top(XX^\top)^{-2}X
 \right].
 \end{aligned}}
+\qquad {}^{\scriptscriptstyle\text{[R]}}
 \]
 
 **推得的结论。** 所有训练样本均可插值（训练误差为零），但总体风险由未覆盖信号和被放大的噪声方向共同决定。原论文关于有效秩/协方差谱的条件，决定第二项是否足够小，进而产生“良性”过拟合。
@@ -253,62 +274,116 @@ r_{t+1}\approx(I-\eta K)r_t.
 
 **内部锚点。** TL-E03（不同接收状态与实际更新）；TL-E08（目标依赖的读出）。
 
-### 5.2.6 Scaling Laws与Chinchilla：给定原损失律时的计算最优解
+### 5.2.6 Scaling Laws与Chinchilla：TLIR功能响应和计算最优配置
 
-**推导类型：原Chinchilla拟合函数条件下，直接求出最优模型—数据分配；幂律指数作为原研究输入。**
+**推导类型：把原Chinchilla经验损失律代入TLIR功能响应，先得到固定模型规模下增加训练Token的边际功能收益，再结合原研究的模型规模项和计算预算约束，恢复其计算最优配置。经验幂律和指数仍来自原研究，不由TLIR单独预设或证明。**
 
-**逐式来源标记。** <sup>[T]</sup> 训练动作与状态转移 \(A_t=\mathcal U(Z_t,D_t,B_t)\)、\(Z_{t+1}=\mathcal T(Z_t,A_t)\)，训练后的损失是学习状态的连续功能读出。<sup>[A]</sup> **Hoffmann 等实测拟合的** \(\mathcal L(N,D)=E+AN^{-a}+BD^{-b}\)，以及计算预算约束 \(C=6ND\)，其中指数 \(a,b\) **不是TLIR自身推导出来的**。令 \(D=C/(6N)\)，对 \(N\) 求导得到 \(aAN^{-a}=bBD^{-b}\)。<sup>[R]</sup> \(N_\star=(aA/bB)^{1/(a+b)}(C/6)^{b/(a+b)}\)、\(D_\star=C/(6N_\star)\)，并有 \(\mathcal L_\star-E\propto C^{-ab/(a+b)}\)。验证范围是**在原经验损失律为真时恢复计算最优条件**，不等于推出规模幂律本身。
+**逐式来源标记。** <sup>[T]</sup> TLIR原状态转移和功能响应；<sup>[A]</sup> 原研究的经验损失律及计算预算；<sup>[R]</sup> 具体功能响应、边际收益、最优配置和损失标度。
 
-**TLIR作用对象。** 模型大小、训练数据与动作历史共同决定学习后的状态，损失是相应状态上的功能读出。TLIR本身没有固定某个跨模型族的经验损失指数。
-
-**使用的原理论条件。** Hoffmann等使用的拟合形式（令\(N\)为参数规模、\(D\)为训练Token量）及计算量近似\(C=6ND\)：
+**TLIR原方程 [T]。** 实际训练动作改变学习状态，目标功能响应是前后状态读出之差：
 
 \[
-L(N,D)=E+AN^{-a}+BD^{-b},
-\qquad A,B,a,b>0,\qquad C=6ND.
-\]
-
-这里\(a,b\)取自**被外推对象已经拟合的**尺度指数，而不是从TLIR之外另造一组新指数。
-
-**逐步推导。** 固定计算量令\(M=C/6\)，\(D=M/N\)，于是
-
-\[
-L(N)=E+AN^{-a}+BM^{-b}N^b.
-\]
-
-求导并令其为零：
-
-\[
--aAN^{-a-1}+bBM^{-b}N^{b-1}=0
+Z_{t+1}=\mathcal T(Z_t,A_t),\qquad
+\theta_{t+1}=\theta_t+\delta_t.
+\qquad {}^{\scriptscriptstyle\text{[T]}}
 \]
 
 \[
-\Longleftrightarrow\quad aAN^{-a}=bBD^{-b}.
+R_{t,q}=m_q(L_{t+1})-m_q(L_t).
+\qquad {}^{\scriptscriptstyle\text{[T]}}
 \]
 
-解得
+**原研究条件 [A]。** Hoffmann等采用的经验损失律及计算量近似：
+
+\[
+\mathcal L(N,D)=E+AN^{-\alpha}+BD^{-\beta},\quad
+A,B,\alpha,\beta>0,\qquad C=6ND.
+\qquad {}^{\scriptscriptstyle\text{[A]}}
+\]
+
+其中 \(N\) 是参数规模、\(D\) 是训练Token量、\(C\) 是计算量。固定模型规模 \(N\)，用累计训练Token数 \(D_t\) 索引该模型训练达到的状态；将该状态上的训练损失取负，作为TLIR连续功能读出：
+
+\[
+m_{\ell}(L_t)=-\mathcal L(N,D_t)\qquad(N\ \text{固定}).
+\qquad {}^{\scriptscriptstyle\text{[A]}}
+\]
+
+**第一步：将原损失律实际代入TLIR功能响应 [T]+[A]→[R]。**
+
+\[
+\begin{aligned}
+R_{t,\ell}
+&=m_\ell(L_{t+1})-m_\ell(L_t)\\
+&=-\mathcal L(N,D_{t+1})+\mathcal L(N,D_t)\\
+&=B\left(D_t^{-\beta}-D_{t+1}^{-\beta}\right).
+\end{aligned}
+\qquad {}^{\scriptscriptstyle\text{[R]}}
+\]
+
+令 \(D_{t+1}=D_t+\Delta D\)，得到固定模型规模下的Token边际功能收益：
+
+\[
+\lim_{\Delta D\to0}\frac{R_{t,\ell}}{\Delta D}
+=\frac{\partial m_\ell}{\partial D}
+=\beta BD^{-\beta-1}.
+\qquad {}^{\scriptscriptstyle\text{[R]}}
+\]
+
+这一步用到TLIR前后功能差分和原经验损失函数，而不是仅在规模律旁列出TLIR符号。
+
+**第二步：结合原研究已有的计算预算和模型规模效应。** 沿固定计算预算配置有：
+
+\[
+D=\frac{C}{6N},\qquad
+\left.\frac{dD}{dN}\right|_C=-\frac DN.
+\qquad {}^{\scriptscriptstyle\text{[R]}}
+\]
+
+从原经验损失律得模型规模方向的边际收益 \(\partial m_\ell/\partial N=\alpha AN^{-\alpha-1}\)。同第一步得到的Token边际收益一起代入预算约束：
+
+\[
+\begin{aligned}
+\left.\frac{dm_\ell}{dN}\right|_C
+&=\frac{\partial m_\ell}{\partial N}
++\frac{\partial m_\ell}{\partial D}\frac{dD}{dN}\\
+&=\alpha AN^{-\alpha-1}
+-\beta BD^{-\beta-1}\frac{D}{N}.
+\end{aligned}
+\qquad {}^{\scriptscriptstyle\text{[R]}}
+\]
+
+在最优配置令上式为零，得到：
+
+\[
+\boxed{\alpha AN^{-\alpha}=\beta BD^{-\beta}.}
+\qquad {}^{\scriptscriptstyle\text{[R]}}
+\]
+
+所以：
 
 \[
 \boxed{
 N_\star=
-\left(\frac{aA}{bB}\right)^{1/(a+b)}
-\left(\frac{C}{6}\right)^{b/(a+b)},\qquad
-D_\star=\frac{C}{6N_\star}
-\propto C^{a/(a+b)}.
+\left(\frac{\alpha A}{\beta B}\right)^{1/(\alpha+\beta)}
+\left(\frac C6\right)^{\beta/(\alpha+\beta)},
+\qquad
+D_\star=\frac{C}{6N_\star}\propto C^{\alpha/(\alpha+\beta)}.
 }
+\qquad {}^{\scriptscriptstyle\text{[R]}}
 \]
 
-代回原损失律：
+原损失律在最优配置下变为：
 
 \[
-\boxed{L_\star(C)-E\propto C^{-ab/(a+b)}.}
+\boxed{\mathcal L_\star(C)-E\propto C^{-\alpha\beta/(\alpha+\beta)}.}
+\qquad {}^{\scriptscriptstyle\text{[R]}}
 \]
 
-**推得的结论。** 在该论文给出的经验损失律成立的范围内，计算最优的参数与数据规模必须满足两项损失的边际平衡。**这里推导出的是最优配置，不是仅从TLIR方程“证明了幂律存在”。** TLIR提供不同训练状态、功能目标和数据条件如何进入问题的统一表述。
+**推得的结论。** TLIR功能响应经原Chinchilla条件具体化后，给出训练Token的边际功能收益；将其同原模型规模收益及预算约束结合，得到原计算最优条件。跨模型规模 \(N\) 的导数比较的是**不同计算配置**，不是将同一网络的一次实际参数更新偷换成模型规模变化。这里没有从TLIR独立推导经验幂律指数。
 
 **研究对照。** [Hoffmann等，Training Compute-Optimal Large Language Models (2022)](https://arxiv.org/abs/2203.15556)；Kaplan等的经验规模规律。
 
-**内部锚点。** TL-E03、TL-E04、TL-E07；跨架构TLI测试。
+**内部锚点。** TL-E03（实际动作与接收状态）；TL-E04（功能响应）；TL-E07（持续重组）；跨架构TLI测试。
 
 ### 5.2.E1（探索性，不计入14项）Scaling Laws：从TLIR功能支撑、能力与损失到谱模型规模关系
 
@@ -331,6 +406,7 @@ S_{x,c}^{\mathrm{active}}=\Pi_{x,c}(L^*),\qquad
 Y_{x,c}=H_{x,c}(S_{x,c}^{\mathrm{active}}),\qquad
 \Delta_{\mathrm{inf}}L=0.
 \end{gathered}
+\qquad {}^{\scriptscriptstyle\text{[T]}}
 \]
 
 本节采用监督训练，不使用反馈闭环；这不改变TLIR的反馈方程定义。具体损失与能力的关系由任务的原生输出和读出规则计算，**不将能力等同于参数数目、模式数或损失本身**。
@@ -340,6 +416,7 @@ Y_{x,c}=H_{x,c}(S_{x,c}^{\mathrm{active}}),\qquad
 \[
 \Pi_x(L^*)=(z_1,\ldots,z_M),\quad z_k=\theta_kx_k,\qquad
 H_x(\Pi_x(L^*))=\widehat y(x)=\sum_{k=1}^{M}z_k.
+\qquad {}^{\scriptscriptstyle\text{[A]}}
 \]
 
 为了可精确计算训练数据的影响，采用**高斯序列观测模型**：每个启用模式的观测系数 \(\widetilde a_{k,D}=a_k+\sigma D^{-1/2}\xi_k\)，其中 \(\xi_k\) 独立同分布为 \(N(0,1)\)，且独立于测试输入。这里 \(D\) 表示每个系数的**有效观测规模**，不是未经额外论证即可等同于真实语言模型训练Token数；这个观测模型也不自动等同于直接对普通i.i.d.样本做最小二乘。训练使用系数平方目标 \(Q_M(\theta)=\frac12\sum_{k\le M}(\theta_k-\widetilde a_{k,D})^2\)，零初始化、步长 \(0<\eta<2\)。
@@ -349,12 +426,14 @@ H_x(\Pi_x(L^*))=\widehat y(x)=\sum_{k=1}^{M}z_k.
 \[
 m_q(L)=\varepsilon^2-(y-\widehat y)^2,\qquad
 C_q(L)=\mathbf1[m_q(L)>0].
+\qquad {}^{\scriptscriptstyle\text{[T]}}
 \]
 
 按固定干预协议 \(\mathcal J_q\) 对注册模式执行全部联盟 \(S\subseteq\{1,\ldots,M\}\)，其联盟读出是
 
 \[
 v_q(S;L)=\varepsilon^2-\left(y-\sum_{k\in S}z_k\right)^2.
+\qquad {}^{\scriptscriptstyle\text{[A]}}
 \]
 
 以论文的联盟Shapley测量定义有符号功能贡献 \(\varphi_{k,q}\)。Shapley的联盟边际平均及完备性给出**精确等式**：
@@ -362,6 +441,7 @@ v_q(S;L)=\varepsilon^2-\left(y-\sum_{k\in S}z_k\right)^2.
 \[
 \boxed{\varphi_{k,q}=z_k(2y-\widehat y),\qquad
 \sum_{k=1}^{M}\varphi_{k,q}=2y\widehat y-\widehat y^2.}
+\qquad {}^{\scriptscriptstyle\text{[R]}}
 \tag{E1}
 \]
 
@@ -374,6 +454,7 @@ R_{t,q}=\sum_k\Delta\varphi_{t,k,q},\qquad
 \Delta\ell_{t,q}=-\tfrac12 R_{t,q}
 =-\tfrac12\sum_k\Delta\varphi_{t,k,q}.
 }
+\qquad {}^{\scriptscriptstyle\text{[R]}}
 \tag{E2}
 \]
 
@@ -385,6 +466,7 @@ R_{t,q}=\sum_k\Delta\varphi_{t,k,q},\qquad
 =\tfrac12\left(y^2-\sum_k\varphi_{k,q}(L)\right),\qquad
 C_q(L)=\mathbf1\left[\sum_k\varphi_{k,q}(L)>y^2-\varepsilon^2\right].
 }
+\qquad {}^{\scriptscriptstyle\text{[R]}}
 \tag{E3}
 \]
 
@@ -396,6 +478,7 @@ C_q(L)=\mathbf1\left[\sum_k\varphi_{k,q}(L)>y^2-\varepsilon^2\right].
 
 \[
 \boxed{\theta_{t,k}=s_t\widetilde a_{k,D}.}
+\qquad {}^{\scriptscriptstyle\text{[A]}}
 \tag{E4}
 \]
 
@@ -408,6 +491,7 @@ C_q(L)=\mathbf1\left[\sum_k\varphi_{k,q}(L)>y^2-\varepsilon^2\right].
 -\mathbb E_\xi[\theta_{t,k}^2]\\
 &=\boxed{(2s_t-s_t^2)a_k^2-\frac{s_t^2\sigma^2}{D}}.
 \end{aligned}
+\qquad {}^{\scriptscriptstyle\text{[R]}}
 \tag{E5}
 \]
 
@@ -415,6 +499,7 @@ C_q(L)=\mathbf1\left[\sum_k\varphi_{k,q}(L)>y^2-\varepsilon^2\right].
 
 \[
 \boxed{\mathbb E[\varphi_{\infty,k}]=a_k^2-\sigma^2/D.}
+\qquad {}^{\scriptscriptstyle\text{[R]}}
 \tag{E6}
 \]
 
@@ -432,6 +517,7 @@ C_q(L)=\mathbf1\left[\sum_k\varphi_{k,q}(L)>y^2-\varepsilon^2\right].
 (1-s_t)^2\sum_{k\le M}a_k^2+
 \frac{s_t^2\sigma^2M}{D}\right].
 \end{aligned}
+\qquad {}^{\scriptscriptstyle\text{[R]}}
 \tag{E7}
 \]
 
@@ -447,6 +533,7 @@ C_q(L)=\mathbf1\left[\sum_k\varphi_{k,q}(L)>y^2-\varepsilon^2\right].
 +\frac{\sigma^2M}{2D}}
 \qquad(M\to\infty).
 \end{aligned}
+\qquad {}^{\scriptscriptstyle\text{[R]}}
 \tag{E8}
 \]
 
@@ -458,6 +545,7 @@ C_q(L)=\mathbf1\left[\sum_k\varphi_{k,q}(L)>y^2-\varepsilon^2\right].
 \sim\frac{\Lambda}{2\alpha}N^{-\alpha}
 +\frac{\sigma^2N}{2D}.
 }
+\qquad {}^{\scriptscriptstyle\text{[R]}}
 \tag{E9}
 \]
 
@@ -469,6 +557,7 @@ C_q(L)=\mathbf1\left[\sum_k\varphi_{k,q}(L)>y^2-\varepsilon^2\right].
 M_D=\left(\frac{\Lambda D}{\sigma^2}\right)^{1/(\alpha+1)},\qquad
 M_*=\min\{N,M_D\}
 \quad\text{（连续近似；整数模式取邻近值）}.
+\qquad {}^{\scriptscriptstyle\text{[R]}}
 \]
 
 当 \(N,D\) 共同增长、\(\sigma^2>0\) 且采用这一截断规则时，分情况比较表示误差与估计误差得到
@@ -481,6 +570,7 @@ M_*=\min\{N,M_D\}
 N^{-\alpha}+D^{-\alpha/(\alpha+1)}
 \right).
 }
+\qquad {}^{\scriptscriptstyle\text{[A]}}
 \tag{E10}
 \]
 
@@ -490,11 +580,13 @@ N^{-\alpha}+D^{-\alpha/(\alpha+1)}
 
 \[
 e(x;L)=f^*(x)-\widehat y(x)\mid L\sim N(0,V(L)),
+\qquad {}^{\scriptscriptstyle\text{[A]}}
 \]
 
 \[
 V(L)=\sum_{k\le M}(a_k-\theta_k)^2+\sum_{k>M}a_k^2,\qquad
 \overline{\mathcal L}(L)=\tfrac12V(L).
+\qquad {}^{\scriptscriptstyle\text{[R]}}
 \]
 
 因此，对于上述预先指定的回归容许误差边界 \(\varepsilon>0\)，
@@ -505,6 +597,7 @@ V(L)=\sum_{k\le M}(a_k-\theta_k)^2+\sum_{k>M}a_k^2,\qquad
 =\Pr_x(|e|<\varepsilon\mid L)
 =\operatorname{erf}\left(\frac{\varepsilon}{2\sqrt{\overline{\mathcal L}(L)}}\right).
 }
+\qquad {}^{\scriptscriptstyle\text{[A]}}
 \tag{E11}
 \]
 
@@ -516,6 +609,7 @@ V(L)=\sum_{k\le M}(a_k-\theta_k)^2+\sum_{k>M}a_k^2,\qquad
 \mathbb E\mathcal L_\infty(N,\mathcal K)
 \sim\frac{\Lambda}{2\alpha}N^{-\alpha}
 +\frac{\sigma^2\kappa}{2\mathcal K}N^2.
+\qquad {}^{\scriptscriptstyle\text{[R]}}
 \]
 
 对 \(N\) 求导令零，得到
@@ -526,6 +620,7 @@ N_*\asymp\mathcal K^{1/(\alpha+2)},\qquad
 D_*\asymp\mathcal K^{(\alpha+1)/(\alpha+2)},\qquad
 \mathcal L_*(\mathcal K)\asymp\mathcal K^{-\alpha/(\alpha+2)}.
 }
+\qquad {}^{\scriptscriptstyle\text{[R]}}
 \tag{E12}
 \]
 
@@ -555,6 +650,7 @@ D_*\asymp\mathcal K^{(\alpha+1)/(\alpha+2)},\qquad
 \delta h^{\ell+1}\approx
 B_\ell\delta\theta_\ell,\qquad
 B_\ell=\frac{\partial F_\ell}{\partial\theta_\ell}.
+\qquad {}^{\scriptscriptstyle\text{[A]}}
 \]
 
 余下层以链式法则传递，令\(J_{L\leftarrow\ell+1}=\partial h^L/\partial h^{\ell+1}\)，于是
@@ -562,6 +658,7 @@ B_\ell=\frac{\partial F_\ell}{\partial\theta_\ell}.
 \[
 \boxed{\delta f\approx
 \sum_{\ell}J_{L\leftarrow\ell+1}B_\ell\delta\theta_\ell.}
+\qquad {}^{\scriptscriptstyle\text{[R]}}
 \]
 
 同时，对从第\(\ell\)层发出的激活扰动\(v\)，有
@@ -569,6 +666,7 @@ B_\ell=\frac{\partial F_\ell}{\partial\theta_\ell}.
 \[
 \|J_{L\leftarrow\ell}v\|
 \in[\sigma_{\min}^{\mathrm{all}}(J)\|v\|,\ \sigma_{\max}(J)\|v\|]
+\qquad {}^{\scriptscriptstyle\text{[R]}}
 \]
 
 其中\(\sigma_{\min}^{\mathrm{all}}(J)=\inf_{\|v\|=1}\|Jv\|\)，当\(J\)有非零核空间时严格为0；只有限制在与核空间正交的有效子空间，才可以使用最小非零奇异值作下界。。反传梯度沿相应转置雅可比传递。若相关非零奇异值集中于1附近，则这些方向上的信号与梯度跨层传输不发生大的范数放大或衰减；若谱极端偏离1，则出现明显的方向性放大或衰减。
@@ -591,6 +689,7 @@ B_\ell=\frac{\partial F_\ell}{\partial\theta_\ell}.
 
 \[
 \ell_i(w;x_i,y_i)=A(w^\top x_i)-y_iw^\top x_i-\log h(y_i),
+\qquad {}^{\scriptscriptstyle\text{[A]}}
 \]
 
 其中\(A\)是原GLM的凸对数配分函数；不引入其他正则项或新的特征噪声模型。
@@ -607,6 +706,7 @@ B_\ell=\frac{\partial F_\ell}{\partial\theta_\ell}.
 \mathbb E_z A(w^\top\widetilde x_i)-A(w^\top x_i)
 \right]\ge0.}
 \end{aligned}
+\qquad {}^{\scriptscriptstyle\text{[R]}}
 \]
 
 最后的不等式来自\(A\)凸、\(\mathbb E_z[\widetilde x_i]=x_i\)以及Jensen不等式。由于标签项对屏蔽取期望后不变，**\(\mathcal R_{\rm drop}\)不包含\(y_i\)**。这是原GLM条件下的精确分解，而不是额外猜测Dropout会产生何种惩罚。
@@ -616,6 +716,7 @@ B_\ell=\frac{\partial F_\ell}{\partial\theta_\ell}.
 \[
 \operatorname{Var}_z(w^\top\widetilde x_i)
 =\frac{1-r}{r}\sum_{j=1}^d w_j^2x_{ij}^2.
+\qquad {}^{\scriptscriptstyle\text{[R]}}
 \]
 
 令\(s_j^2=n^{-1}\sum_i x_{ij}^2\)，则
@@ -625,6 +726,7 @@ B_\ell=\frac{\partial F_\ell}{\partial\theta_\ell}.
 \overline L_{\rm drop}(w)
 =L_0(w)+\frac{1-r}{2r}\sum_{j=1}^d s_j^2w_j^2.
 }
+\qquad {}^{\scriptscriptstyle\text{[R]}}
 \]
 
 **这就是Dropout与数据依赖的对角\(L_2\)正则化之间的精确关系。** 特征坐标的惩罚系数由该坐标在训练数据中的平方均值和原始Dropout保留率决定。
@@ -638,6 +740,7 @@ B_\ell=\frac{\partial F_\ell}{\partial\theta_\ell}.
 &=-\eta\nabla_w\overline L_{\rm drop}(w_t)\\
 &=-\eta\left[\nabla L_0(w_t)+\frac{1-r}{r}D_sw_t\right].
 \end{aligned}}
+\qquad {}^{\scriptscriptstyle\text{[R]}}
 \]
 
 这里的期望指**固定接收状态和训练数据、只平均Dropout掩码**；一次真实训练使用的仍是实际抽到的掩码所形成的动作\(\delta_t\)。
@@ -650,6 +753,7 @@ R_{t,q}
 =m_q(w_t+\delta_t)-m_q(w_t)
 =x_q^\top\delta_t.
 }
+\qquad {}^{\scriptscriptstyle\text{[R]}}
 \]
 
 所以随机屏蔽通过改变训练动作，使不同查询产生不同的目标功能响应；其期望更新含有上述自适应收缩项。**正则化并不是另一个独立的学习过程，而是原有随机训练机制对状态更新施加的确定性平均效应。**
@@ -660,6 +764,7 @@ R_{t,q}
 \boxed{
 \mathbb E_z[f_w(\widetilde x)]=f_w(x)=w^\top x.
 }
+\qquad {}^{\scriptscriptstyle\text{[R]}}
 \]
 
 故训练时随机子模型预测的平均值，与冻结权重、关闭屏蔽后的线性推理**精确相同**。原Dropout论文在非线性深网中的测试时权重缩放/模型平均属于近似，不把线性模型的等式推广为所有非线性网络的恒等式。
@@ -681,6 +786,7 @@ R_{t,q}
 \[
 R_{t,q}=m_q(\theta_{t+1})-m_q(\theta_t),\qquad
 C_{t,q}=\mathbf1[m_q(\theta_t)>0].
+\qquad {}^{\scriptscriptstyle\text{[T]}}
 \]
 
 **第一步：精确累计，不需要线性近似。**
@@ -689,6 +795,7 @@ C_{t,q}=\mathbf1[m_q(\theta_t)>0].
 \boxed{
 m_q(\theta_T)=m_q(\theta_0)+\sum_{t=0}^{T-1}R_{t,q}.
 }
+\qquad {}^{\scriptscriptstyle\text{[R]}}
 \]
 
 对于初始已正确的旧目标\(m_q(\theta_0)>0\)，在时刻\(T\)的目标失败当且仅当
@@ -697,6 +804,7 @@ m_q(\theta_T)=m_q(\theta_0)+\sum_{t=0}^{T-1}R_{t,q}.
 \boxed{
 \sum_{t=0}^{T-1}R_{t,q}\leq-m_q(\theta_0).
 }
+\qquad {}^{\scriptscriptstyle\text{[R]}}
 \]
 
 同一个公式还描述保持与恢复：后续的正向功能响应可以使间隔重新跨过零边界，重新得到正确结果。
@@ -705,6 +813,7 @@ m_q(\theta_T)=m_q(\theta_0)+\sum_{t=0}^{T-1}R_{t,q}.
 
 \[
 R_{t,q}\approx-\eta\nabla_\theta m_q(\theta_t)^\top g_{\rm new}.
+\qquad {}^{\scriptscriptstyle\text{[R]}}
 \]
 
 如果旧目标采用可微损失\(L_{\rm old}\)，则
@@ -714,6 +823,7 @@ R_{t,q}\approx-\eta\nabla_\theta m_q(\theta_t)^\top g_{\rm new}.
 \Delta L_{\rm old}
 \approx-\eta g_{\rm old}^\top g_{\rm new}.
 }
+\qquad {}^{\scriptscriptstyle\text{[R]}}
 \]
 
 梯度点积为负时，当前新任务更新使旧损失的一阶变化为正；为正时则为负。多个任务共享同一批参数，所以一次动作可同时改变许多目标的间隔。
@@ -739,6 +849,7 @@ R_{t,q}\approx-\eta\nabla_\theta m_q(\theta_t)^\top g_{\rm new}.
 \[
 L_{\rm tr}(D)=D^\top\Sigma_{\rm tr}D,\qquad
 L_{\rm gen}(D)=D^\top D.
+\qquad {}^{\scriptscriptstyle\text{[A]}}
 \]
 
 原梯度流在时间尺度\(\eta_0\)下满足
@@ -746,6 +857,7 @@ L_{\rm gen}(D)=D^\top D.
 \[
 \dot D(t)=-2\eta_0\Sigma_{\rm tr}D(t),\qquad
 \boxed{D(t)=e^{-2\eta_0\Sigma_{\rm tr}t}D_0}.
+\qquad {}^{\scriptscriptstyle\text{[R]}}
 \]
 
 代入同一状态的两个读出，得**精确**损失演化：
@@ -756,6 +868,7 @@ L_{\rm gen}(D)=D^\top D.
 L_{\rm tr}(t)&=D_0^\top e^{-4\eta_0\Sigma_{\rm tr}t}\Sigma_{\rm tr}D_0,\\
 L_{\rm gen}(t)&=D_0^\top e^{-4\eta_0\Sigma_{\rm tr}t}D_0.
 \end{aligned}}
+\qquad {}^{\scriptscriptstyle\text{[R]}}
 \]
 
 **第二步：代入原论文使用的协方差谱。** 设\(\nu\)遵循\(\lambda=d/n\)下的Marčenko–Pastur谱，在原论文的各向同性初始方向及大维度近似下：
@@ -763,6 +876,7 @@ L_{\rm gen}(t)&=D_0^\top e^{-4\eta_0\Sigma_{\rm tr}t}D_0.
 \[
 L_{\rm tr}(t)\approx\mathbb E_\nu[\nu e^{-4\eta_0\nu t}],\qquad
 L_{\rm gen}(t)\approx\mathbb E_\nu[e^{-4\eta_0\nu t}].
+\qquad {}^{\scriptscriptstyle\text{[R]}}
 \]
 
 其正谱下端为\(\nu_-=(1-\sqrt\lambda)^2\)。当\(\eta_0t\gg\sqrt\lambda/(1-\sqrt\lambda)^2\)时，原论文的谱端点渐近给出
@@ -775,18 +889,21 @@ L_{\rm tr}(t)\simeq
 \qquad
 L_{\rm gen}(t)\simeq\frac{L_{\rm tr}(t)}{(1-\sqrt\lambda)^2}.
 }
+\qquad {}^{\scriptscriptstyle\text{[R]}}
 \]
 
 **第三步：用原论文的正确率读出计算迟发时间。** 每个输入的正确性由误差是否小于\(\epsilon\)定义：
 
 \[
 C_x(t)=\mathbf1[(D(t)^\top x)^2<\epsilon].
+\qquad {}^{\scriptscriptstyle\text{[A]}}
 \]
 
 在相应高斯读出近似下
 
 \[
 A(t)=\operatorname{erf}\!\left(\sqrt{\frac{\epsilon}{2L(t)}}\right).
+\qquad {}^{\scriptscriptstyle\text{[A]}}
 \]
 
 原论文用\(A=\operatorname{erf}(\sqrt2)\approx95.45\%\)作为跨界标准，对应\(L(t^*)=\epsilon/4\)。分别求\(L_{\rm tr}(t_{\rm tr}^*)\)和\(L_{\rm gen}(t_{\rm gen}^*)\)到达该阈值的时间，在小\(\epsilon\)渐近下：
@@ -797,6 +914,7 @@ A(t)=\operatorname{erf}\!\left(\sqrt{\frac{\epsilon}{2L(t)}}\right).
 \simeq-\frac{\ln(1-\sqrt\lambda)}
 {2\eta_0(1-\sqrt\lambda)^2}>0,\quad 0<\lambda<1.
 }
+\qquad {}^{\scriptscriptstyle\text{[R]}}
 \]
 
 **核心结论。** 训练、测试都从同一条连续参数轨迹得到；在原模型的两种读出几何及同一正确性阈值下，测试正确率可远晚于训练正确率跃升。时间差不仅存在，而且由原研究的\(\lambda,\eta_0\)条件定量给出。整个过程无需假设外部读出跃升时突然生成独立“能力”。
@@ -822,6 +940,7 @@ A(t)=\operatorname{erf}\!\left(\sqrt{\frac{\epsilon}{2L(t)}}\right).
 =-n^{-c-1/2}\chi\,v^\top(h^\top h),\qquad
 \Delta f
 =-n^{-c-1}\chi(vv^\top)(h^\top h).
+\qquad {}^{\scriptscriptstyle\text{[A]}}
 \]
 
 在它自己的初始化尺度下，每个\(v_j=\Theta(n^{-1/2})\)、\(vv^\top=\Theta(1)\)、\(h^\top h=\Theta(n)\)，故
@@ -831,12 +950,14 @@ A(t)=\operatorname{erf}\!\left(\sqrt{\frac{\epsilon}{2L(t)}}\right).
 \Delta\bar h_j=\Theta(n^{-c}),\qquad
 \Delta f=\Theta(n^{-c}).
 }
+\qquad {}^{\scriptscriptstyle\text{[R]}}
 \]
 
 若\(c>0\)，固定步数内特征与输出更新趋零；若\(c=0\)，则
 
 \[
 \boxed{\Delta\bar h_j=\Theta(1),\qquad \Delta f=\Theta(1).}
+\qquad {}^{\scriptscriptstyle\text{[R]}}
 \]
 
 这从原前向计算和实际反向更新直接给出**宽度增长但功能更新仍非退化**的量级条件。
@@ -851,59 +972,101 @@ A(t)=\operatorname{erf}\!\left(\sqrt{\frac{\epsilon}{2L(t)}}\right).
 
 **内部实验锚点。** TL-E03（接收状态决定实际功能响应）；TL-E04（有限幅度更新的非线性）；TL-E05（目标与动作几何）。
 
-### 5.2.12 Sharpness与SAM：同一函数的不同参数几何与训练动作
+### 5.2.12 Sharpness与SAM：参数几何、实际动作与功能响应
 
-**推导类型：使用原研究的函数保持重参数化与SAM的邻域优化定义，得到两个可以同时成立的结论。**
+**推导类型：在Dinh等的函数保持重参数化思想及Foret等的SAM训练规则下，把实际SAM动作代入TLIR功能响应，明确计算SGD和SAM产生的单步目标变化。**
 
-**逐式来源标记。** <sup>[T]</sup> 原训练动作 \(\theta_{t+1}=\theta_t+\delta_t\)、响应 \(R_{t,q}=m_q(\theta_{t+1})-m_q(\theta_t)\)。<sup>[A]</sup> Dinh等的函数保持重参数化，以及Foret等SAM的参数邻域目标。取原思想的二参数乘积特例 \(f(a,b)=ab\)：在 \(ab=1\) 时，坐标重标定 \((a,b)\mapsto(ca,b/c)\) 保持输出却把Hessian非零特征值改成 <sup>[R]</sup> \(\lambda_{\max}'=c^2a^2+b^2/c^2\)。原SAM目标 \(\max_{\|\epsilon\|\le\rho}L(\theta+\epsilon)\) 的一阶扰动 \(\epsilon^\star\approx\rho g/\|g\|\) 使训练动作变为 \(\delta_{\rm SAM}\approx-\eta\nabla L(\theta+\epsilon^\star)\)。两者描述不同对象：前者是参数几何，后者是执行动作；**两个近似号不能改成精确等号**。
+**逐式来源标记。** <sup>[T]</sup> TLIR状态更新与功能响应；<sup>[A]</sup> 原乘积模型/平方损失、函数保持变换、SAM邻域目标和更新规则；<sup>[R]</sup> Hessian特征值及具体SGD/SAM目标功能响应。SAM扰动采用原算法一阶近似；对所选更新动作，乘积输出的单步响应是代数精确式。
 
-**TLIR作用对象。** 参数状态与目标函数读出不是一回事。参数坐标可变化而输入—输出函数不变；训练策略则通过改变实际动作\(\delta_t\)改变后续状态。
-
-**使用的原理论条件。** Sharpness重参数化研究使用的正齐次/乘积参数冗余；SAM论文使用的参数邻域最坏损失目标。以下取相同原理的最简单二参数乘积计算。
-
-**逐步推导：函数不变，参数锐度改变。** 令模型输出\(f(a,b)=ab\)，平方损失
+**TLIR原方程 [T]。**
 
 \[
-L(a,b)=\tfrac12(ab-1)^2.
+\theta_{t+1}=\theta_t+\delta_t,\qquad
+R_q(\theta,\delta)=m_q(\theta+\delta)-m_q(\theta).
+\qquad {}^{\scriptscriptstyle\text{[T]}}
 \]
 
-对任意\(c>0\)，变换\((a,b)\mapsto(ca,b/c)\)保持\(ab\)及函数结果完全不变。在达到拟合\(ab=1\)的点，
+**原研究条件 [A]。** 使用Dinh等函数保持重参数化思想的二参数乘积特例和平方损失：
 
 \[
-H=\nabla^2L=
-\begin{pmatrix}b^2&ab\\ab&a^2\end{pmatrix}
+f(a,b)=ab,\qquad \mathcal L(a,b)=\tfrac12(ab-1)^2.
+\qquad {}^{\scriptscriptstyle\text{[A]}}
 \]
 
-的特征值为\(0\)和\(a^2+b^2\)。重参数化后，最大特征值成为
+**第一步：函数不变而参数锐度改变。** 对任意 \(c>0\)，变换 \((a,b)\mapsto(ca,b/c)\) 保持 \(f=ab\) 不变。在拟合点 \(ab=1\)，Hessian为：
 
 \[
-\boxed{\lambda_{\max}'=c^2a^2+b^2/c^2,}
+H=\nabla^2\mathcal L
+=\begin{pmatrix}b^2&ab\\ab&a^2\end{pmatrix}.
+\qquad {}^{\scriptscriptstyle\text{[R]}}
 \]
 
-可随\(c\)显著改变，**同一功能结果却有不同参数锐度**。
-
-**逐步推导：SAM改变实际训练动作。** SAM的原目标是
+它在原参数点与重标定后参数点的最大特征值分别是：
 
 \[
-L_{\rm SAM}(\theta)=
-\max_{\|\epsilon\|\leq\rho}L(\theta+\epsilon).
+\boxed{\lambda_{\max}=a^2+b^2,\qquad
+\lambda_{\max}'=c^2a^2+\frac{b^2}{c^2}.}
+\qquad {}^{\scriptscriptstyle\text{[R]}}
 \]
 
-对当前点做一阶展开，若\(g=\nabla L(\theta)\ne0\)，最坏扰动近似为
+**第二步：用原SAM定义形成实际训练动作。** 原邻域最坏损失目标为：
 
 \[
-\epsilon^\star\approx \rho\frac{g}{\|g\|},
-\qquad
-\delta_{\rm SAM}\approx-\eta\nabla L(\theta+\epsilon^\star).
+\mathcal L_{\rm SAM}(\theta)
+=\max_{\|\epsilon\|\le\rho}\mathcal L(\theta+\epsilon).
+\qquad {}^{\scriptscriptstyle\text{[A]}}
 \]
 
-这与普通SGD的\(-\eta g\)是不同的训练动作，从而可产生不同的实际功能响应。
+在 \(g=\nabla\mathcal L(a,b)\ne0\) 处，原SAM算法用一阶近似扰动并在扰动点计算梯度：
 
-**推得的结论。** “参数锐度不是唯一的函数性质”与“使用邻域损失设计训练动作可以改变训练结果”不矛盾：一个说的是参数坐标度量，另一个说的是状态更新规则。
+\[
+g=(ab-1)(b,a),\qquad
+\epsilon\approx\rho\frac{g}{\|g\|},\qquad
+\delta_{\rm SAM}=-\eta\nabla\mathcal L(\theta+\epsilon).
+\qquad {}^{\scriptscriptstyle\text{[A]}}
+\]
+
+设 \(\tilde a=a+\epsilon_a\)、\(\tilde b=b+\epsilon_b\)，得到两个实际更新分量：
+
+\[
+\delta_a=-\eta(\tilde a\tilde b-1)\tilde b,\qquad
+\delta_b=-\eta(\tilde a\tilde b-1)\tilde a.
+\qquad {}^{\scriptscriptstyle\text{[A]}}
+\]
+
+**第三步：直接代入TLIR响应 [T]+[A]→[R]。** 取目标读出为该原模型输出 \(m_q=f(a,b)=ab\)，则：
+
+\[
+\begin{aligned}
+R_q^{\rm SAM}
+&=f(a+\delta_a,b+\delta_b)-f(a,b)\\
+&=b\delta_a+a\delta_b+\delta_a\delta_b\\
+&=\boxed{-\eta(\tilde a\tilde b-1)(b\tilde b+a\tilde a)
++\eta^2(\tilde a\tilde b-1)^2\tilde a\tilde b}.
+\end{aligned}
+\qquad {}^{\scriptscriptstyle\text{[R]}}
+\]
+
+这是**采用上述SAM近似扰动所形成的具体更新后**，输出的精确单步差。对比普通SGD在同一接收状态形成的更新：
+
+\[
+\delta_{\rm SGD}=-\eta(ab-1)(b,a).
+\qquad {}^{\scriptscriptstyle\text{[A]}}
+\]
+
+再次代入TLIR响应：
+
+\[
+\boxed{R_q^{\rm SGD}
+=-\eta(ab-1)(a^2+b^2)+\eta^2(ab-1)^2ab.}
+\qquad {}^{\scriptscriptstyle\text{[R]}}
+\]
+
+**推得的结论。** 函数保持重参数化在拟合点 \(ab=1\) 给出相同函数与不同参数锐度；在梯度非零位置，SAM与SGD按原训练算法产生不同实际更新，经TLIR响应方程得到明确不同的功能变化。这两种观察在原模型中各自成立，不要求Hessian拟合点与SAM非零梯度点重合。没有增加额外假设。
 
 **研究对照。** [Dinh等，Sharp Minima Can Generalize For Deep Nets](https://arxiv.org/abs/1703.04933)；[Foret等，SAM，ICLR 2021](https://research.google/pubs/sharpness-aware-minimization-for-efficiently-improving-generalization/)。
 
-**内部锚点。** TL-E03、TL-E04、TL-E05。
+**内部锚点。** TL-E03（动作和接收状态）；TL-E04（有限幅度响应）；TL-E05（目标与更新几何）。
 
 ### 5.2.13 Gradient Noise Scale：随机梯度如何变成目标功能响应噪声
 
@@ -921,6 +1084,7 @@ L_{\rm SAM}(\theta)=
 \hat g_B=\frac1B\sum_{i=1}^B g_i,\qquad
 \mathbb E[\hat g_B]=g,\qquad
 \operatorname{Cov}(\hat g_B)=\frac{\Sigma_g}{B}.
+\qquad {}^{\scriptscriptstyle\text{[R]}}
 \]
 
 实际参数更新为\(\delta=-\eta\hat g_B\)，故
@@ -929,6 +1093,7 @@ L_{\rm SAM}(\theta)=
 \boxed{
 \operatorname{Cov}(\delta)=\frac{\eta^2}{B}\Sigma_g.
 }
+\qquad {}^{\scriptscriptstyle\text{[R]}}
 \]
 
 对一个固定目标\(q\)，令其功能读出的参数梯度为\(j_q=\nabla_\theta m_q(\theta)\)，则
@@ -936,6 +1101,7 @@ L_{\rm SAM}(\theta)=
 \[
 R_q(\theta,\delta)\approx j_q^\top\delta
 =-\eta j_q^\top\hat g_B.
+\qquad {}^{\scriptscriptstyle\text{[R]}}
 \]
 
 因而
@@ -947,6 +1113,7 @@ R_q(\theta,\delta)\approx j_q^\top\delta
 \operatorname{Var}(R_q)&\approx
 \frac{\eta^2}{B}j_q^\top\Sigma_gj_q.
 \end{aligned}}
+\qquad {}^{\scriptscriptstyle\text{[R]}}
 \]
 
 对输出向量\(f\)及其雅可比\(J\)，同理得到
@@ -956,6 +1123,7 @@ R_q(\theta,\delta)\approx j_q^\top\delta
 \operatorname{Cov}(\Delta f)\approx
 \frac{\eta^2}{B}J\Sigma_gJ^\top.
 }
+\qquad {}^{\scriptscriptstyle\text{[R]}}
 \]
 
 **推得的结论。** 批量大小不仅改变更新噪声，还通过当前模型的目标敏感方向，改变**具体任务的功能响应噪声**。原研究中的梯度噪声规模可由\(\operatorname{tr}\Sigma_g/\|g\|^2\)表征其典型量级；是否为有效批量瓶颈仍由原优化问题决定。
@@ -978,6 +1146,7 @@ R_q(\theta,\delta)\approx j_q^\top\delta
 
 \[
 \hat\beta=(X^\top X)^{-1}X^\top\varepsilon.
+\qquad {}^{\scriptscriptstyle\text{[R]}}
 \]
 
 对训练噪声与独立测试输入取期望，
@@ -986,12 +1155,14 @@ R_q(\theta,\delta)\approx j_q^\top\delta
 \mathbb E R
 =\sigma^2\,\mathbb E_X
 \operatorname{tr}[(X^\top X)^{-1}].
+\qquad {}^{\scriptscriptstyle\text{[R]}}
 \]
 
 利用该原高斯设计的Wishart逆矩阵期望，得到
 
 \[
 \boxed{\mathbb ER=\sigma^2\frac{p}{n-p-1},\quad p<n-1.}
+\qquad {}^{\scriptscriptstyle\text{[R]}}
 \]
 
 **逐步推导：过参数区间\(p>n+1\)。**
@@ -1000,12 +1171,14 @@ R_q(\theta,\delta)\approx j_q^\top\delta
 \hat\beta=X^\top(XX^\top)^{-1}\varepsilon,\qquad
 \mathbb E R=\sigma^2\mathbb E_X
 \operatorname{tr}[(XX^\top)^{-1}],
+\qquad {}^{\scriptscriptstyle\text{[R]}}
 \]
 
 从而
 
 \[
 \boxed{\mathbb ER=\sigma^2\frac{n}{p-n-1},\quad p>n+1.}
+\qquad {}^{\scriptscriptstyle\text{[R]}}
 \]
 
 在插值阈值附近，这些逆矩阵期望发散；远离阈值、\(p\)继续增大后，第二式下降。这样便直接得到**先升至峰值、再下降**的Double Descent风险形状。
