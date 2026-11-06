@@ -17,6 +17,8 @@ Evidence companion for **Unified dynamics of training, learning, inference, and 
 
 **Exploratory mathematics (separate from the 14 formal extrapolations):** the [TLIR functional-support → capability/loss → scaling-law derivation](TLIR_THEORY_FIRST_14_DERIVATIONS.md) is recorded in section **5.2.E1**, beside section 5.2.6. It is a Gaussian-sequence/spectral-model analysis, not a new frozen experiment or a proof of Transformer/Chinchilla exponents.
 
+**New research hypothesis (not a frozen experiment):** [Task horizon, training duration, and cross-capability forgetting in RL and SFT](TLIR_FORGETTING_TASK_HORIZON_DURATION_HYPOTHESIS.md). This note derives a possible explanation for observed forgetting from TLIR's experimentally established update/response, distributed-support, capability-readout, and feedback relations, and specifies a matched task-horizon × training-duration comparison without changing existing findings.
+
 The full public source snapshot and the separate GNN/SNN subtree are copied here, including the [MoE experiment](experiments/gfg_moe_cifar_training_learning_inference_generalization_v1/). Original GFG experiments and RL-E01–E04 remain available below. The original repository is not modified or replaced.
 
 See [import provenance and availability limits](EVIDENCE_IMPORT.md), [import checks](EVIDENCE_IMPORT_CHECKS.json), and the [original Zenodo evidence](https://doi.org/10.5281/zenodo.22032772). The [Release mirror](https://github.com/wind342/tlir-research-evidence/releases/tag/zenodo-22032772-mirror) provides the original ten evidence ZIPs without recompression.
