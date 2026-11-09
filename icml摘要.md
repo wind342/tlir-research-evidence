@@ -1,0 +1,17 @@
+# ICML 摘要
+
+## English Abstract
+
+Despite the remarkable success of neural networks, their internal mechanisms remain largely a black box. What determines the outcomes of training? Why can subsequent training of the same model, with identical parameters and training data, still yield different results? What internal changes occur in a model during learning? What is a neural network's capability, and why can capabilities be acquired, lost, or recovered during training? How are inference and learning related? Why does severe capability forgetting sometimes occur during reinforcement learning?
+
+To address these questions, we conducted systematic causal experiments across seven neural-network systems and progressively established the fundamental relationships among training, learning, inference, and reinforcement. We found that the same realized training update can produce different functional responses in different receiving states and exhibit state-dependent nonlinear behavior; learning is the persistent reorganization of distributed functional support induced by training; capability is a target-specific decision on a continuous functional readout, with its acquisition, loss, and recovery determined by functional responses crossing decision boundaries; inference recruits and combines functional support formed through learning while preserving the learned state; and reinforcement feedback connects the environmental consequences of inference to subsequent training. Based on the key factors identified in the fifth experiment, we developed a prediction algorithm that uses pre-update information and an already formed training update to predict post-update target correctness and capability transitions without accessing actual post-update target outputs. The algorithm achieved prediction accuracies ranging from 91.43% to 99.63% across six neural-network systems. On this experimental foundation, we established an abstract, unified system of coupled dynamical equations describing these relationships.
+
+This experimentally established system of abstract dynamical equations exhibits broad mathematical unity. By substituting only the mathematical models and conditions already used in the respective original studies into the same equations, straightforward calculations and derivations recover mathematical relationships across fourteen established theories, including optimization stability, implicit bias, spectral learning, generalization, catastrophic forgetting, grokking, scaling laws, and double descent. We also found that the core relationships in these equations can be explained by the most elementary computations of neural networks. These findings advance our understanding of neural networks from black-box behavior toward unified internal mechanisms.
+
+## 中文翻译
+
+尽管神经网络取得了巨大成功，其内部机制在很大程度上仍是一个黑箱。训练结果究竟取决于什么？为什么同一模型在参数和训练数据相同的情况下，后续训练仍可能产生不同结果？模型在学习时内部会发生什么变化？神经网络的能力究竟是什么，为什么能力会在训练过程中获得、丧失或恢复？推理与学习之间又存在怎样的关系？为什么强化学习过程中有时会发生严重的能力遗忘？
+
+为回答这些问题，本研究通过对七类神经网络系统开展系统性因果实验，逐步建立了训练、学习、推理与强化之间的基本关系。实验发现，相同的实际训练更新在不同接收状态下可以产生不同的功能响应，并表现出状态依赖的非线性特征；学习是训练引起的分布式功能支撑的持久重组；能力是对连续功能读出的目标特定判定，其获得、丧失与恢复由功能响应跨越判定边界决定；推理在保持已学习状态不变的情况下，调用并组合学习形成的功能支撑；强化反馈则将推理的环境后果连接到后续训练。根据第五项实验识别的关键因素，我们进一步建立了预测算法：利用更新前的信息和已经形成的实际训练更新，在不读取更新后真实目标输出的条件下，预测各目标更新后的正确性及能力变化。该算法在六类神经网络系统中取得了91.43%–99.63%的预测准确率。在这些实验发现的基础上，我们建立了一套描述上述关系的抽象统一耦合动力学方程组。
+
+这套由实验建立的抽象动力学方程组展现出广泛的数学统一性。仅将不同原研究已有的数学模型与条件代入同一套方程，经过直接的数学计算与推导，便恢复了涵盖优化稳定性、隐式偏置、谱学习、泛化、灾难性遗忘、Grokking、规模定律和 Double Descent 等领域的十四项既有理论关系。同时，我们发现，方程组中的核心关系可由神经网络最基本的计算解释。这些发现推动了我们对神经网络的理解，使其从黑箱行为走向统一的内部机制。
